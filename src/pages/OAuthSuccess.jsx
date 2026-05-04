@@ -29,7 +29,9 @@ const OAuthSuccess = () => {
       );
 
       // 5. Redirect to home
-      navigate("/");
+      setTimeout(() => {
+    navigate("/");
+  }, 100);
     } else {
       navigate("/signin");
     }
