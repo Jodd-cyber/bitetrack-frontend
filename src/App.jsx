@@ -1,4 +1,3 @@
-import OAuthSuccess from "./pages/OAuthSuccess";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
@@ -14,6 +13,7 @@ import Features from "./pages/Features";
 import Contact from "./pages/Contact";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import OAuthSuccess from "./pages/OAuthSuccess";
 
 function App() {
   const location = useLocation();
@@ -26,7 +26,6 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/learn-more" element={<LearnMore />} />
         <Route path="/ledger" element={<Ledger />} />
-        <Route path="/oauth-success" element={<OAuthSuccess />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/about" element={<About />} />
@@ -34,6 +33,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/oauth-success" element={<OAuthSuccess />} />
       </Routes>
     </AnimatePresence>
   );

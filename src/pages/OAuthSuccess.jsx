@@ -1,39 +1,39 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { jwtDecode } from "jwt-decode";
+import { useAuth } from "../context/AuthContext"; // ✅ add this
 
 const OAuthSuccess = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login } = useAuth(); // ✅ get login function
 
   useEffect(() => {
-    // ✅ FIRST get token
+    // 1. Get token from URL
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
 
-    console.log("TOKEN:", token);   // debug
-
     if (token) {
+      // 2. Save token
       localStorage.setItem("token", token);
 
-      // ✅ THEN decode
-      const decoded = jwtDecode(token);
-      console.log("DECODED:", decoded);
+      // 3. OPTIONAL (better): decode token to get user info
+      const payload = JSON.parse(atob(token.split(".")[1]));
 
+      // 4. Update auth context (IMPORTANT)
       login(
-  {
-    name: decoded.name || "Google User",
-    email: decoded.email,
-    id: decoded.userId,
-  },
-  token,
-  true // OAuth = always remember
-);
+        {
+          name: payload.name,
+          email: payload.email,
+          id: payload.userId,
+        },
+        token
+      );
 
+      // 5. Redirect to home
       navigate("/");
+    } else {
+      navigate("/signin");
     }
-  }, []);
+  }, [navigate, login]);
 
   return <div>Logging you in...</div>;
 };

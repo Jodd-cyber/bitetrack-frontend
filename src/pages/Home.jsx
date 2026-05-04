@@ -5,7 +5,6 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext.jsx";
 import { useEffect } from "react";
-import { jwtDecode } from "jwt-decode";
 
 
 
@@ -25,28 +24,6 @@ const [stats, setStats] = useState({
   avgSpend: 0,
   topRestaurant: "-"
 });
-
-useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("token");
-
-  if (token) {
-    localStorage.setItem("token", token);
-
-    const decoded = jwtDecode(token);
-    login(
-      {
-        name: decoded.name || "Google User",
-        email: decoded.email,
-        id: decoded.userId,
-      },
-      token,
-      true
-    );
-
-    window.history.replaceState({}, document.title, "/");
-  }
-}, [login]);
 
   const handleSaveBudget = async () => {
   if (!monthlyBudget || monthlyBudget <= 0) {
@@ -657,7 +634,7 @@ useEffect(() => {
             <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
               <span className="text-sm text-gray-600">© 2026 BiteTrack. All rights reserved.</span>
               <div className="flex items-center gap-4">
-                {['Twitter', 'GitHub', 'Discord'].map((social) => (
+                {['Twitter', 'Discord'].map((social) => (
                   <button key={social} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-900 text-gray-600 hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-110">
                     <span className="text-xs font-bold">{social[0]}</span>
                   </button>

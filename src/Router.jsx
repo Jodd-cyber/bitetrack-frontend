@@ -9,7 +9,6 @@ import Features from "./pages/Features";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
-import OAuthSuccess from "./pages/OAuthSuccess";
 
 
 
@@ -26,7 +25,6 @@ function Router() {
       <Route path="/contact" element={<Contact />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
-      <Route path="/oauth-success" element={<OAuthSuccess />} />
     </Routes>
   );
 }
