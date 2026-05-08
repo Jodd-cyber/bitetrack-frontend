@@ -20,31 +20,45 @@ const readStoredUser = () => {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   // load user from localStorage on first app load
-  useEffect(() => {
-  const token =
-    localStorage.getItem("token") ||
-    sessionStorage.getItem("token");
+useEffect(() => {
+  try {
+    const token =
+      localStorage.getItem("token") ||
+      sessionStorage.getItem("token");
 
-  const storedUser = readStoredUser();
+    const storedUser =
+      localStorage.getItem(STORAGE_KEY) ||
+      sessionStorage.getItem(STORAGE_KEY);
 
-  if (token && storedUser) {
-    setUser(storedUser);
+    if (!token || !storedUser) {
+      setUser(null);
+      return;
+    }
+
+    setUser(JSON.parse(storedUser));
+  } catch (err) {
+    console.error("Auth restore failed:", err);
+    setUser(null);
   }
 }, []);
   // login can be called with either a user object or (email, password)
-  const login = (userData, token, rememberMe = true) => {
+const login = (userData, token, rememberMe = true) => {
   if (!userData || !token) return;
 
   setUser(userData);
 
-  // Save user always
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+  // clear everything first
+  localStorage.removeItem("token");
+  localStorage.removeItem(STORAGE_KEY);
+  sessionStorage.removeItem("token");
+  sessionStorage.removeItem(STORAGE_KEY);
 
-  // Save token based on rememberMe
   if (rememberMe) {
     localStorage.setItem("token", token);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
   } else {
     sessionStorage.setItem("token", token);
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
   }
 };
   // ADD SIGNUP FUNCTION
@@ -58,11 +72,14 @@ export function AuthProvider({ children }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
   };
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem(STORAGE_KEY);
-localStorage.removeItem("token");
-sessionStorage.removeItem("token");
-  };
+  setUser(null);
+
+  localStorage.removeItem("token");
+  localStorage.removeItem(STORAGE_KEY);
+
+  sessionStorage.removeItem("token");
+  sessionStorage.removeItem(STORAGE_KEY);
+};
   const isSignedIn = Boolean(user);
   return (
     <AuthContext.Provider value={{ user, isSignedIn, login, signup, logout }}>

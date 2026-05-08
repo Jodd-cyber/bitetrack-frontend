@@ -7,37 +7,34 @@ const OAuthSuccess = () => {
   const { login } = useAuth(); // ✅ get login function
 
   useEffect(() => {
-    // 1. Get token from URL
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token");
 
-    if (token) {
-      // 2. Save token
-      localStorage.setItem("token", token);
+  if (token) {
+    localStorage.setItem("token", token);
 
-      // 3. OPTIONAL (better): decode token to get user info
-      const payload = JSON.parse(atob(token.split(".")[1]));
+    const payload = JSON.parse(atob(token.split(".")[1]));
 
-      // 4. Update auth context (IMPORTANT)
-      login(
-        {
-          name: payload.name,
-          email: payload.email,
-          id: payload.userId,
-        },
-        token
-      );
+    login(
+      {
+        name: payload.name,
+        email: payload.email,
+        id: payload.userId,
+      },
+      token
+    );
 
-      // 5. Redirect to home
-      setTimeout(() => {
-    navigate("/");
-  }, 100);
-    } else {
-      navigate("/signin");
-    }
-  }, [navigate, login]);
+    // 🔥 wait for auth state to update
+    setTimeout(() => {
+      navigate("/", { replace: true });
+    }, 200);
 
-  return <div>Logging you in...</div>;
+  } else {
+    navigate("/signin");
+  }
+}, []);
+
+return null;
 };
 
 export default OAuthSuccess;

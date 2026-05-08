@@ -8,12 +8,22 @@ function SignIn() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 const [showPassword, setShowPassword] = useState(false);
+
+  const handleOAuthRedirect = (url) => {
+    if (isSubmitting || isRedirecting) return;
+
+    setIsRedirecting(true);
+    window.setTimeout(() => {
+      window.location.href = url;
+    }, 120);
+  };
 
 
   const handleSubmit = async (e) => {
@@ -22,14 +32,22 @@ const [showPassword, setShowPassword] = useState(false);
     setError("");
 
     try {
-      const response = await fetch('https://bitetrack-backend-yfkf.onrender.com/api/auth/login', {
+      const payload = {
+        email: formData.email.toLowerCase().trim(),
+        password: formData.password
+      };
+
+        const response = await fetch('https://bitetrack-backend-yfkf.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await parseApiResponse(response);
-      if (!response.ok) throw new Error(data.message || "Login failed");
+      if (!response.ok) {
+        console.error('Login error:', response.status, data);
+        throw new Error(data.message || "Login failed");
+      }
 
       localStorage.setItem("token", data.token);
       login(
@@ -40,6 +58,7 @@ const [showPassword, setShowPassword] = useState(false);
       navigate("/");
 
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.message);
     } finally {
       setIsSubmitting(false);
@@ -152,12 +171,11 @@ const [showPassword, setShowPassword] = useState(false);
   </div>
 </div>
 
-<button
-  onClick={() => {
-    window.location.href =
-      "https://bitetrack-backend-yfkf.onrender.com/api/auth/google";
-  }}
-  className="w-full border border-gray-300 py-3 rounded-xl hover:bg-gray-50 transition flex items-center justify-center gap-2"
+    <button
+    type="button"
+      onClick={() => handleOAuthRedirect("https://bitetrack-backend-yfkf.onrender.com/api/auth/google")}
+      disabled={isSubmitting || isRedirecting}
+  className="w-full border border-gray-300 py-3 rounded-xl hover:bg-gray-50 transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
 >
   <img
     src="https://www.svgrepo.com/show/475656/google-color.svg"
@@ -168,12 +186,11 @@ const [showPassword, setShowPassword] = useState(false);
 </button>
 
 
-<button
-  onClick={() => {
-    window.location.href =
-      "https://bitetrack-backend-yfkf.onrender.com/api/auth/github";
-  }}
-  className="w-full border border-gray-300 py-3 rounded-xl hover:bg-gray-50 transition flex items-center justify-center gap-2 mt-3"
+    <button
+    type="button"
+      onClick={() => handleOAuthRedirect("https://bitetrack-backend-yfkf.onrender.com/api/auth/github")}
+      disabled={isSubmitting || isRedirecting}
+  className="w-full border border-gray-300 py-3 rounded-xl hover:bg-gray-50 transition flex items-center justify-center gap-2 mt-3 disabled:opacity-60 disabled:cursor-not-allowed"
 >
   <img
     src="https://www.svgrepo.com/show/512317/github-142.svg"
@@ -270,6 +287,27 @@ const [showPassword, setShowPassword] = useState(false);
 
         </div>
       </div>
+
+      {(isSubmitting || isRedirecting) && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/80 backdrop-blur-md px-6">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="w-full max-w-sm rounded-3xl border border-gray-200 bg-white shadow-2xl p-8 text-center"
+          >
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-gray-900 to-gray-700 text-white shadow-lg">
+              <svg className="h-8 w-8 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="9" strokeOpacity="0.2" strokeWidth="2"></circle>
+                <path d="M21 12a9 9 0 0 0-9-9" strokeWidth="2" strokeLinecap="round"></path>
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900">Getting you signed in</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              Please wait while we connect your account.
+            </p>
+          </motion.div>
+        </div>
+      )}
 
       {/* ── Terms Modal ── */}
       {showTerms && (

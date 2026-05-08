@@ -27,7 +27,7 @@ function SignUp() {
     }
     setIsSubmitting(true);
     try {
-      const response = await fetch('https://bitetrack-backend-yfkf.onrender.com/api/auth/signup', {
+        const response = await fetch('https://bitetrack-backend-yfkf.onrender.com/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -424,4 +424,4 @@ function SignUp() {
   );
 }
 
-export default SignUp;
+export { SignUp as default };

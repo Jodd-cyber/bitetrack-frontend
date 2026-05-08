@@ -3,15 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion"; // ✅ ADD THIS
 import { parseApiResponse } from "../utils/apiResponse";
 
+
 function ForgotPassword() {
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await fetch("https://bitetrack-backend-yfkf.onrender.com/api/auth/forgot-password", {
+      const res = await fetch("http://localhost:5000/api/auth/forgot-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -21,7 +23,8 @@ function ForgotPassword() {
 
       const data = await parseApiResponse(res);
 
-      alert(data.message);
+      setMessage("Reset link sent! Please check your email.");
+console.log(data.resetLink);
 
       if (res.ok) {
         setTimeout(() => {

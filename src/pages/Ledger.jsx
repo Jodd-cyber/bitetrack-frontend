@@ -1,23 +1,29 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-
-
-
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import getApiBase from '../utils/apiBase';
 
 function Ledger() {
+  const { user } = useAuth();
+  const { darkMode } = useTheme();
+  const API_BASE = getApiBase();
   const [loading, setLoading] = useState(false);
-const [error, setError] = useState("");
-  const STORAGE_KEY = 'bitetrack_records';
+  const [, setError] = useState("");
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const STORAGE_KEY = `bitetrack_records_${user?.id || 'anon'}`;
+  
+  const getBudgetStorageKey = () => {
+    return `bitetrack_monthly_budget_${user?.id || 'temp'}`;
+  };
 
   const readApiBody = async (response) => {
     const text = await response.text();
-
-    if (!text) {
-      return {};
-    }
-
+    if (!text) return {};
     try {
       return JSON.parse(text);
     } catch {
@@ -25,115 +31,245 @@ const [error, setError] = useState("");
     }
   };
 
-  const defaultRecords = [
-    {
-      id: '1',
-      foodName: 'Paneer Wrap',
-      restaurant: 'Swiggy - Wrap House',
-      date: '2026-01-15',
-      time: '13:30',
-      mealType: 'Lunch',
-      amount: 180,
-      rating: 4,
-      notes: 'Extra spicy'
-    },
-    {
-      id: '2',
-      foodName: 'Margherita Pizza',
-      restaurant: 'Zomato - Dominos',
-      date: '2026-01-14',
-      time: '20:15',
-      mealType: 'Dinner',
-      amount: 499,
-      rating: 5
-    },
-    {
-      id: '3',
-      foodName: 'Masala Dosa',
-      restaurant: 'Local - Sagar Ratna',
-      date: '2026-01-14',
-      time: '09:00',
-      mealType: 'Breakfast',
-      amount: 120,
-      rating: 5
+  const formatCurrency = (value) => `₹${Math.floor(Number(value || 0))}`;
+
+  const formatReportDate = (dateValue) => {
+    const date = new Date(dateValue);
+    if (Number.isNaN(date.getTime())) return '-';
+    return date.toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  const getReportScopeRecords = (scope) => {
+    if (scope === 'month') {
+      const now = new Date();
+      return records.filter((record) => {
+        const recordDate = new Date(record.date);
+        return (
+          !Number.isNaN(recordDate.getTime()) &&
+          recordDate.getMonth() === now.getMonth() &&
+          recordDate.getFullYear() === now.getFullYear()
+        );
+      });
     }
+    return records;
+  };
+
+  const getReportTopRestaurant = (reportRecords) => {
+    if (reportRecords.length === 0) return 'N/A';
+    const restaurantTotals = reportRecords.reduce((accumulator, record) => {
+      const restaurant = record.restaurant || 'Unknown';
+      accumulator[restaurant] = (accumulator[restaurant] || 0) + Number(record.amount || 0);
+      return accumulator;
+    }, {});
+    return Object.entries(restaurantTotals).sort(([, a], [, b]) => b - a)[0]?.[0] || 'N/A';
+  };
+
+  const downloadReportPdf = (scope) => {
+    const reportRecords = getReportScopeRecords(scope);
+    if (reportRecords.length === 0) {
+      alert(scope === 'month' ? 'No orders found for this month.' : 'No orders found to export.');
+      return;
+    }
+    setIsGeneratingPdf(true);
+    try {
+      const sortedRecords = [...reportRecords].sort((a, b) => {
+        const left = new Date(`${b.date}T${b.time || '00:00'}`).getTime();
+        const right = new Date(`${a.date}T${a.time || '00:00'}`).getTime();
+        return left - right;
+      });
+      const totalOrders = sortedRecords.length;
+      const totalSpent = sortedRecords.reduce((sum, record) => sum + Number(record.amount || 0), 0);
+      const topRestaurant = getReportTopRestaurant(sortedRecords);
+      const now = new Date();
+      const monthLabel = now.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+      const reportLabel = scope === 'month' ? monthLabel : 'All Time';
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 14;
+      const summaryTop = 34;
+      const cardGap = 5;
+      const cardWidth = (pageWidth - margin * 2 - cardGap * 2) / 3;
+      const cardHeight = 20;
+
+      doc.setTextColor(17, 24, 39);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.text(scope === 'month' ? 'BiteTrack Monthly Report' : 'BiteTrack Order Report', margin, 18);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      doc.text(`Period: ${reportLabel}`, margin, 26);
+      doc.text(`Generated: ${new Date().toLocaleString('en-IN')}`, pageWidth - margin, 26, { align: 'right' });
+
+      const summaryCards = [
+        { label: 'Total Orders', value: String(totalOrders) },
+        { label: 'Total Spent', value: formatCurrency(totalSpent) },
+        { label: 'Top Restaurant', value: topRestaurant }
+      ];
+
+      summaryCards.forEach((card, index) => {
+        const x = margin + index * (cardWidth + cardGap);
+        doc.setDrawColor(229, 231, 235);
+        doc.setFillColor(249, 250, 251);
+        doc.roundedRect(x, summaryTop, cardWidth, cardHeight, 3, 3, 'FD');
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(107, 114, 128);
+        doc.text(card.label, x + 4, summaryTop + 7);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(17, 24, 39);
+        doc.text(card.value, x + 4, summaryTop + 14);
+      });
+
+      autoTable(doc, {
+        startY: summaryTop + cardHeight + 10,
+        head: [['Date', 'Food', 'Restaurant', 'Meal Type', 'Amount']],
+        body: sortedRecords.map((record) => [
+          formatReportDate(record.date),
+          record.foodName || 'Food',
+          record.restaurant || 'Custom Entry',
+          record.mealType || 'Lunch',
+          formatCurrency(record.amount)
+        ]),
+        theme: 'grid',
+        styles: { fontSize: 9, cellPadding: 3, valign: 'middle', overflow: 'linebreak' },
+        headStyles: { fillColor: [17, 24, 39], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [249, 250, 251] },
+        columnStyles: {
+          0: { cellWidth: 28 },
+          1: { cellWidth: 48 },
+          2: { cellWidth: 85 },
+          3: { cellWidth: 28 },
+          4: { halign: 'right', cellWidth: 28 }
+        },
+        margin: { left: margin, right: margin },
+        didDrawPage: (data) => {
+          doc.setFontSize(8);
+          doc.setTextColor(107, 114, 128);
+          doc.text(`Page ${data.pageNumber}`, pageWidth - margin, doc.internal.pageSize.getHeight() - 8, { align: 'right' });
+        }
+      });
+
+      const fileName = scope === 'month'
+        ? `bitetrack-monthly-report-${now.toISOString().slice(0, 7)}.pdf`
+        : 'bitetrack-all-orders-report.pdf';
+      doc.save(fileName);
+    } catch (pdfError) {
+      console.error('PDF generation failed:', pdfError);
+      alert('Could not generate the PDF report.');
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
+  const defaultRecords = [
+    { id: '1', foodName: 'Paneer Wrap', restaurant: 'Swiggy - Wrap House', date: '2026-01-15', time: '13:30', mealType: 'Lunch', amount: 180, rating: 4, notes: 'Extra spicy' },
+    { id: '2', foodName: 'Margherita Pizza', restaurant: 'Zomato - Dominos', date: '2026-01-14', time: '20:15', mealType: 'Dinner', amount: 499, rating: 5 },
+    { id: '3', foodName: 'Masala Dosa', restaurant: 'Local - Sagar Ratna', date: '2026-01-14', time: '09:00', mealType: 'Breakfast', amount: 120, rating: 5 }
   ];
 
   const [records, setRecords] = useState(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      if (user) return [];
+      const raw = localStorage.getItem('bitetrack_records_anon') || localStorage.getItem('bitetrack_records');
       return raw ? JSON.parse(raw) : defaultRecords;
-    } catch (e) {
-      return defaultRecords;
+    } catch {
+      return user ? [] : defaultRecords;
     }
   });
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-  }, [records]);
+  }, [records, STORAGE_KEY]);
 
   useEffect(() => {
-const fetchLogs = async () => {
-  try {
-    setLoading(true);
-    setError("");
-
-   const token = localStorage.getItem("token");
-
-    const res = await fetch("https://bitetrack-backend-yfkf.onrender.com/api/foodlogs", {
-      headers: {
-        Authorization: `Bearer ${token}`
+    const fetchLogs = async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        if (!token) {
+          setError("No authentication token found");
+          setRecords(user ? [] : records);
+          setLoading(false);
+          return;
+        }
+        try {
+          localStorage.removeItem('bitetrack_records');
+          localStorage.removeItem('bitetrack_records_anon');
+        } catch { void 0; }
+        setRecords([]);
+        const res = await fetch(`${API_BASE}/api/foodlogs`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await readApiBody(res);
+        if (!res.ok) {
+          setRecords([]);
+          throw new Error(data.message || "Failed to fetch");
+        }
+        if (!Array.isArray(data)) throw new Error('Expected array from API');
+        const formatted = data.map(log => ({
+          id: log._id,
+          foodName: log.items?.[0]?.name || "Food",
+          restaurant: log.restaurant || "Custom Entry",
+          date: log.date ? new Date(log.date).toISOString().split('T')[0] : "",
+          time: log.time || "",
+          mealType: log.mealType || "Lunch",
+          amount: Math.floor(Number(log.items?.[0]?.calories || 0)),
+          rating: Number(log.rating) || 0,
+          notes: log.notes || ""
+        }));
+        setRecords(formatted);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-    });
+    };
+    fetchLogs();
+  }, [user]);
 
-    const data = await readApiBody(res);
-
-    if (!res.ok) {
-      throw new Error(data.message || "Failed to fetch");
+  const [budget, setBudget] = useState(() => {
+    try {
+      const budgetKey = `bitetrack_monthly_budget_${user?.id || 'temp'}`;
+      const raw = localStorage.getItem(budgetKey);
+      return raw ? { amount: Number(raw) } : null;
+    } catch {
+      return null;
     }
+  });
 
-    const formatted = data.map(log => ({
-  id: log._id,
-  foodName: log.items?.[0]?.name || "Food",
-  restaurant: log.restaurant || "Custom Entry",
+  useEffect(() => {
+    const fetchBudget = async () => {
+      try {
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/budget`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success && data.data) setBudget(data.data);
+      } catch (err) {
+        console.error("Budget fetch failed:", err);
+      }
+    };
+    fetchBudget();
+  }, [user]);
 
-  date: log.date
-    ? new Date(log.date).toISOString().split('T')[0]
-    : "",
-
-  time: log.time || "",
-
-  mealType: log.mealType || "Lunch",
-
-  amount: log.items?.[0]?.calories || 0,
-
-  rating: Number(log.rating) || 0,   // ✅ FIXED
-
-  notes: log.notes || ""
-}));
-
-    setRecords(formatted);
-
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
-  fetchLogs();
-}, []);
-
-  // persist records so deletes/adds survive navigation
-  
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editAmount, setEditAmount] = useState("");
   const [searchQuery, setSearchQuery] = useState('');
   const [filterMealType, setFilterMealType] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [sortBy, setSortBy] = useState('date');
 
-  // Monthly Budget
-  const monthlyBudget = parseInt(localStorage.getItem("bitetrack_monthly_budget") || "0");
+  const monthlyBudget = budget?.amount || 0;
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
   const monthlySpent = records.reduce((sum, record) => {
@@ -145,7 +281,16 @@ const fetchLogs = async () => {
   }, 0);
   const budgetRemaining = monthlyBudget - monthlySpent;
   const budgetPercent = monthlyBudget > 0 ? Math.min((monthlySpent / monthlyBudget) * 100, 100) : 0;
-  // Form state
+
+  useEffect(() => {
+    const budgetKey = getBudgetStorageKey();
+    if (budget && Number(budget.amount) > 0) {
+      localStorage.setItem(budgetKey, String(Number(budget.amount)));
+    } else {
+      localStorage.removeItem(budgetKey);
+    }
+  }, [budget, user?.id]);
+
   const [formData, setFormData] = useState({
     foodName: '',
     restaurant: '',
@@ -155,92 +300,55 @@ const fetchLogs = async () => {
     amount: '',
     rating: 0,
     notes: ''
-    
   });
 
-  
   const mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
-  const mealIcons = {
-    Breakfast: '🌅',
-    Lunch: '🌞',
-    Dinner: '🌙',
-    Snack: '🍿'
-  };
+  const mealIcons = { Breakfast: '🌅', Lunch: '🌞', Dinner: '🌙', Snack: '🍿' };
+
   const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
-    const token =
-  localStorage.getItem("token") ||
-  sessionStorage.getItem("token");
-    const url = editingId
-      ? `https://bitetrack-backend-yfkf.onrender.com/api/foodlogs/${editingId}`
-      : `https://bitetrack-backend-yfkf.onrender.com/api/foodlogs`;
-
-    const method = editingId ? "PUT" : "POST";
-
-    const response = await fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        items: [
-          {
-            name: formData.foodName,
-            calories: Number(formData.amount),
-            quantity: 1
-          }
-        ],
-        notes: formData.notes,
-        restaurant: formData.restaurant,
-        mealType: formData.mealType,
-        date: formData.date,
-        time: formData.time,
-        rating: Number(formData.rating)   // ✅ IMPORTANT
-      })
-    });
-
-    const data = await readApiBody(response);
-
-    if (!response.ok) {
-      throw new Error(data.message || "Save failed");
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const url = editingId ? `${API_BASE}/api/foodlogs/${editingId}` : `${API_BASE}/api/foodlogs`;
+      const method = editingId ? "PUT" : "POST";
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          items: [{ name: formData.foodName, calories: Math.floor(Number(formData.amount || 0)), quantity: 1 }],
+          notes: formData.notes,
+          restaurant: formData.restaurant,
+          mealType: formData.mealType,
+          date: formData.date,
+          time: formData.time,
+          rating: Number(formData.rating)
+        })
+      });
+      const data = await readApiBody(response);
+      if (!response.ok) throw new Error(data.message || "Save failed");
+      const newRecord = {
+        id: data._id,
+        foodName: data.items?.[0]?.name || "Food",
+        restaurant: data.restaurant || "Custom Entry",
+        date: data.date ? new Date(data.date).toISOString().split('T')[0] : "",
+        time: data.time || "",
+        mealType: data.mealType || "Lunch",
+        amount: Math.floor(Number(data.items?.[0]?.calories || 0)),
+        rating: Number(data.rating) || 0,
+        notes: data.notes || ""
+      };
+      const nextRecords = editingId ? records.map(r => (r.id === editingId ? newRecord : r)) : [newRecord, ...records];
+      setRecords(nextRecords);
+      if (editingId) setEditingId(null);
+      setShowAddForm(false);
+    } catch (err) {
+      console.error("Error:", err);
     }
+  };
 
-    const newRecord = {
-      id: data._id,
-      foodName: data.items?.[0]?.name || "Food",
-      restaurant: data.restaurant || "Custom Entry",
-
-      date: data.date
-        ? new Date(data.date).toISOString().split('T')[0]
-        : "",
-
-      time: data.time || "",
-      mealType: data.mealType || "Lunch",
-
-      amount: data.items?.[0]?.calories || 0,
-      rating: Number(data.rating) || 0,   // ✅ IMPORTANT
-      notes: data.notes || ""
-    };
-
-    const nextRecords = editingId
-      ? records.map(r => (r.id === editingId ? newRecord : r))
-      : [newRecord, ...records];
-
-    setRecords(nextRecords);
-
-    if (editingId) {
-      setEditingId(null);
-    }
-
-    setShowAddForm(false);
-
-  } catch (err) {
-    console.error("Error:", err);
-  }
-};
   const handleEdit = (record) => {
     setFormData({
       foodName: record.foodName,
@@ -255,103 +363,86 @@ const fetchLogs = async () => {
     setEditingId(record.id);
     setShowAddForm(true);
   };
+
   const handleDelete = async (id) => {
-  try {
-    const token =
-  localStorage.getItem("token") ||
-  sessionStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      await fetch(`${API_BASE}/api/foodlogs/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setRecords(records.filter(r => r.id !== id));
+    } catch (err) {
+      console.error("Delete failed:", err);
+    }
+  };
 
-    await fetch(`https://bitetrack-backend-yfkf.onrender.com/api/foodlogs/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
-    // refresh after delete
-    setRecords(records.filter(r => r.id !== id));
-
-  } catch (err) {
-    console.error("Delete failed:", err);
-  }
-};
-  // Filter and sort records
-const filteredRecords = records
-  .filter(r => {
-    const matchesSearch =
-      r.foodName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.restaurant.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesMealType =
-      filterMealType === 'all' || r.mealType === filterMealType;
-
+  const filteredRecords = records.filter(r => {
+    const matchesSearch = r.foodName.toLowerCase().includes(searchQuery.toLowerCase()) || r.restaurant.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesMealType = filterMealType === 'all' || r.mealType === filterMealType;
     const recordDate = new Date(r.date);
     recordDate.setHours(0, 0, 0, 0);
-
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
     let matchesDate = true;
-
-    // ✅ TODAY
     if (dateFilter === 'today') {
-      matchesDate =
-        recordDate.toDateString() === today.toDateString();
-    }
-
-    // ✅ CURRENT WEEK
-    else if (dateFilter === 'week') {
+      matchesDate = recordDate.toDateString() === today.toDateString();
+    } else if (dateFilter === 'week') {
       const firstDayOfWeek = new Date(today);
       firstDayOfWeek.setDate(today.getDate() - today.getDay());
       firstDayOfWeek.setHours(0, 0, 0, 0);
-
       matchesDate = recordDate >= firstDayOfWeek;
-    }
-
-    // ✅ CURRENT MONTH
-    else if (dateFilter === 'month') {
-      const firstDayOfMonth = new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        1
-      );
-
+    } else if (dateFilter === 'month') {
+      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
       matchesDate = recordDate >= firstDayOfMonth;
     }
-
     return matchesSearch && matchesMealType && matchesDate;
-  })
-    .sort((a, b) => {
-      if (sortBy === 'date') {
-        return new Date(b.date + ' ' + b.time).getTime() - new Date(a.date + ' ' + a.time).getTime();
-      } else {
-        return b.amount - a.amount;
-      }
+  }).sort((a, b) => {
+    if (sortBy === 'date') {
+      return new Date(b.date + ' ' + b.time).getTime() - new Date(a.date + ' ' + a.time).getTime();
+    } else {
+      return b.amount - a.amount;
+    }
+  });
+
+  const hasNoOrders = records.length === 0;
+  const hasActiveFilters = searchQuery.trim().length > 0 || filterMealType !== 'all' || dateFilter !== 'all';
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setFilterMealType('all');
+    setDateFilter('all');
+  };
+
+  const openNewOrderForm = () => {
+    setShowAddForm(true);
+    setEditingId(null);
+    setFormData({
+      foodName: '',
+      restaurant: '',
+      date: new Date().toISOString().split('T')[0],
+      time: new Date().toTimeString().slice(0, 5),
+      mealType: 'Lunch',
+      amount: '',
+      rating: 0,
+      notes: ''
     });
-  // Calculate statistics
+  };
+
   const totalSpent = filteredRecords.reduce((sum, r) => sum + r.amount, 0);
   const orderCount = filteredRecords.length;
   const topRestaurant = records.length > 0
-    ? Object.entries(
-        records.reduce((acc, r) => {
-          acc[r.restaurant] = (acc[r.restaurant] || 0) + 1;
-          return acc;
-        }, {})
-      ).sort(([, a], [, b]) => b - a)[0]?.[0] || 'N/A'
-    : 'N/A';
+    ? Object.entries(records.reduce((acc, r) => {
+        acc[r.restaurant] = (acc[r.restaurant] || 0) + r.amount;
+        return acc;
+      }, {})).sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A"
+    : "N/A";
 
   const getTopLabels = (counts, emptyLabel = 'N/A') => {
     const entries = Object.entries(counts);
-
-    if (entries.length === 0) {
-      return emptyLabel;
-    }
-
+    if (entries.length === 0) return emptyLabel;
     const topCount = Math.max(...entries.map(([, count]) => count));
-    const leaders = entries
-      .filter(([, count]) => count === topCount)
-      .map(([label]) => label);
-
+    const leaders = entries.filter(([, count]) => count === topCount).map(([label]) => label);
     return leaders.length === 1 ? leaders[0] : leaders.join(' / ');
   };
 
@@ -361,316 +452,455 @@ const filteredRecords = records
     acc[mealWindow] = (acc[mealWindow] || 0) + 1;
     return acc;
   }, {});
-
   const topMealWindow = getTopLabels(mealWindowCounts);
-
   const weekdayCount = peakRecords.filter((record) => {
     const day = new Date(record.date).getDay();
     return day >= 1 && day <= 5;
   }).length;
-
   const weekendCount = peakRecords.filter((record) => {
     const day = new Date(record.date).getDay();
     return day === 0 || day === 6;
   }).length;
+  const peakPeriodLabel = weekendCount > weekdayCount ? 'Weekends' : weekdayCount > weekendCount ? 'Weekdays' : 'Balanced';
 
-  const peakPeriodLabel = weekendCount > weekdayCount
-    ? 'Weekends'
-    : weekdayCount > weekendCount
-      ? 'Weekdays'
-      : 'Balanced';
-
-if (loading) {
-
-
-
-
-
-
+  const chartData = records.reduce((acc, record) => {
+    const date = record.date;
+    const existing = acc.find(item => item.date === date);
+    if (existing) {
+      existing.amount += record.amount;
+    } else {
+      acc.push({ date, amount: record.amount });
+    }
+    return acc;
+  }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center text-gray-600">
-      Loading your data...
-    </div>
-  );
-}
+    <div className={`min-h-screen bg-[var(--app-bg)] ${loading ? 'overflow-hidden' : ''}`}>
+      {loading && (
+        <div className="fixed inset-0 bg-[var(--app-bg)] flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-[var(--app-text-muted)]">Loading your data...</p>
+          </div>
+        </div>
+      )}
 
-const chartData = records.reduce((acc, record) => {
-  const date = record.date;
-
-  const existing = acc.find(item => item.date === date);
-
-  if (existing) {
-    existing.amount += record.amount;
-  } else {
-    acc.push({ date, amount: record.amount });
-  }
-
-  return acc;
-}, []);
-
-
-  return (
-    <div className="min-h-screen bg-[var(--app-bg)] overflow-hidden">
-      {error && (
-  <div className="bg-red-100 text-red-600 px-4 py-2 rounded-lg mb-4 text-sm">
-    {error}
-  </div>
-)}
-      {/* Header */}
+      {/* ═══════════════════════════════════════════════════
+          ENHANCED HEADER
+      ═══════════════════════════════════════════════════ */}
       <motion.header
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="sticky top-0 z-40 bg-[var(--app-surface)]/80 backdrop-blur-xl border-b border-[var(--app-border)] shadow-sm"
+        className="sticky top-0 z-40 bg-[var(--app-surface)]/95 backdrop-blur-xl border-b border-[var(--app-border)] shadow-sm"
       >
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center text-white font-bold group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-lg">
-                B
+            <Link to="/" className="flex items-center gap-3 group self-start">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl blur-md opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg group-hover:scale-110 transition-transform">
+                  B
+                </div>
               </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                BiteTrack
-              </h1>
+              <div>
+                <h1 className="text-xl font-bold text-[var(--app-text)]">BiteTrack</h1>
+                <p className="text-xs text-[var(--app-text-muted)]">Your Food Ledger</p>
+              </div>
             </Link>
-            {/* Date Filter */}
-            <div className="flex items-center gap-2">
+
+            {/* Date Filter Pills */}
+            <div className="flex flex-wrap items-center gap-2">
               {['today', 'week', 'month', 'all'].map((filter) => (
-                <button
+                <motion.button
                   key={filter}
                   onClick={() => setDateFilter(filter)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
                     dateFilter === filter
-                      ? 'bg-gray-900 text-white shadow-lg scale-105'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                      : 'bg-[var(--app-surface-soft)] text-[var(--app-text-muted)] hover:bg-[var(--app-border)] border border-[var(--app-border)]'
                   }`}
                 >
                   {filter.charAt(0).toUpperCase() + filter.slice(1)}
-                </button>
+                </motion.button>
               ))}
             </div>
-            {/* Home button (replace logout on Ledger page) */}
+
+            {/* Home Button */}
             <Link
               to="/"
-              className="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-all duration-200 flex items-center gap-2"
+              className="group px-4 py-2 rounded-xl text-sm font-medium text-[var(--app-text-muted)] hover:bg-[var(--app-surface-soft)] transition-all duration-200 flex items-center gap-2 border border-[var(--app-border)] self-start md:self-auto"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9.75L12 3l9 6.75V21a.75.75 0 01-.75.75H3.75A.75.75 0 013 21V9.75zM9 22V12h6v10" />
+              <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
               Home
             </Link>
           </div>
         </div>
       </motion.header>
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Statistics Dashboard */}
+
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6">
+        {/* ═══════════════════════════════════════════════════
+            ENHANCED STATS CARDS
+        ═══════════════════════════════════════════════════ */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
         >
-          {/* Total Spent */}
+          {/* Total Spent Card */}
           <motion.div
-            whileHover={{ scale: 1.05, y: -5 }}
-            className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl cursor-pointer"
+            whileHover={{ y: -8, scale: 1.02 }}
+            className="relative overflow-hidden group cursor-pointer"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-blue-100 text-sm font-medium">Total Spent</span>
-              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur">
-                <span className="text-2xl">💰</span>
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-500 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative p-6 text-white">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
+                  <span className="text-2xl">💰</span>
+                </div>
+                <div className="w-20 h-20 bg-white/10 rounded-full blur-2xl absolute top-0 right-0"></div>
               </div>
+              <p className="text-blue-100 text-sm font-medium mb-2">Total Spent</p>
+              <h3 className="text-3xl font-bold mb-1">
+                {orderCount > 0 ? formatCurrency(totalSpent) : 'No spend yet'}
+              </h3>
+              <p className="text-blue-100 text-sm">{dateFilter === 'all' ? 'All time' : `This ${dateFilter}`}</p>
             </div>
-            <div className="text-3xl font-bold mb-1">₹{totalSpent.toFixed(2)}</div>
-            <div className="text-blue-100 text-sm">{dateFilter === 'all' ? 'All time' : `This ${dateFilter}`}</div>
           </motion.div>
 
-<div className="bg-white p-6 rounded-2xl shadow-lg mb-6 border border-gray-200">
-  <h2 className="text-lg font-semibold mb-4 text-gray-800">
-    Spending Overview
-  </h2>
-
-  <ResponsiveContainer width="100%" height={260}>
-    <BarChart data={chartData}>
-      
-      <XAxis
-        dataKey="date"
-        tick={{ fontSize: 12, fill: "#6B7280" }}
-        axisLine={false}
-        tickLine={false}
-      />
-
-      <YAxis
-        tick={{ fontSize: 12, fill: "#6B7280" }}
-        axisLine={false}
-        tickLine={false}
-      />
-
-      <Tooltip
-        contentStyle={{
-          borderRadius: "10px",
-          border: "none",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
-        }}
-        formatter={(value) => [`₹${value}`, "Amount"]}
-      />
-
-      <Bar
-        dataKey="amount"
-        fill="#6366F1"
-        radius={[8, 8, 0, 0]}
-      />
-
-    </BarChart>
-  </ResponsiveContainer>
-</div>
-
-          {/* Order Count */}
+          {/* Order Count Card */}
           <motion.div
-            whileHover={{ scale: 1.05, y: -5 }}
-            className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl cursor-pointer"
+            whileHover={{ y: -8, scale: 1.02 }}
+            className="relative overflow-hidden group cursor-pointer"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-purple-100 text-sm font-medium">Total Orders</span>
-              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur">
-                <span className="text-2xl">📦</span>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-600 rounded-3xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-pink-500 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative p-6 text-white">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
+                  <span className="text-2xl">📦</span>
+                </div>
+                <div className="w-20 h-20 bg-white/10 rounded-full blur-2xl absolute top-0 right-0"></div>
               </div>
-            </div>
-            <div className="text-3xl font-bold mb-1">{orderCount}</div>
-            <div className="text-purple-100 text-sm">
-              {orderCount > 0 ? `Avg: ₹${(totalSpent / orderCount).toFixed(0)}` : 'No orders yet'}
+              <p className="text-purple-100 text-sm font-medium mb-2">Total Orders</p>
+              <h3 className="text-3xl font-bold mb-1">
+                {orderCount > 0 ? orderCount : 'No orders yet'}
+              </h3>
+              <p className="text-purple-100 text-sm">
+                {orderCount > 0 ? `Avg: ${formatCurrency(totalSpent / orderCount)}` : 'Get started'}
+              </p>
             </div>
           </motion.div>
-          {/* Top Restaurant */}
+
+          {/* Top Restaurant Card */}
           <motion.div
-            whileHover={{ scale: 1.05, y: -5 }}
-            className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-xl cursor-pointer"
+            whileHover={{ y: -8, scale: 1.02 }}
+            className="relative overflow-hidden group cursor-pointer"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-green-100 text-sm font-medium">Top Restaurant</span>
-              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur">
-                <span className="text-2xl">⭐</span>
+            <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-green-600 rounded-3xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative p-6 text-white">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
+                  <span className="text-2xl">⭐</span>
+                </div>
+                <div className="w-20 h-20 bg-white/10 rounded-full blur-2xl absolute top-0 right-0"></div>
               </div>
+              <p className="text-green-100 text-sm font-medium mb-2">Top Restaurant</p>
+              <h3 className="text-xl font-bold mb-1 truncate">
+                {orderCount > 0 ? topRestaurant : 'Not enough data'}
+              </h3>
+              <p className="text-green-100 text-sm">Most ordered from</p>
             </div>
-            <div className="text-xl font-bold mb-1 truncate">{topRestaurant}</div>
-            <div className="text-green-100 text-sm">Most ordered from</div>
           </motion.div>
         </motion.div>
 
-        {/* Monthly Budget Card */}
+        {/* ═══════════════════════════════════════════════════
+            ENHANCED SPENDING CHART
+        ═══════════════════════════════════════════════════ */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="bg-[var(--app-surface)] p-6 rounded-3xl shadow-lg border border-[var(--app-border)] mb-8"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-[var(--app-text)] mb-1">Spending Overview</h2>
+              <p className="text-sm text-[var(--app-text-muted)]">Daily spending pattern</p>
+            </div>
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center">
+              <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+          </div>
+
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={chartData}>
+              <defs>
+                <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.8}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--app-border)" opacity={0.3} />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 12, fill: "var(--app-text-muted)" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 12, fill: "var(--app-text-muted)" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "var(--app-surface)",
+                  border: "1px solid var(--app-border)",
+                  borderRadius: "12px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                }}
+                formatter={(value) => [formatCurrency(value), "Amount"]}
+              />
+              <Bar
+                dataKey="amount"
+                fill="url(#colorAmount)"
+                radius={[12, 12, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </motion.div>
+
+        {/* ═══════════════════════════════════════════════════
+            ENHANCED BUDGET CARD
+        ═══════════════════════════════════════════════════ */}
         {monthlyBudget > 0 && (
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 mb-8"
+            transition={{ delay: 0.4 }}
+            className="relative overflow-hidden bg-[var(--app-surface)] p-6 rounded-3xl shadow-lg border border-[var(--app-border)] mb-8"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Monthly Budget</h3>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                budgetRemaining >= 0 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-red-100 text-red-700'
-              }`}>
-                {budgetRemaining >= 0 ? '✓ On Track' : '⚠ Over Budget'}
-              </span>
-            </div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-3xl"></div>
             
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div>
-                <p className="text-gray-600 text-sm mb-1">Budget</p>
-                <p className="text-2xl font-bold text-gray-900">₹{monthlyBudget}</p>
+            <div className="relative">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-[var(--app-text)]">Monthly Budget</h3>
+                    <p className="text-sm text-[var(--app-text-muted)]">Track your spending</p>
+                  </div>
+                </div>
+                <span className={`px-4 py-2 rounded-full text-sm font-semibold shadow-lg ${
+                  budgetRemaining >= 0 
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                }`}>
+                  {budgetRemaining >= 0 ? '✓ On Track' : '⚠ Over Budget'}
+                </span>
               </div>
-              <div>
-                <p className="text-gray-600 text-sm mb-1">Spent This Month</p>
-                <p className="text-2xl font-bold text-gray-900">₹{monthlySpent}</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-[var(--app-surface-soft)] to-[var(--app-surface)] border border-[var(--app-border)]">
+                  <p className="text-sm text-[var(--app-text-muted)] mb-2">Budget</p>
+                  {isEditing ? (
+                    <input
+                      value={editAmount}
+                      onChange={(e) => setEditAmount(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+                  ) : (
+                    <p className="text-2xl font-bold text-[var(--app-text)]">{formatCurrency(monthlyBudget)}</p>
+                  )}
+                </div>
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-[var(--app-surface-soft)] to-[var(--app-surface)] border border-[var(--app-border)]">
+                  <p className="text-sm text-[var(--app-text-muted)] mb-2">Spent This Month</p>
+                  <p className="text-2xl font-bold text-[var(--app-text)]">{formatCurrency(monthlySpent)}</p>
+                </div>
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-[var(--app-surface-soft)] to-[var(--app-surface)] border border-[var(--app-border)]">
+                  <p className="text-sm text-[var(--app-text-muted)] mb-2">Remaining</p>
+                  <p className={`text-2xl font-bold ${budgetRemaining >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {formatCurrency(Math.abs(budgetRemaining))}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-gray-600 text-sm mb-1">Remaining</p>
-                <p className={`text-2xl font-bold ${budgetRemaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  ₹{Math.abs(budgetRemaining)}
-                </p>
+              
+              {/* Progress Bar */}
+              <div className="relative w-full h-4 rounded-full bg-[var(--app-surface-soft)] overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${budgetPercent}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className={`absolute inset-y-0 left-0 rounded-full ${
+                    budgetRemaining >= 0
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-500'
+                      : 'bg-gradient-to-r from-red-500 to-orange-500'
+                  }`}
+                />
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-sm text-[var(--app-text-muted)]">{budgetPercent.toFixed(1)}% used</p>
+                <div className="flex gap-2">
+                  {!isEditing ? (
+                    <button
+                      onClick={() => {
+                        setIsEditing(true);
+                        setEditAmount(String(monthlyBudget));
+                      }}
+                      className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium transition-colors"
+                    >
+                      Edit Budget
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={async () => {
+                          const nextAmount = Number(editAmount);
+                          if (!nextAmount || nextAmount <= 0) return;
+                          try {
+                            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+                            const response = await fetch(`${API_BASE}/api/budget`, {
+                              method: "POST",
+                              headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${token}`,
+                              },
+                              body: JSON.stringify({ amount: nextAmount }),
+                            });
+                            const data = await response.json();
+                            if (!response.ok) throw new Error(data.message || "Update failed");
+                            setBudget(data.data);
+                            setIsEditing(false);
+                            setEditAmount("");
+                          } catch (err) {
+                            console.error("Update error:", err);
+                            alert("Error updating budget");
+                          }
+                        }}
+                        className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-colors"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={async () => {
+                          try {
+                            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+                            await fetch(`${API_BASE}/api/budget`, {
+                              method: "DELETE",
+                              headers: { Authorization: `Bearer ${token}` },
+                            });
+                            setBudget(null);
+                            setIsEditing(false);
+                            setEditAmount("");
+                          } catch (err) {
+                            console.error("Delete error:", err);
+                            alert("Error deleting budget");
+                          }
+                        }}
+                        className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors"
+                      >
+                        Delete
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsEditing(false);
+                          setEditAmount("");
+                        }}
+                        className="px-4 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 text-white text-sm font-medium transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-            
-            {/* Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${budgetPercent}%` }}
-                transition={{ duration: 0.8 }}
-                className={`h-full rounded-full ${
-                  budgetRemaining >= 0
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-600'
-                    : 'bg-gradient-to-r from-red-500 to-red-600'
-                }`}
-              />
-            </div>
-            <p className="text-sm text-gray-600 mt-2">{budgetPercent.toFixed(0)}% of budget used</p>
           </motion.div>
         )}
 
-        {/* Peak Ordering Times */}
+        {/* ═══════════════════════════════════════════════════
+            PEAK ORDERING TIMES
+        ═══════════════════════════════════════════════════ */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.35 }}
-          className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 mb-8"
+          transition={{ delay: 0.5 }}
+          className="bg-[var(--app-surface)] p-6 rounded-3xl shadow-lg border border-[var(--app-border)] mb-8"
         >
-          <div className="flex items-center justify-between mb-5">
-            <h3 className="text-lg font-semibold text-gray-900">Peak Ordering Times</h3>
-            <span className="text-sm text-gray-500">Based on current view</span>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 rounded-2xl flex items-center justify-center">
+              <span className="text-2xl">📊</span>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-[var(--app-text)]">Peak Ordering Times</h3>
+              <p className="text-sm text-[var(--app-text-muted)]">Based on current view</p>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
-            <div className="rounded-xl bg-gray-50 p-4 border border-gray-100">
-              <p className="text-sm text-gray-500 mb-1">Top meal window</p>
-              <p className="text-xl font-bold text-gray-900">{topMealWindow}</p>
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-[var(--app-surface-soft)] to-[var(--app-surface)] border border-[var(--app-border)]">
+              <p className="text-sm text-[var(--app-text-muted)] mb-2">Top meal window</p>
+              <p className="text-2xl font-bold text-[var(--app-text)]">{topMealWindow}</p>
             </div>
-
-            <div className="rounded-xl bg-gray-50 p-4 border border-gray-100">
-              <p className="text-sm text-gray-500 mb-1">Weekend or weekday</p>
-              <p className="text-xl font-bold text-gray-900">{peakPeriodLabel}</p>
-              <p className="text-sm text-gray-500 mt-1">
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-[var(--app-surface-soft)] to-[var(--app-surface)] border border-[var(--app-border)]">
+              <p className="text-sm text-[var(--app-text-muted)] mb-2">Weekend or weekday</p>
+              <p className="text-2xl font-bold text-[var(--app-text)]">{peakPeriodLabel}</p>
+              <p className="text-sm text-[var(--app-text-muted)] mt-2">
                 {weekendCount} weekend / {weekdayCount} weekday orders
               </p>
             </div>
           </div>
         </motion.div>
 
+        {/* Main Grid Layout */}
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column - Add Form & Filters */}
+          {/* ═══════════════════════════════════════════════════
+              LEFT SIDEBAR - ADD FORM & FILTERS
+          ═══════════════════════════════════════════════════ */}
           <div className="lg:col-span-1 space-y-6">
-            {/* Add Record Button */}
+            {/* Add New Order Button */}
             <motion.button
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.6 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
-                setShowAddForm(!showAddForm);
-                setEditingId(null);
-                setFormData({
-                  foodName: '',
-                  restaurant: '',
-                  date: new Date().toISOString().split('T')[0],
-                  time: new Date().toTimeString().slice(0, 5),
-                  mealType: 'Lunch',
-                  amount: '',
-                  rating: 0,
-                  notes: ''
-                });
+                if (showAddForm) {
+                  setShowAddForm(false);
+                  setEditingId(null);
+                  return;
+                }
+                openNewOrderForm();
               }}
-              className="w-full bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-3 group"
+              className="gradient-button w-full"
             >
-              <svg className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              <span className="text-lg font-bold">Add New Order</span>
+              <span className="gradient-label flex items-center justify-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                + Add New Order
+              </span>
+              <span className="gradient-container">
+                <span className="gradient"></span>
+              </span>
             </motion.button>
+
             {/* Add/Edit Form */}
             <AnimatePresence>
               {showAddForm && (
@@ -679,85 +909,104 @@ const chartData = records.reduce((acc, record) => {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -20, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6"
+                  className="bg-[var(--app-surface)] rounded-3xl shadow-xl border border-[var(--app-border)] p-6"
                 >
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-gray-900">
-                      {editingId ? '✏️ Edit Order' : '➕ New Order'}
-                    </h3>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center">
+                        <span className="text-xl">{editingId ? '✏️' : '➕'}</span>
+                      </div>
+                      <h3 className="text-xl font-bold text-[var(--app-text)]">
+                        {editingId ? 'Edit Order' : 'New Order'}
+                      </h3>
+                    </div>
                     <button
                       onClick={() => {
                         setShowAddForm(false);
                         setEditingId(null);
                       }}
-                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      className="w-8 h-8 rounded-full hover:bg-[var(--app-surface-soft)] flex items-center justify-center text-[var(--app-text-muted)] transition-colors"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </button>
                   </div>
+
                   <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Food Name */}
-                    <div className="group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Food Name *</label>
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
+                        Food Name *
+                      </label>
                       <input
                         type="text"
                         required
                         value={formData.foodName}
                         onChange={(e) => setFormData({ ...formData, foodName: e.target.value })}
                         placeholder="e.g., Paneer Wrap"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all duration-200 hover:border-gray-400"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                       />
                     </div>
+
                     {/* Restaurant */}
-                    <div className="group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Restaurant / Source *</label>
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
+                        Restaurant / Source *
+                      </label>
                       <input
                         type="text"
                         required
                         value={formData.restaurant}
                         onChange={(e) => setFormData({ ...formData, restaurant: e.target.value })}
                         placeholder="e.g., Swiggy - Dominos"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all duration-200 hover:border-gray-400"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                       />
                     </div>
+
                     {/* Date & Time */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Date *</label>
+                        <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
+                          Date *
+                        </label>
                         <input
                           type="date"
                           required
                           value={formData.date}
                           onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all duration-200"
+                          className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Time *</label>
+                        <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
+                          Time *
+                        </label>
                         <input
                           type="time"
                           required
                           value={formData.time}
                           onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all duration-200"
+                          className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                         />
                       </div>
                     </div>
+
                     {/* Meal Type */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Meal Type *</label>
+                      <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
+                        Meal Type *
+                      </label>
                       <div className="grid grid-cols-2 gap-2">
                         {mealTypes.map((type) => (
                           <button
                             key={type}
                             type="button"
                             onClick={() => setFormData({ ...formData, mealType: type })}
-                            className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                            className={`px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                               formData.mealType === type
-                                ? 'bg-gray-900 text-white shadow-lg scale-105'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
+                                : 'bg-[var(--app-surface-soft)] text-[var(--app-text-muted)] hover:bg-[var(--app-border)] border border-[var(--app-border)]'
                             }`}
                           >
                             <span>{mealIcons[type]}</span>
@@ -766,9 +1015,12 @@ const chartData = records.reduce((acc, record) => {
                         ))}
                       </div>
                     </div>
+
                     {/* Amount */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Amount Spent (₹) *</label>
+                      <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
+                        Amount Spent (₹) *
+                      </label>
                       <input
                         type="number"
                         required
@@ -776,42 +1028,49 @@ const chartData = records.reduce((acc, record) => {
                         value={formData.amount}
                         onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                         placeholder="150.00"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all duration-200 hover:border-gray-400"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                       />
                     </div>
-                    {/* Rating */}
-                    <div className="mt-3">
-  <label className="text-sm text-gray-600">Rating</label>
 
-  <div className="flex gap-2 mt-1">
-    {[1,2,3,4,5].map(star => (
-      <span
-        key={star}
-        onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
-        className="cursor-pointer text-xl"
-      >
-        {star <= formData.rating ? "⭐" : "☆"}
-      </span>
-    ))}
-  </div>
-</div>
+                    {/* Rating */}
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
+                        Rating
+                      </label>
+                      <div className="flex gap-2">
+                        {[1,2,3,4,5].map(star => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
+                            className="text-3xl hover:scale-125 transition-transform"
+                          >
+                            {star <= formData.rating ? "⭐" : "☆"}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     {/* Notes */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Notes (Optional)</label>
+                      <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
+                        Notes (Optional)
+                      </label>
                       <textarea
                         value={formData.notes}
                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                         placeholder="e.g., Extra spicy, shared with friend"
                         rows={3}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all duration-200 hover:border-gray-400 resize-none"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
                       />
                     </div>
+
                     {/* Submit Button */}
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       type="submit"
-                      className="w-full bg-gradient-to-r from-gray-900 to-gray-800 text-white py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
                     >
                       {editingId ? '💾 Update Order' : '✅ Add Order'}
                     </motion.button>
@@ -819,17 +1078,21 @@ const chartData = records.reduce((acc, record) => {
                 </motion.div>
               )}
             </AnimatePresence>
-            {/* Filters */}
+
+            {/* Filters Card */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-              className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6"
+              transition={{ delay: 0.7 }}
+              className="bg-[var(--app-surface)] rounded-3xl shadow-lg border border-[var(--app-border)] p-6"
             >
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <span>🔍</span>
-                Filters & Search
-              </h3>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl flex items-center justify-center">
+                  <span className="text-xl">🔍</span>
+                </div>
+                <h3 className="text-lg font-bold text-[var(--app-text)]">Filters & Search</h3>
+              </div>
+
               {/* Search */}
               <div className="mb-4">
                 <input
@@ -837,16 +1100,19 @@ const chartData = records.reduce((acc, record) => {
                   placeholder="Search food or restaurant..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all duration-200"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                 />
               </div>
+
               {/* Meal Type Filter */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Meal Type</label>
+                <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
+                  Meal Type
+                </label>
                 <select
                   value={filterMealType}
                   onChange={(e) => setFilterMealType(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all duration-200"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                 >
                   <option value="all">All Meals</option>
                   {mealTypes.map((type) => (
@@ -854,13 +1120,16 @@ const chartData = records.reduce((acc, record) => {
                   ))}
                 </select>
               </div>
+
               {/* Sort */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
+                  Sort By
+                </label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all duration-200"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                 >
                   <option value="date">📅 Newest First</option>
                   <option value="amount">💰 Amount (High to Low)</option>
@@ -868,20 +1137,50 @@ const chartData = records.reduce((acc, record) => {
               </div>
             </motion.div>
           </div>
-          {/* Right Column - Records List */}
+
+          {/* ═══════════════════════════════════════════════════
+              RIGHT COLUMN - RECORDS LIST
+          ═══════════════════════════════════════════════════ */}
           <div className="lg:col-span-2">
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
+              transition={{ delay: 0.8 }}
             >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  <span>📋</span>
-                  Order History
-                  <span className="text-lg font-normal text-gray-500">({filteredRecords.length})</span>
-                </h2>
+              {/* Header */}
+              <div className="flex flex-col gap-4 mb-6 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center">
+                    <span className="text-2xl">📋</span>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-[var(--app-text)]">Order History</h2>
+                    <p className="text-sm text-[var(--app-text-muted)]">{filteredRecords.length} {filteredRecords.length === 1 ? 'order' : 'orders'}</p>
+                  </div>
+                </div>
+
+                {/* Export Buttons */}
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => downloadReportPdf('month')}
+                    disabled={loading || isGeneratingPdf}
+                    className="px-4 py-2 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] text-sm font-medium hover:bg-[var(--app-surface-soft)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    {isGeneratingPdf ? 'Generating...' : '📄 Monthly PDF'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => downloadReportPdf('all')}
+                    disabled={loading || isGeneratingPdf}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    📥 All Orders PDF
+                  </button>
+                </div>
               </div>
+
+              {/* Records List */}
               <div className="space-y-4">
                 <AnimatePresence mode="popLayout">
                   {filteredRecords.length === 0 ? (
@@ -889,11 +1188,43 @@ const chartData = records.reduce((acc, record) => {
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
-                      className="bg-white rounded-2xl p-12 text-center border-2 border-dashed border-gray-300"
+                      className="bg-[var(--app-surface)] rounded-3xl p-12 text-center border-2 border-dashed border-[var(--app-border)]"
                     >
-                      <div className="text-6xl mb-4">🍽️</div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">No orders found</h3>
-                      <p className="text-gray-600">Add your first order to start tracking!</p>
+                      {hasNoOrders ? (
+                        <>
+                          <div className="text-6xl mb-4">✨</div>
+                          <h3 className="text-2xl font-bold text-[var(--app-text)] mb-2">Welcome to your Ledger</h3>
+                          <p className="text-[var(--app-text-muted)] mb-6 max-w-md mx-auto">
+                            You have not saved any orders yet. Add your first order and BiteTrack will start building your spending timeline.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={openNewOrderForm}
+                            className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+                          >
+                            Add First Order
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-6xl mb-4">🔎</div>
+                          <h3 className="text-xl font-bold text-[var(--app-text)] mb-2">No matching orders</h3>
+                          <p className="text-[var(--app-text-muted)] mb-6">
+                            {hasActiveFilters
+                              ? 'Try clearing filters or search to see your saved orders.'
+                              : 'No orders found in this view.'}
+                          </p>
+                          {hasActiveFilters && (
+                            <button
+                              type="button"
+                              onClick={clearFilters}
+                              className="px-6 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] font-semibold hover:bg-[var(--app-surface-soft)] transition-all"
+                            >
+                              Clear Filters
+                            </button>
+                          )}
+                        </>
+                      )}
                     </motion.div>
                   ) : (
                     filteredRecords.map((record, index) => (
@@ -904,26 +1235,31 @@ const chartData = records.reduce((acc, record) => {
                         exit={{ opacity: 0, x: -100 }}
                         transition={{ delay: index * 0.05 }}
                         layout
-                        whileHover={{ scale: 1.02, y: -2 }}
-                        className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 group cursor-pointer"
+                        whileHover={{ y: -4, scale: 1.01 }}
+                        className="bg-[var(--app-surface)] rounded-3xl p-6 shadow-lg border border-[var(--app-border)] hover:shadow-2xl transition-all duration-300 group cursor-pointer"
                       >
-                        <div className="flex items-start justify-between">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                          {/* Left Content */}
                           <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <span className="text-3xl">{mealIcons[record.mealType]}</span>
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center text-3xl">
+                                {mealIcons[record.mealType]}
+                              </div>
                               <div>
-                                <h3 className="text-xl font-bold text-gray-900 group-hover:text-gray-700 transition-colors">
+                                <h3 className="text-xl font-bold text-[var(--app-text)] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                   {record.foodName}
                                 </h3>
-                                <p className="text-sm text-gray-600">{record.restaurant}</p>
+                                <p className="text-sm text-[var(--app-text-muted)]">{record.restaurant}</p>
                               </div>
                             </div>
-                            <div className="flex flex-wrap items-center gap-4 mt-4 text-sm text-gray-600">
+
+                            {/* Meta Info */}
+                            <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--app-text-muted)] mb-3">
                               <div className="flex items-center gap-1">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                {new Date(record.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                                {new Date(record.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                               </div>
                               <div className="flex items-center gap-1">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -931,36 +1267,42 @@ const chartData = records.reduce((acc, record) => {
                                 </svg>
                                 {record.time}
                               </div>
-                              <span className="px-3 py-1 bg-gray-100 rounded-full text-xs font-medium">
+                              <span className="px-3 py-1 bg-[var(--app-surface-soft)] rounded-full text-xs font-medium border border-[var(--app-border)]">
                                 {record.mealType}
                               </span>
                             </div>
-                            
-                              <div className="flex gap-1 mt-2">
-  {[1,2,3,4,5].map(star => (
-    <span key={star}>
-      {star <= Number(record.rating || 0) ? "⭐" : "☆"}
-    </span>
-  ))}
-</div>
-                            
+
+                            {/* Rating */}
+                            <div className="flex gap-1 mb-2">
+                              {[1,2,3,4,5].map(star => (
+                                <span key={star} className="text-lg">
+                                  {star <= Number(record.rating || 0) ? "⭐" : "☆"}
+                                </span>
+                              ))}
+                            </div>
+
+                            {/* Notes */}
                             {record.notes && (
-                              <p className="mt-2 text-sm text-gray-600 italic">💬 {record.notes}</p>
+                              <p className="text-sm text-[var(--app-text-muted)] italic px-3 py-2 bg-[var(--app-surface-soft)] rounded-xl border border-[var(--app-border)]">
+                                💬 {record.notes}
+                              </p>
                             )}
                           </div>
-                          <div className="flex flex-col items-end gap-3">
-                            <div className="text-2xl font-bold text-green-600">
-                              ₹{record.amount.toFixed(2)}
+
+                          {/* Right Content */}
+                          <div className="flex flex-row items-center justify-between gap-3 sm:flex-col sm:items-end">
+                            <div className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                              {formatCurrency(record.amount)}
                             </div>
-                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                               <motion.button
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={() => handleEdit(record)}
-                                className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                                className="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
                                 title="Edit"
                               >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                               </motion.button>
@@ -968,10 +1310,10 @@ const chartData = records.reduce((acc, record) => {
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={() => handleDelete(record.id)}
-                                className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                                className="p-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
                                 title="Delete"
                               >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                               </motion.button>
@@ -990,4 +1332,5 @@ const chartData = records.reduce((acc, record) => {
     </div>
   );
 }
+
 export default Ledger;

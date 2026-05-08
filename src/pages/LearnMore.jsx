@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useState } from "react";
+
 function LearnMore() {
+  const [showTerms, setShowTerms] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showContact, setShowContact] = useState(false);
   return (
     <motion.div
   initial={{ opacity: 0, y: 10 }}
@@ -360,14 +365,85 @@ function LearnMore() {
               <span className="text-sm text-gray-600">© 2026 BiteTrack. All rights reserved.</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-gray-600">
-              <button className="hover:text-gray-900 transition-colors">Privacy</button>
-              <button className="hover:text-gray-900 transition-colors">Terms</button>
-              <button className="hover:text-gray-900 transition-colors">Contact</button>
+              <button onClick={() => setShowPrivacy(true)} className="hover:text-gray-900 transition-colors">Privacy</button>
+              <button onClick={() => setShowTerms(true)} className="hover:text-gray-900 transition-colors">Terms</button>
+              <button onClick={() => setShowContact(true)} className="hover:text-gray-900 transition-colors">Contact</button>
             </div>
           </div>
         </footer>
       </div>
     </div>
+
+      {/* ────── TERMS MODAL ────── */}
+      {showTerms && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]" onClick={() => setShowTerms(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-white w-[90%] max-w-2xl rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h2 className="text-lg font-bold text-gray-900">Terms & Conditions</h2>
+              <button onClick={() => setShowTerms(false)} className="text-2xl text-gray-500 hover:text-gray-900">✕</button>
+            </div>
+            <div className="px-6 py-5 max-h-[60vh] overflow-y-auto space-y-4 text-sm text-gray-600">
+              <p className="text-gray-700">By using BiteTrack, you agree to the following terms and conditions.</p>
+              <div><h3 className="font-semibold text-gray-900 mb-1">1. Service Usage</h3><p>BiteTrack is provided as-is for personal food tracking. Users must use the service responsibly and not for any harmful purposes.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">2. User Responsibilities</h3><p>Users are responsible for maintaining the confidentiality of their account credentials and all activities under their account.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">3. Acceptable Use</h3><p>You agree not to use BiteTrack for any illegal activities, harassment, or any behavior that violates our community standards.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">4. Data Accuracy</h3><p>While we strive for accuracy, all calorie and nutritional information is approximate. Always consult professional nutritionists for medical advice.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">5. Limitation of Liability</h3><p>BiteTrack is not responsible for any indirect, incidental, or consequential damages arising from your use of our service.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">6. Changes to Terms</h3><p>These terms may be updated in the future. Continued use of the service means you accept any changes.</p></div>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
+              <button onClick={() => setShowTerms(false)} className="px-5 py-2 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800">Got it</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* ────── PRIVACY MODAL ────── */}
+      {showPrivacy && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]" onClick={() => setShowPrivacy(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-white w-[90%] max-w-2xl rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h2 className="text-lg font-bold text-gray-900">Privacy Policy</h2>
+              <button onClick={() => setShowPrivacy(false)} className="text-2xl text-gray-500 hover:text-gray-900">✕</button>
+            </div>
+            <div className="px-6 py-5 max-h-[60vh] overflow-y-auto space-y-4 text-sm text-gray-600">
+              <p className="text-gray-700">BiteTrack respects your privacy and is committed to protecting your personal data.</p>
+              <div><h3 className="font-semibold text-gray-900 mb-1">1. Information We Collect</h3><p>We collect basic account information such as your name, email, and food log data that you voluntarily add to the platform.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">2. How We Use Your Data</h3><p>Your data is used exclusively to provide BiteTrack services. We do not sell, share, or trade your personal information with third parties.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">3. Data Security</h3><p>We implement industry-standard security measures to protect your data from unauthorized access or disclosure.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">4. Cookies and Tracking</h3><p>We may use cookies for authentication and improving user experience. You can disable cookies in your browser settings.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">5. Your Rights</h3><p>You have the right to access, modify, or delete your personal data at any time by contacting us or through your account settings.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">6. Contact Us</h3><p>If you have questions about this Privacy Policy, please contact us at privacy@bitetrack.com.</p></div>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
+              <button onClick={() => setShowPrivacy(false)} className="px-5 py-2 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800">Got it</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* ────── CONTACT MODAL ────── */}
+      {showContact && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]" onClick={() => setShowContact(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-white w-[90%] max-w-2xl rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h2 className="text-lg font-bold text-gray-900">Contact Us</h2>
+              <button onClick={() => setShowContact(false)} className="text-2xl text-gray-500 hover:text-gray-900">✕</button>
+            </div>
+            <div className="px-6 py-5 max-h-[60vh] overflow-y-auto space-y-4 text-sm text-gray-600">
+              <h3 className="font-semibold text-gray-900">Have questions or feedback?</h3>
+              <p>We'd love to hear from you. You can reach us directly via email:</p>
+              <p className="text-gray-900 font-medium text-base">📧 support@bitetrack.com</p>
+              <p className="text-xs text-gray-500">We usually respond within 24 hours.</p>
+              <div className="pt-4"><h3 className="font-semibold text-gray-900 mb-2">What's on your mind?</h3><p>Whether it's a feature request, bug report, or general feedback, we're listening. Help us make BiteTrack better for everyone.</p></div>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
+              <button onClick={() => setShowContact(false)} className="px-5 py-2 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800">Got it</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
     </motion.div>
   );
 }
