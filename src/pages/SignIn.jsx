@@ -3,6 +3,8 @@ import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { parseApiResponse } from "../utils/apiResponse";
+import getApiBase from "../utils/apiBase";
+import warmBackend from "../utils/warmBackend";
 
 function SignIn() {
   const navigate = useNavigate();
@@ -16,13 +18,13 @@ function SignIn() {
   const [rememberMe, setRememberMe] = useState(false);
 const [showPassword, setShowPassword] = useState(false);
 
-  const handleOAuthRedirect = (url) => {
+  const handleOAuthRedirect = async (url) => {
     if (isSubmitting || isRedirecting) return;
 
     setIsRedirecting(true);
-    window.setTimeout(() => {
-      window.location.href = url;
-    }, 120);
+
+    await warmBackend();
+    window.location.replace(url);
   };
 
 
@@ -30,6 +32,7 @@ const [showPassword, setShowPassword] = useState(false);
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
+    const API_BASE = getApiBase();
 
     try {
       const payload = {
@@ -37,7 +40,7 @@ const [showPassword, setShowPassword] = useState(false);
         password: formData.password
       };
 
-        const response = await fetch('https://bitetrack-backend-yfkf.onrender.com/api/auth/login', {
+        const response = await fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -173,7 +176,7 @@ const [showPassword, setShowPassword] = useState(false);
 
     <button
     type="button"
-      onClick={() => handleOAuthRedirect("https://bitetrack-backend-yfkf.onrender.com/api/auth/google")}
+      onClick={() => handleOAuthRedirect(`${getApiBase()}/api/auth/google`)}
       disabled={isSubmitting || isRedirecting}
   className="w-full border border-gray-300 py-3 rounded-xl hover:bg-gray-50 transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
 >
@@ -188,7 +191,7 @@ const [showPassword, setShowPassword] = useState(false);
 
     <button
     type="button"
-      onClick={() => handleOAuthRedirect("https://bitetrack-backend-yfkf.onrender.com/api/auth/github")}
+      onClick={() => handleOAuthRedirect(`${getApiBase()}/api/auth/github`)}
       disabled={isSubmitting || isRedirecting}
   className="w-full border border-gray-300 py-3 rounded-xl hover:bg-gray-50 transition flex items-center justify-center gap-2 mt-3 disabled:opacity-60 disabled:cursor-not-allowed"
 >

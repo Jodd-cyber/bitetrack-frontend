@@ -2,18 +2,20 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion"; // ✅ ADD THIS
 import { parseApiResponse } from "../utils/apiResponse";
+import getApiBase from "../utils/apiBase";
 
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
+  const API_BASE = getApiBase();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/forgot-password", {
+      const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

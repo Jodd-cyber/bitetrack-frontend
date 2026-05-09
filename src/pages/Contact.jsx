@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { parseApiResponse } from "../utils/apiResponse";
+import getApiBase from "../utils/apiBase";
 
 function Contact() {
   const [formData, setFormData] = useState({
@@ -18,11 +19,12 @@ function Contact() {
   // ✅ FIXED: async function
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const API_BASE = getApiBase();
 
     try {
      const token = localStorage.getItem("bitetrack_token");
 
-      const res = await fetch("https://bitetrack-backend-yfkf.onrender.com/api/feedback", {
+      const res = await fetch(`${API_BASE}/api/feedback`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

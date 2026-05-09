@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { parseApiResponse } from "../utils/apiResponse";
+import getApiBase from "../utils/apiBase";
 
 function SignUp() {
   const navigate = useNavigate();
@@ -26,8 +27,9 @@ function SignUp() {
       return;
     }
     setIsSubmitting(true);
+    const API_BASE = getApiBase();
     try {
-        const response = await fetch('https://bitetrack-backend-yfkf.onrender.com/api/auth/signup', {
+        const response = await fetch(`${API_BASE}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import warmBackend from "../utils/warmBackend";
 const AuthContext = createContext(null);
 const STORAGE_KEY = "bitetrack_user";
 
@@ -21,6 +22,8 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   // load user from localStorage on first app load
 useEffect(() => {
+  warmBackend();
+
   try {
     const token =
       localStorage.getItem("token") ||

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { parseApiResponse } from "../utils/apiResponse";
+import getApiBase from "../utils/apiBase";
 
 function ResetPassword() {
   const { token } = useParams();
@@ -8,9 +9,10 @@ function ResetPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const API_BASE = getApiBase();
 
     const res = await fetch(
-      `https://bitetrack-backend-yfkf.onrender.com/api/auth/reset-password/${token}`,
+      `${API_BASE}/api/auth/reset-password/${token}`,
       {
         method: "POST",
         headers: {

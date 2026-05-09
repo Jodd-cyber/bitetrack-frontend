@@ -50,7 +50,7 @@ const handleSaveBudget = async () => {
       sessionStorage.getItem("token");
 
     const response = await fetch(
-      "https://bitetrack-backend-yfkf.onrender.com/api/budget",
+      `${API_BASE}/api/budget`,
       {
         method: "POST",
         headers: {
@@ -89,7 +89,7 @@ const handleDeleteBudget = async () => {
       sessionStorage.getItem("token");
 
     await fetch(
-      "https://bitetrack-backend-yfkf.onrender.com/api/budget",
+      `${API_BASE}/api/budget`,
       {
         method: "DELETE",
         headers: {
