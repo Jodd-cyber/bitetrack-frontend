@@ -11,38 +11,11 @@ import getApiBase from "../utils/apiBase";
 
 
 function App() {
-  const { isSignedIn, user, login, logout, authReady } = useAuth();
+  const { isSignedIn, user, login, logout } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
   const API_BASE = getApiBase();
-  const [sessionLoaded, setSessionLoaded] = useState(false);
-  const [sessionSignedIn, setSessionSignedIn] = useState(false);
-  const [sessionUser, setSessionUser] = useState(null);
-
-  useEffect(() => {
-    try {
-      const storedToken = localStorage.getItem("token") || sessionStorage.getItem("token");
-      const rawUser =
-        localStorage.getItem("bitetrack_user") ||
-        sessionStorage.getItem("bitetrack_user");
-
-      if (storedToken && rawUser) {
-        setSessionUser(JSON.parse(rawUser));
-        setSessionSignedIn(true);
-      } else {
-        setSessionUser(null);
-        setSessionSignedIn(false);
-      }
-    } catch (err) {
-      console.error("Home auth bootstrap failed:", err);
-      setSessionUser(null);
-      setSessionSignedIn(false);
-    } finally {
-      setSessionLoaded(true);
-    }
-  }, []);
-
-  const effectiveUser = user || sessionUser;
-  const effectiveSignedIn = Boolean(isSignedIn || sessionSignedIn || effectiveUser);
+  const effectiveUser = user;
+  const effectiveSignedIn = Boolean(isSignedIn);
   
   // Dynamic budget storage key - computed at save time, not at mount time
   const getBudgetStorageKey = () => {
@@ -66,10 +39,6 @@ const [stats, setStats] = useState({
   avgSpend: 0,
   topRestaurant: "-"
 });
-
-  if (!authReady || !sessionLoaded) {
-    return null;
-  }
 
 const handleSaveBudget = async () => {
   if (!monthlyBudget || monthlyBudget <= 0) {

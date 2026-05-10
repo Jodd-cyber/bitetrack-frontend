@@ -18,46 +18,8 @@ const readStoredUser = () => {
   }
 };
 
-const decodeJwtPayload = (token) => {
-  const payload = token.split(".")[1] || "";
-  const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
-  return JSON.parse(atob(padded));
-};
-
-const readAuthFromUrl = () => {
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("token");
-
-  if (!token) {
-    return null;
-  }
-
-  try {
-    const payload = decodeJwtPayload(token);
-    const userData = {
-      name: payload.name,
-      email: payload.email,
-      id: payload.userId,
-    };
-
-    localStorage.setItem("token", token);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
-
-    window.history.replaceState({}, document.title, window.location.pathname);
-
-    return userData;
-  } catch (err) {
-    console.error("OAuth URL bootstrap failed:", err);
-    return null;
-  }
-};
-
-const readInitialUser = () => readAuthFromUrl() || readStoredUser();
-
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => readInitialUser());
-  const [authReady, setAuthReady] = useState(false);
+  const [user, setUser] = useState(() => readStoredUser());
   // load user from localStorage on first app load
 useEffect(() => {
   warmBackend();
@@ -81,8 +43,6 @@ useEffect(() => {
     console.error("Auth restore failed:", err);
     setUser(null);
   }
-
-  setAuthReady(true);
 }, []);
   // login can be called with either a user object or (email, password)
 const login = (userData, token, rememberMe = true) => {
@@ -125,7 +85,7 @@ const login = (userData, token, rememberMe = true) => {
 };
   const isSignedIn = Boolean(user);
   return (
-    <AuthContext.Provider value={{ user, isSignedIn, login, signup, logout, authReady }}>
+    <AuthContext.Provider value={{ user, isSignedIn, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );
