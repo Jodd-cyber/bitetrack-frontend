@@ -1,4 +1,5 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp.jsx";
@@ -15,17 +16,33 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OAuthSuccess from "./pages/OAuthSuccess";
 
+// ✅ Protected Route Component
+function ProtectedRoute({ element }) {
+  const { isSignedIn } = useAuth();
+
+  // ❌ User is NOT signed in → redirect to signin
+  if (!isSignedIn) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  // ✅ User IS signed in → show the page
+  return element;
+}
+
 function App() {
   const location = useLocation();
 
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Home />} />
+        {/* ✅ Protected Routes (require login) */}
+        <Route path="/" element={<ProtectedRoute element={<Home />} />} />
+        <Route path="/ledger" element={<ProtectedRoute element={<Ledger />} />} />
+
+        {/* Public Routes */}
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/learn-more" element={<LearnMore />} />
-        <Route path="/ledger" element={<Ledger />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/about" element={<About />} />
@@ -33,6 +50,8 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        
+        {/* OAuth Callback (Public, but immediately redirects) */}
         <Route path="/oauth-success" element={<OAuthSuccess />} />
       </Routes>
     </AnimatePresence>

@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const OAuthSuccess = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isSignedIn } = useAuth();
+  const [isProcessing, setIsProcessing] = useState(true);
 
   const decodeJwtPayload = (token) => {
     const payload = token.split(".")[1] || "";
@@ -21,7 +22,7 @@ const OAuthSuccess = () => {
     // Handle backend errors
     if (error) {
       console.error("OAuth Error:", error);
-      navigate(`/signin?error=${error}`);
+      navigate(`/signin?error=${error}`, { replace: true });
       return;
     }
 
@@ -41,24 +42,34 @@ const OAuthSuccess = () => {
             email: payload.email,
             id: payload.userId,
           },
-          token
+          token,
+          true // rememberMe = true
         );
 
-        // Hard redirect so the app reloads with the stored auth state already in place.
-        window.location.replace("/");
-        return;
+        // ✅ Wait for auth state to update, then redirect
+        setIsProcessing(false);
+        navigate("/", { replace: true });
       } catch (err) {
         console.error("❌ Failed to process OAuth token:", err);
-        navigate("/signin?error=invalid_token");
+        navigate(`/signin?error=invalid_token`, { replace: true });
       }
     } else {
-      // No token and no error — shouldn't happen
-      navigate("/signin");
+      // No token and no error
+      navigate("/signin", { replace: true });
     }
   }, [navigate, login]);
 
-  // Show nothing while processing
-  return null;
+  // Show loading while processing
+  return (
+    <div style={{ 
+      display: "flex", 
+      justifyContent: "center", 
+      alignItems: "center", 
+      height: "100vh" 
+    }}>
+      <p>Completing sign in...</p>
+    </div>
+  );
 };
 
 export default OAuthSuccess;
