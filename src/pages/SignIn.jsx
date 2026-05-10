@@ -22,7 +22,7 @@ const [showPassword, setShowPassword] = useState(false);
     if (isSubmitting || isRedirecting) return;
 
     setIsRedirecting(true);
-
+console.log(getApiBase());
     await warmBackend();
     window.location.replace(url);
   };
