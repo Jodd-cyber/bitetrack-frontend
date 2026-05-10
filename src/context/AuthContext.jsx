@@ -16,37 +16,30 @@ const readStoredUser = () => {
 };
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // ✅ ADD THIS
+  // ✅ Read from localStorage IMMEDIATELY on first render
+  const [user, setUser] = useState(() => {
+    console.log("🔵 AuthProvider initializing from localStorage...");
+    const storedUser = readStoredUser();
+    console.log("Stored user:", storedUser?.email || "none");
+    return storedUser;
+  });
+
+  const [isLoading, setIsLoading] = useState(false); // ✅ Start as false since we already loaded
 
   useEffect(() => {
-    console.log("🔵 AuthProvider mounting - checking stored auth...");
+    console.log("🔵 AuthProvider useEffect running");
     warmBackend();
 
-    try {
-      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-      const storedUser = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
-
-      console.log("Token exists:", !!token);
-      console.log("User exists:", !!storedUser);
-
-      if (token && storedUser) {
-        console.log("✅ Restoring user from storage");
-        setUser(JSON.parse(storedUser));
-      } else {
-        console.log("❌ No stored auth found");
-        setUser(null);
-      }
-    } catch (err) {
-      console.error("Auth restore failed:", err);
+    // Verify token exists if user exists
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (user && !token) {
+      console.warn("⚠️ User exists but no token - clearing user");
       setUser(null);
-    } finally {
-      setIsLoading(false); // ✅ Mark as loaded
     }
-  }, []);
+  }, [user]);
 
   const login = (userData, token, rememberMe = true) => {
-    console.log("🟢 login() called");
+    console.log("🟢 login() called with:", userData.email);
 
     if (!userData || !token) {
       console.error("❌ Missing userData or token");
@@ -91,7 +84,11 @@ export function AuthProvider({ children }) {
 
   const isSignedIn = Boolean(user);
   
-  console.log("📊 AuthContext state:", { user: user?.email, isSignedIn, isLoading });
+  console.log("📊 AuthContext state:", { 
+    email: user?.email, 
+    isSignedIn, 
+    isLoading 
+  });
 
   return (
     <AuthContext.Provider value={{ user, isSignedIn, login, signup, logout, isLoading }}>
