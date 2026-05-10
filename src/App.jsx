@@ -23,6 +23,21 @@ function ProtectedRoute({ element }) {
 
   const hasPersistedAuth = Boolean(storedToken && storedUser);
 
+  const storedToken = localStorage.getItem("token") || sessionStorage.getItem("token");
+  let storedUser = null;
+
+  try {
+    storedUser = JSON.parse(
+      localStorage.getItem("bitetrack_user") ||
+      sessionStorage.getItem("bitetrack_user") ||
+      "null"
+    );
+  } catch {
+    storedUser = null;
+  }
+
+  const hasPersistedAuth = Boolean(storedToken && storedUser);
+
   // ⏳ Show loading while auth state is being restored
   if (isLoading) {
     return (

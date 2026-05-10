@@ -46,9 +46,9 @@ const OAuthSuccess = () => {
           true // rememberMe = true
         );
 
-        // ✅ Wait for auth state to update, then redirect
+        // Redirect with a full navigation so the saved session is used immediately
         setIsProcessing(false);
-        navigate("/", { replace: true });
+        window.location.replace("/");
       } catch (err) {
         console.error("❌ Failed to process OAuth token:", err);
         navigate(`/signin?error=invalid_token`, { replace: true });
