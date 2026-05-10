@@ -19,7 +19,7 @@ const readStoredUser = () => {
 };
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => readStoredUser());
   // load user from localStorage on first app load
 useEffect(() => {
   warmBackend();
