@@ -44,8 +44,9 @@ const OAuthSuccess = () => {
           token
         );
 
-        // Redirect to home with a full navigation so the signed-in state is restored before paint
-        navigate("/");
+        // Hard redirect so the app reloads with the stored auth state already in place.
+        window.location.replace("/");
+        return;
       } catch (err) {
         console.error("❌ Failed to process OAuth token:", err);
         navigate("/signin?error=invalid_token");
