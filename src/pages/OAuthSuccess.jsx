@@ -44,8 +44,8 @@ const OAuthSuccess = () => {
           token
         );
 
-        // Redirect to home
-        navigate("/", { replace: true });
+        // Redirect to home with a full navigation so the signed-in state is restored before paint
+        window.location.replace("/");
       } catch (err) {
         console.error("❌ Failed to process OAuth token:", err);
         navigate("/signin?error=invalid_token");
