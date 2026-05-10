@@ -11,7 +11,7 @@ import getApiBase from "../utils/apiBase";
 
 
 function App() {
-  const { isSignedIn, user, login, logout } = useAuth();
+  const { isSignedIn, user, login, logout, authReady } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
   const API_BASE = getApiBase();
   const storedToken = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -52,6 +52,10 @@ const [stats, setStats] = useState({
   avgSpend: 0,
   topRestaurant: "-"
 });
+
+  if (!authReady) {
+    return null;
+  }
 
 const handleSaveBudget = async () => {
   if (!monthlyBudget || monthlyBudget <= 0) {

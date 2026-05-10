@@ -44,6 +44,8 @@ const readAuthFromUrl = () => {
     localStorage.setItem("token", token);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
 
+    window.history.replaceState({}, document.title, window.location.pathname);
+
     return userData;
   } catch (err) {
     console.error("OAuth URL bootstrap failed:", err);
@@ -51,10 +53,11 @@ const readAuthFromUrl = () => {
   }
 };
 
-const readInitialUser = () => readStoredUser() || readAuthFromUrl();
+const readInitialUser = () => readAuthFromUrl() || readStoredUser();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => readInitialUser());
+  const [authReady, setAuthReady] = useState(false);
   // load user from localStorage on first app load
 useEffect(() => {
   warmBackend();
@@ -78,6 +81,8 @@ useEffect(() => {
     console.error("Auth restore failed:", err);
     setUser(null);
   }
+
+  setAuthReady(true);
 }, []);
   // login can be called with either a user object or (email, password)
 const login = (userData, token, rememberMe = true) => {
@@ -120,7 +125,7 @@ const login = (userData, token, rememberMe = true) => {
 };
   const isSignedIn = Boolean(user);
   return (
-    <AuthContext.Provider value={{ user, isSignedIn, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, isSignedIn, login, signup, logout, authReady }}>
       {children}
     </AuthContext.Provider>
   );
