@@ -14,6 +14,21 @@ function App() {
   const { isSignedIn, user, login, logout } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
   const API_BASE = getApiBase();
+  const storedToken = localStorage.getItem("token") || sessionStorage.getItem("token");
+  let storedUser = null;
+
+  try {
+    storedUser = JSON.parse(
+      localStorage.getItem("bitetrack_user") ||
+      sessionStorage.getItem("bitetrack_user") ||
+      "null"
+    );
+  } catch {
+    storedUser = null;
+  }
+
+  const effectiveUser = user || storedUser;
+  const effectiveSignedIn = Boolean(isSignedIn || storedToken || effectiveUser);
   
   // Dynamic budget storage key - computed at save time, not at mount time
   const getBudgetStorageKey = () => {
@@ -138,7 +153,7 @@ const handleDeleteBudget = async () => {
     }
   };
   const handleGetStarted = () => {
-    if (!isSignedIn) {
+    if (!effectiveSignedIn) {
       playNotificationSound();
       setShowWarning(true);
       setTimeout(() => setShowWarning(false), 5000);
@@ -399,7 +414,7 @@ useEffect(() => {
             </div>
           </Link>
 
-          {isSignedIn ? (
+          {effectiveSignedIn ? (
             <Link
               to="/ledger"
               className="group text-sm font-semibold px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2"
@@ -432,17 +447,17 @@ useEffect(() => {
             </a>
           </div>
 
-          {isSignedIn && (
+          {effectiveSignedIn && (
             <div className="relative">
               <button
                 onClick={() => setShowSettings(!showSettings)}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--app-surface-soft)] hover:bg-[var(--app-border)] transition-all duration-200 border border-[var(--app-border)]"
               >
                 <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                  {user?.name?.[0]?.toUpperCase() || "U"}
+                  {effectiveUser?.name?.[0]?.toUpperCase() || "U"}
                 </div>
                 <span className="text-sm font-medium text-[var(--app-text)] max-w-[6rem] truncate">
-                  {user?.name || "User"}
+                  {effectiveUser?.name || "User"}
                 </span>
                 <svg className={`w-4 h-4 text-[var(--app-text-muted)] transition-transform ${showSettings ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -480,7 +495,7 @@ useEffect(() => {
             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></span>
           </a>
 
-          {isSignedIn ? (
+          {effectiveSignedIn ? (
             <div className="flex items-center gap-3">
               <Link
                 to="/ledger"
@@ -499,10 +514,10 @@ useEffect(() => {
                   className="flex items-center gap-3 px-4 py-2 rounded-xl bg-[var(--app-surface-soft)] hover:bg-[var(--app-border)] transition-all duration-200 border border-[var(--app-border)]"
                 >
                   <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                    {user?.name?.[0]?.toUpperCase() || "U"}
+                    {effectiveUser?.name?.[0]?.toUpperCase() || "U"}
                   </div>
                   <span className="text-sm font-medium text-[var(--app-text)]">
-                    {user?.name || "User"}
+                    {effectiveUser?.name || "User"}
                   </span>
                   <svg className={`w-4 h-4 text-[var(--app-text-muted)] transition-transform ${showSettings ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -679,15 +694,15 @@ useEffect(() => {
     <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up-delay-2">
       <button 
         onClick={handleGetStarted}
-        disabled={isSignedIn}
+        disabled={effectiveSignedIn}
         className={`group relative btn-primary inline-flex items-center gap-2 rounded-2xl px-8 py-4 text-base font-semibold transition-all duration-300 overflow-hidden ${
-          isSignedIn
+          effectiveSignedIn
             ? 'bg-gray-400 text-white cursor-not-allowed opacity-60'
             : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-2xl hover:scale-105 shadow-lg'
         }`}
       >
-        <span className="relative z-10">{isSignedIn ? 'Already Signed In' : 'Start Tracking Free'}</span>
-        {!isSignedIn && (
+        <span className="relative z-10">{effectiveSignedIn ? 'Already Signed In' : 'Start Tracking Free'}</span>
+        {!effectiveSignedIn && (
           <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
           </svg>
@@ -1194,7 +1209,7 @@ useEffect(() => {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
         >
-          {isSignedIn ? (
+          {effectiveSignedIn ? (
             <button
               disabled={true}
               className="group relative inline-flex items-center gap-2 rounded-2xl bg-white/20 backdrop-blur-sm px-8 py-4 text-base font-semibold text-white shadow-xl cursor-not-allowed opacity-60 border border-white/30"
