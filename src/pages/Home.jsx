@@ -14,12 +14,25 @@ function App() {
   const { isSignedIn, user, login, logout } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
   const API_BASE = getApiBase();
-  const effectiveUser = user;
-  const effectiveSignedIn = Boolean(isSignedIn);
+  const storedToken = localStorage.getItem("token") || sessionStorage.getItem("token");
+  let storedUser = null;
+
+  try {
+    storedUser = JSON.parse(
+      localStorage.getItem("bitetrack_user") ||
+      sessionStorage.getItem("bitetrack_user") ||
+      "null"
+    );
+  } catch {
+    storedUser = null;
+  }
+
+  const effectiveUser = user || storedUser;
+  const effectiveSignedIn = Boolean(isSignedIn || storedToken || effectiveUser);
   
   // Dynamic budget storage key - computed at save time, not at mount time
   const getBudgetStorageKey = () => {
-    return `bitetrack_monthly_budget_${user?.id || 'temp'}`;
+    return `bitetrack_monthly_budget_${effectiveUser?.id || 'temp'}`;
   };
   const [showWarning, setShowWarning] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
