@@ -14,21 +14,35 @@ function App() {
   const { isSignedIn, user, login, logout, authReady } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
   const API_BASE = getApiBase();
-  const storedToken = localStorage.getItem("token") || sessionStorage.getItem("token");
-  let storedUser = null;
+  const [sessionLoaded, setSessionLoaded] = useState(false);
+  const [sessionSignedIn, setSessionSignedIn] = useState(false);
+  const [sessionUser, setSessionUser] = useState(null);
 
-  try {
-    storedUser = JSON.parse(
-      localStorage.getItem("bitetrack_user") ||
-      sessionStorage.getItem("bitetrack_user") ||
-      "null"
-    );
-  } catch {
-    storedUser = null;
-  }
+  useEffect(() => {
+    try {
+      const storedToken = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const rawUser =
+        localStorage.getItem("bitetrack_user") ||
+        sessionStorage.getItem("bitetrack_user");
 
-  const effectiveUser = user || storedUser;
-  const effectiveSignedIn = Boolean(isSignedIn || storedToken || effectiveUser);
+      if (storedToken && rawUser) {
+        setSessionUser(JSON.parse(rawUser));
+        setSessionSignedIn(true);
+      } else {
+        setSessionUser(null);
+        setSessionSignedIn(false);
+      }
+    } catch (err) {
+      console.error("Home auth bootstrap failed:", err);
+      setSessionUser(null);
+      setSessionSignedIn(false);
+    } finally {
+      setSessionLoaded(true);
+    }
+  }, []);
+
+  const effectiveUser = user || sessionUser;
+  const effectiveSignedIn = Boolean(isSignedIn || sessionSignedIn || effectiveUser);
   
   // Dynamic budget storage key - computed at save time, not at mount time
   const getBudgetStorageKey = () => {
@@ -53,7 +67,7 @@ const [stats, setStats] = useState({
   topRestaurant: "-"
 });
 
-  if (!authReady) {
+  if (!authReady || !sessionLoaded) {
     return null;
   }
 
