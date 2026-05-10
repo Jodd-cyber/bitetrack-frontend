@@ -1,11 +1,8 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 
 const OAuthSuccess = () => {
-  const navigate = useNavigate();
-  const { login, isSignedIn } = useAuth();
-  const [isProcessing, setIsProcessing] = useState(true);
+  const { login } = useAuth();
 
   const decodeJwtPayload = (token) => {
     const payload = token.split(".")[1] || "";
@@ -19,23 +16,29 @@ const OAuthSuccess = () => {
     const token = params.get("token");
     const error = params.get("error");
 
+    console.log("🟡 OAuthSuccess: token =", !!token, "error =", error);
+
     // Handle backend errors
     if (error) {
-      console.error("OAuth Error:", error);
-      navigate(`/signin?error=${error}`, { replace: true });
+      console.error("❌ OAuth Error:", error);
+      window.location.href = `/signin?error=${error}`;
       return;
     }
 
     // Handle success
     if (token) {
       try {
-        // Store token
-        localStorage.setItem("token", token);
+        console.log("✅ Processing token...");
 
         // Decode JWT to get user info
         const payload = decodeJwtPayload(token);
+        console.log("✅ Decoded payload:", payload);
 
-        // Update auth context
+        // Store token FIRST
+        localStorage.setItem("token", token);
+        console.log("✅ Token stored in localStorage");
+
+        // Call login to update auth context
         login(
           {
             name: payload.name,
@@ -45,29 +48,35 @@ const OAuthSuccess = () => {
           token,
           true // rememberMe = true
         );
+        console.log("✅ Auth context updated");
 
-        // Redirect with a full navigation so the saved session is used immediately
-        setIsProcessing(false);
-        window.location.replace("/");
+        // ⏳ Wait 100ms for state to update, then redirect
+        setTimeout(() => {
+          console.log("🟢 Redirecting to home...");
+          window.location.href = "/";
+        }, 100);
+
       } catch (err) {
         console.error("❌ Failed to process OAuth token:", err);
-        navigate(`/signin?error=invalid_token`, { replace: true });
+        window.location.href = `/signin?error=invalid_token`;
       }
     } else {
-      // No token and no error
-      navigate("/signin", { replace: true });
+      console.log("❌ No token found");
+      window.location.href = "/signin";
     }
-  }, [navigate, login]);
+  }, [login]);
 
   // Show loading while processing
   return (
     <div style={{ 
       display: "flex", 
-      justifyContent: "center", 
-      alignItems: "center", 
-      height: "100vh" 
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+      flexDirection: "column"
     }}>
-      <p>Completing sign in...</p>
+      <p>✨ Completing sign in...</p>
+      <p style={{ fontSize: "12px", marginTop: "10px", color: "#666" }}>Please wait...</p>
     </div>
   );
 };
