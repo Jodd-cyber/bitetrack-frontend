@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { parseApiResponse } from "../utils/apiResponse";
 import getApiBase from "../utils/apiBase";
-import warmBackend from "../utils/warmBackend";
 
 function SignIn() {
   const navigate = useNavigate();
@@ -22,9 +21,7 @@ const [showPassword, setShowPassword] = useState(false);
     if (isSubmitting || isRedirecting) return;
 
     setIsRedirecting(true);
-console.log(getApiBase());
-    await warmBackend();
-    window.location.replace(url);
+    window.location.assign(url);
   };
 
 

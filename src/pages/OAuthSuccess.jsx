@@ -6,6 +6,13 @@ const OAuthSuccess = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  const decodeJwtPayload = (token) => {
+    const payload = token.split(".")[1] || "";
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+    return JSON.parse(atob(padded));
+  };
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
@@ -25,7 +32,7 @@ const OAuthSuccess = () => {
         localStorage.setItem("token", token);
 
         // Decode JWT to get user info
-        const payload = JSON.parse(atob(token.split(".")[1]));
+        const payload = decodeJwtPayload(token);
 
         // Update auth context
         login(
