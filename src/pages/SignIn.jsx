@@ -1,13 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { parseApiResponse } from "../utils/apiResponse";
 import getApiBase from "../utils/apiBase";
 
 function SignIn() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+ const { login, isSignedIn } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [error, setError] = useState('');
@@ -16,6 +16,12 @@ function SignIn() {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 const [showPassword, setShowPassword] = useState(false);
+
+useEffect(() => {
+  if (isSignedIn) {
+    navigate("/");
+  }
+}, [isSignedIn, navigate]);
 
   const handleOAuthRedirect = async (url) => {
     if (isSubmitting || isRedirecting) return;
