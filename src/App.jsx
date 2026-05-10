@@ -8,6 +8,21 @@ import SignIn from "./pages/SignIn";
 function ProtectedRoute({ element }) {
   const { isSignedIn, isLoading } = useAuth();
 
+  const storedToken = localStorage.getItem("token") || sessionStorage.getItem("token");
+  let storedUser = null;
+
+  try {
+    storedUser = JSON.parse(
+      localStorage.getItem("bitetrack_user") ||
+      sessionStorage.getItem("bitetrack_user") ||
+      "null"
+    );
+  } catch {
+    storedUser = null;
+  }
+
+  const hasPersistedAuth = Boolean(storedToken && storedUser);
+
   // ⏳ Show loading while auth state is being restored
   if (isLoading) {
     return (
@@ -23,7 +38,7 @@ function ProtectedRoute({ element }) {
   }
 
   // ❌ Not signed in → redirect to signin
-  if (!isSignedIn) {
+  if (!isSignedIn && !hasPersistedAuth) {
     return <Navigate to="/signin" replace />;
   }
 
