@@ -18,8 +18,43 @@ const readStoredUser = () => {
   }
 };
 
+const decodeJwtPayload = (token) => {
+  const payload = token.split(".")[1] || "";
+  const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+  return JSON.parse(atob(padded));
+};
+
+const readAuthFromUrl = () => {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token");
+
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const payload = decodeJwtPayload(token);
+    const userData = {
+      name: payload.name,
+      email: payload.email,
+      id: payload.userId,
+    };
+
+    localStorage.setItem("token", token);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+
+    return userData;
+  } catch (err) {
+    console.error("OAuth URL bootstrap failed:", err);
+    return null;
+  }
+};
+
+const readInitialUser = () => readStoredUser() || readAuthFromUrl();
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => readStoredUser());
+  const [user, setUser] = useState(() => readInitialUser());
   // load user from localStorage on first app load
 useEffect(() => {
   warmBackend();
