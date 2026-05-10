@@ -5,12 +5,17 @@ const AuthContext = createContext(null);
 const STORAGE_KEY = "bitetrack_user";
 
 const readStoredUser = () => {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  const raw =
+    localStorage.getItem(STORAGE_KEY) ||
+    sessionStorage.getItem(STORAGE_KEY);
+
   if (!raw) return null;
+
   try {
     return JSON.parse(raw);
   } catch {
     localStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(STORAGE_KEY);
     return null;
   }
 };
