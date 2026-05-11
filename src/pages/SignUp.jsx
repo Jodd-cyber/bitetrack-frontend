@@ -134,12 +134,12 @@ function SignUp() {
               </div>
 
               {/* Terms Checkbox */}
-              <div className="checkbox-container">
+              <label className="custom-checkbox">
                 <input
                   type="checkbox"
                   required
-                  style={{ cursor: 'pointer', marginTop: '2px' }}
                 />
+                <span className="checkmark"></span>
                 <span>
                   I agree to the{' '}
                   <button
@@ -158,7 +158,7 @@ function SignUp() {
                     Privacy Policy
                   </button>
                 </span>
-              </div>
+              </label>
 
               <div className="btn" style={{ width: '100%' }}>
                 <button className="button1" type="submit" disabled={isSubmitting} style={{ width: '100%', marginBottom: '10px' }}>

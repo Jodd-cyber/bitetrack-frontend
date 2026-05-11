@@ -128,15 +128,15 @@ const [showPassword, setShowPassword] = useState(false);
             </div>
 
             {/* Remember Me */}
-            <div className="checkbox-container">
+            <label className="custom-checkbox">
               <input
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                style={{ cursor: 'pointer' }}
               />
-              <label>Remember me</label>
-            </div>
+              <span className="checkmark"></span>
+              Remember me
+            </label>
 
             <div className="btn">
               <button className="button1" type="submit" disabled={isSubmitting}>
