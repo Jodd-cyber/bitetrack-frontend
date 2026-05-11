@@ -46,7 +46,10 @@ export function AuthProvider({ children }) {
 
     if (token && storedUser) {
       setUser(JSON.parse(storedUser));
-    } else {
+    }
+    // Only clear user if there's genuinely no token AND no stored user
+    // Don't clobber a user that was already set by the useState initializer
+    if (!token && !storedUser) {
       setUser(null);
     }
   } catch (err) {
@@ -56,6 +59,7 @@ export function AuthProvider({ children }) {
     setIsLoading(false);
   }
 }, []);
+
 
   const login = (userData, token, rememberMe = true) => {
     console.log("🟢 login() called with:", userData.email);

@@ -19,6 +19,14 @@ import Ledger from "./pages/Ledger";
 function ProtectedRoute({ element }) {
   const { isSignedIn, isLoading } = useAuth();
 
+  // Also check localStorage directly as a fallback
+  const hasToken = Boolean(
+    localStorage.getItem("token") || sessionStorage.getItem("token")
+  );
+  const hasUser = Boolean(
+    localStorage.getItem("bitetrack_user") || sessionStorage.getItem("bitetrack_user")
+  );
+
   // Show loading while auth restores
   if (isLoading) {
     return (
@@ -33,8 +41,8 @@ function ProtectedRoute({ element }) {
     );
   }
 
-  // If still not signed in after loading, redirect
-  if (!isSignedIn) {
+  // If still not signed in after loading AND no token in storage, redirect
+  if (!isSignedIn && !hasToken && !hasUser) {
     return <Navigate to="/signin" replace />;
   }
 
@@ -48,14 +56,15 @@ function App() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        {/* Home is PUBLIC - it already handles both auth states internally */}
+        <Route path="/" element={<Home />} />
+
         {/* Protected Routes - require login */}
-        <Route path="/" element={<ProtectedRoute element={<Home />} />} />
         <Route path="/ledger" element={<ProtectedRoute element={<Ledger />} />} />
 
         {/* Public Routes - no login required */}
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/learn-more" element={<LearnMore />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/about" element={<About />} />

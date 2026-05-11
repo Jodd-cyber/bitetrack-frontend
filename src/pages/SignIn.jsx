@@ -17,6 +17,14 @@ function SignIn() {
   const [rememberMe, setRememberMe] = useState(false);
 const [showPassword, setShowPassword] = useState(false);
 
+  // ✅ Auto-redirect if already signed in (e.g. after OAuth stored token)
+  useEffect(() => {
+    const hasToken = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const hasUser = localStorage.getItem("bitetrack_user") || sessionStorage.getItem("bitetrack_user");
+    if (isSignedIn || (hasToken && hasUser)) {
+      navigate("/", { replace: true });
+    }
+  }, [isSignedIn, navigate]);
 
 
   const handleOAuthRedirect = async (url) => {
