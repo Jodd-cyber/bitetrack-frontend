@@ -397,52 +397,52 @@ useEffect(() => {
 <div className="min-h-screen bg-[var(--app-bg)] overflow-hidden">
   <div className="mx-auto max-w-6xl">
     {/* ═══════════════════════════════════════════════════
-        ENHANCED HEADER
+        ENHANCED HEADER (Ultra-Responsive)
     ═══════════════════════════════════════════════════ */}
     <motion.header
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="mx-4 mt-4 px-4 py-4 sticky top-4 bg-[var(--app-surface)]/95 backdrop-blur-xl z-40 dark:border dark:border-[var(--app-border)] shadow-xl rounded-full sm:px-6"
+      className="mx-2 md:mx-4 mt-4 px-2 md:px-4 py-4 sticky top-4 bg-[var(--app-surface)]/95 backdrop-blur-xl z-40 dark:border dark:border-[var(--app-border)] shadow-xl rounded-2xl md:rounded-full sm:px-6"
     >
       {/* Mobile & Tablet Header (Merged & Enhanced) */}
       <div className="md:hidden">
-        <div className="flex items-center justify-between gap-4 overflow-x-auto no-scrollbar py-1">
+        <div className="flex items-center justify-between gap-1.5 py-1">
           {/* Logo Section */}
-          <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
+          <Link to="/" className="flex items-center gap-1 group flex-shrink-0">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl blur-md opacity-50 group-hover:opacity-100 transition-opacity"></div>
-              <div className="relative w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white text-xs font-bold group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-lg">
+              <div className="relative w-7 h-7 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white text-[10px] font-bold group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-lg">
                 B
               </div>
             </div>
           </Link>
 
           {/* Navigation & Actions Row */}
-          <div className="flex items-center gap-3">
-            <button className="Btn text-[10px] px-3 py-1.5" onClick={() => document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' })}>
+          <div className="flex items-center gap-1.5 flex-1 justify-end">
+            <button className="Btn text-[9px] px-2.5 py-1.5 flex-shrink-0" onClick={() => document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' })}>
               Features
             </button>
-            <button className="Btn text-[10px] px-3 py-1.5" onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}>
+            <button className="Btn text-[9px] px-2.5 py-1.5 flex-shrink-0" onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}>
               About
             </button>
 
             {effectiveSignedIn ? (
-              <div className="flex items-center gap-3">
-                <Link to="/ledger" className="button-3d scale-75 origin-right">
+              <div className="flex items-center gap-1.5">
+                <Link to="/ledger" className="button-3d scale-[0.7] origin-center flex-shrink-0">
                   <div className="button-outer">
                     <div className="button-inner">
-                      <span className="text-xs">My Ledger</span>
+                      <span className="text-[11px] px-1">Ledger</span>
                     </div>
                   </div>
                 </Link>
 
-                <div className="relative">
+                <div className="relative flex-shrink-0">
                   <button
                     onClick={() => setShowSettings(!showSettings)}
-                    className="Btn px-2 py-1.5"
+                    className="Btn px-1.5 py-1.5"
                   >
-                    <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center text-white text-[10px] font-bold border border-white/30">
+                    <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center text-white text-[9px] font-bold border border-white/30">
                       {effectiveUser?.name?.[0]?.toUpperCase() || "U"}
                     </div>
                     <svg className={`w-3 h-3 transition-transform ${showSettings ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -471,6 +471,21 @@ useEffect(() => {
                               <div className="slider"><div className="toggle-orb"></div></div>
                             </label>
                           </div>
+                          <button onClick={handleLogout} className="w-full px-4 py-3 flex items-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 border-t border-[var(--app-border)] transition-colors">
+                            <span className="text-xs font-medium">Logout</span>
+                          </button>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            ) : (
+              <Link to="/signin" className="Btn text-[10px] px-4 py-1.5 flex-shrink-0">Sign In</Link>
+            )}
+          </div>
+        </div>
+      </div>           </div>
                           <button onClick={handleLogout} className="w-full px-4 py-3 flex items-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 border-t border-[var(--app-border)] transition-colors">
                             <span className="text-xs font-medium">Logout</span>
                           </button>
