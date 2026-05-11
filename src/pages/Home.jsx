@@ -405,85 +405,116 @@ useEffect(() => {
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="mx-2 md:mx-4 mt-4 px-2 md:px-4 py-4 sticky top-4 bg-[var(--app-surface)]/95 backdrop-blur-xl z-40 dark:border dark:border-[var(--app-border)] shadow-xl rounded-2xl md:rounded-full sm:px-6"
     >
-      {/* Mobile & Tablet Header (Merged & Enhanced) */}
+      {/* Mobile & Tablet Header (Simplified Top Bar) */}
       <div className="md:hidden">
-        <div className="flex items-center justify-between gap-1.5 py-1">
+        <div className="flex items-center justify-between py-1">
           {/* Logo Section */}
-          <Link to="/" className="flex items-center gap-1 group flex-shrink-0">
+          <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl blur-md opacity-50 group-hover:opacity-100 transition-opacity"></div>
-              <div className="relative w-7 h-7 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white text-[10px] font-bold group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-lg">
+              <div className="relative w-9 h-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white text-xs font-bold group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-lg">
                 B
               </div>
             </div>
+            <span className="text-lg font-bold text-[var(--app-text)]">BiteTrack</span>
           </Link>
 
-          {/* Navigation & Actions Row */}
-          <div className="flex items-center gap-1.5 flex-1 justify-end">
-            <button className="Btn text-[9px] px-2.5 py-1.5 flex-shrink-0" onClick={() => document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' })}>
-              Features
-            </button>
-            <button className="Btn text-[9px] px-2.5 py-1.5 flex-shrink-0" onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}>
-              About
-            </button>
-
+          {/* User Profile (Top Right) */}
+          <div className="flex items-center gap-3">
             {effectiveSignedIn ? (
-              <div className="flex items-center gap-1.5">
-                <Link to="/ledger" className="button-3d scale-[0.7] origin-center flex-shrink-0">
-                  <div className="button-outer">
-                    <div className="button-inner">
-                      <span className="text-[11px] px-1">Ledger</span>
-                    </div>
+              <div className="relative flex-shrink-0">
+                <button
+                  onClick={() => setShowSettings(!showSettings)}
+                  className="Btn px-2 py-2"
+                >
+                  <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-white text-[10px] font-bold border border-white/30">
+                    {effectiveUser?.name?.[0]?.toUpperCase() || "U"}
                   </div>
-                </Link>
+                  <svg className={`w-4 h-4 transition-transform ${showSettings ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
 
-                <div className="relative flex-shrink-0">
-                  <button
-                    onClick={() => setShowSettings(!showSettings)}
-                    className="Btn px-1.5 py-1.5"
-                  >
-                    <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center text-white text-[9px] font-bold border border-white/30">
-                      {effectiveUser?.name?.[0]?.toUpperCase() || "U"}
-                    </div>
-                    <svg className={`w-3 h-3 transition-transform ${showSettings ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-
-                  <AnimatePresence>
-                    {showSettings && (
-                      <>
-                        <div className="fixed inset-0 z-30" onClick={() => setShowSettings(false)}></div>
-                        <motion.div
-                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                          className="absolute right-0 mt-3 w-64 bg-[var(--app-surface)] rounded-2xl shadow-2xl border border-[var(--app-border)] py-2 z-50 overflow-hidden"
-                        >
-                          <div className="px-4 py-3 border-b border-[var(--app-border)] bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-                            <p className="text-xs font-semibold text-[var(--app-text)] truncate">{user?.name}</p>
-                            <p className="text-[10px] text-[var(--app-text-muted)] truncate">{user?.email}</p>
+                <AnimatePresence>
+                  {showSettings && (
+                    <>
+                      <div className="fixed inset-0 z-30" onClick={() => setShowSettings(false)}></div>
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute right-0 mt-4 w-64 bg-[var(--app-surface)] backdrop-blur-2xl rounded-2xl shadow-2xl border border-[var(--app-border)] py-2 z-50 overflow-hidden origin-top-right"
+                      >
+                        <div className="px-4 py-3 border-b border-[var(--app-border)] bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20">
+                          <p className="text-xs font-semibold text-[var(--app-text)] truncate">{user?.name}</p>
+                          <p className="text-[10px] text-[var(--app-text-muted)] truncate">{user?.email}</p>
+                        </div>
+                        <div className="w-full px-4 py-3 flex items-center gap-3 hover:bg-[var(--app-surface-soft)] transition-colors">
+                          <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                             <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                           </div>
-                          <div className="w-full px-4 py-2 flex items-center gap-2 hover:bg-[var(--app-surface-soft)] transition-colors">
-                            <span className="text-xs flex-1 text-left text-[var(--app-text)]">Theme</span>
-                            <label className="cosmic-toggle scale-75">
-                              <input type="checkbox" checked={darkMode} onChange={toggleTheme} />
-                              <div className="slider"><div className="toggle-orb"></div></div>
-                            </label>
+                          <span className="text-xs flex-1 text-left text-[var(--app-text)]">Theme</span>
+                          <label className="cosmic-toggle scale-75">
+                            <input type="checkbox" checked={darkMode} onChange={toggleTheme} />
+                            <div className="slider"><div className="toggle-orb"></div></div>
+                          </label>
+                        </div>
+                        <button onClick={handleLogout} className="w-full px-4 py-4 flex items-center gap-3 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 border-t border-[var(--app-border)] transition-colors">
+                          <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                           </div>
-                          <button onClick={handleLogout} className="w-full px-4 py-3 flex items-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 border-t border-[var(--app-border)] transition-colors">
-                            <span className="text-xs font-medium">Logout</span>
-                          </button>
-                        </motion.div>
-                      </>
-                    )}
-                  </AnimatePresence>
-                </div>
+                          <span className="text-xs font-semibold">Logout</span>
+                        </button>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
               </div>
             ) : (
-              <Link to="/signin" className="Btn text-[10px] px-4 py-1.5 flex-shrink-0">Sign In</Link>
+              <Link to="/signin" className="Btn text-xs px-5 py-2">Sign In</Link>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Bottom Navigation (Mobile Only) */}
+      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-50">
+        <div className="bg-[var(--app-surface)]/80 backdrop-blur-2xl border border-[var(--app-border)] shadow-2xl rounded-2xl px-2 py-2 flex items-center justify-around gap-2">
+          <button 
+            onClick={() => document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' })}
+            className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-[var(--app-surface-soft)] transition-all flex-1"
+          >
+            <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />
+              </svg>
+            </div>
+            <span className="text-[10px] font-bold text-[var(--app-text)]">Features</span>
+          </button>
+
+          <button 
+            onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}
+            className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-[var(--app-surface-soft)] transition-all flex-1"
+          >
+            <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <span className="text-[10px] font-bold text-[var(--app-text)]">About</span>
+          </button>
+
+          {effectiveSignedIn && (
+            <Link 
+              to="/ledger"
+              className="flex flex-col items-center gap-1 p-2 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg flex-1 group active:scale-95 transition-transform"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              <span className="text-[10px] font-bold">Ledger</span>
+            </Link>
+          )}
         </div>
       </div>
 
