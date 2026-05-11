@@ -7,38 +7,43 @@ html {
 }
 
 :root {
-  --app-bg: #f7f3ec;
-  --app-surface: #fffaf4;
-  --app-surface-soft: #f3ebe1;
-  --app-surface-hover: #eadfcd;
+  --app-bg: transparent;
+  --app-surface: rgba(255, 255, 255, 0.4);
+  --app-surface-soft: rgba(255, 255, 255, 0.6);
+  --app-surface-hover: rgba(255, 255, 255, 0.5);
   --app-text: #1f2937;
-  --app-text-muted: #667085;
-  --app-text-soft: #475467;
-  --app-accent: #d97706;
-  --app-accent-soft: rgba(217, 119, 6, 0.12);
-  --app-accent-hover: #b45309;
-  --app-border: #e7dccd;
-  --app-shadow: rgba(0, 0, 0, 0.08);
+  --app-text-muted: #4b5563;
+  --app-text-soft: #374151;
+  --app-accent: #3b82f6;
+  --app-accent-soft: rgba(59, 130, 246, 0.1);
+  --app-accent-hover: #2563eb;
+  --app-border: rgba(255, 255, 255, 0.3);
+  --app-shadow: rgba(0, 0, 0, 0.1);
 }
 
-/* Light Theme Surface Tuning */
+/* Glassmorphism Theme Surface Tuning */
 html:not(.dark) body {
-  background-color: var(--app-bg);
-  background-image:
-    radial-gradient(at 20% 0%, rgba(217, 119, 6, 0.06) 0px, transparent 50%),
-    radial-gradient(at 80% 100%, rgba(251, 191, 36, 0.04) 0px, transparent 50%);
-  background-attachment: fixed;
+  background-color: transparent;
+  background-image: none;
 }
 
 html:not(.dark) .bg-white,
 html:not(.dark) .bg-white\/80,
-html:not(.dark) .bg-white\/90 {
+html:not(.dark) .bg-white\/90,
+html:not(.dark) [class*="bg-[var(--app-surface)]"],
+html:not(.dark) .bg-\[var\(--app-surface\)\] {
   background-color: var(--app-surface) !important;
+  backdrop-filter: blur(12px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+  border: 1px solid var(--app-border) !important;
 }
 
 html:not(.dark) .bg-gray-50,
-html:not(.dark) .bg-gray-100 {
+html:not(.dark) .bg-gray-100,
+html:not(.dark) .bg-\[var\(--app-surface-soft\)\] {
   background-color: var(--app-surface-soft) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
 }
 
 html:not(.dark) .bg-gray-200 {
@@ -55,19 +60,23 @@ html:not(.dark) .border-\[var\(--app-border\)\] {
 html:not(.dark) input,
 html:not(.dark) textarea,
 html:not(.dark) select {
-  background-color: var(--app-surface) !important;
-  border-color: var(--app-border) !important;
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: blur(4px) !important;
+  border: 1px solid var(--app-border) !important;
   color: var(--app-text) !important;
+  border-radius: 12px !important;
 }
 
 html:not(.dark) input::placeholder,
 html:not(.dark) textarea::placeholder {
   color: var(--app-text-muted) !important;
+  opacity: 0.7;
 }
 
 html:not(.dark) input:focus,
 html:not(.dark) textarea:focus,
 html:not(.dark) select:focus {
+  background-color: rgba(255, 255, 255, 0.7) !important;
   border-color: var(--app-accent) !important;
   box-shadow: 0 0 0 3px var(--app-accent-soft) !important;
 }

@@ -50,12 +50,16 @@ function ProtectedRoute({ element }) {
   return element;
 }
 
+import VantaBackground from "./components/VantaBackground";
+
 function App() {
   const location = useLocation();
 
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
+    <>
+      <VantaBackground />
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
         {/* Home is PUBLIC - it already handles both auth states internally */}
         <Route path="/" element={<Home />} />
 
