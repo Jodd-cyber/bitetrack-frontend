@@ -76,12 +76,22 @@
 }
 
 .input-field {
-  background: none;
+  background-color: transparent !important;
   border: none;
   outline: none;
   width: 100%;
   color: rgb(0, 255, 200);
   font-size: 15px;
+}
+
+/* Fix for browser autofill background changing to white */
+.input-field:-webkit-autofill,
+.input-field:-webkit-autofill:hover, 
+.input-field:-webkit-autofill:focus, 
+.input-field:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #171717 inset !important;
+  -webkit-text-fill-color: rgb(0, 255, 200) !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 .input-field::placeholder {
