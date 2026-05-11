@@ -1,25 +1,85 @@
+/* Base Layout */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  transition: background-color 0.3s ease;
+}
+
+/* Default (Light Mode) */
+.auth-container {
+  background-color: #f7f3ec;
+}
+
+/* Dark Mode */
+html.dark .auth-container {
+  background-color: #000000;
+}
+
+.card {
+  background-image: linear-gradient(163deg, #00ff75 0%, #3700ff 100%);
+  border-radius: 22px;
+  transition: all .3s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Light mode gradient override */
+html:not(.dark) .card {
+  background-image: linear-gradient(163deg, #3b82f6 0%, #8b5cf6 100%);
+}
+
+.card:hover {
+  box-shadow: 0px 0px 30px 1px rgba(0, 255, 117, 0.30);
+}
+
+html:not(.dark) .card:hover {
+  box-shadow: 0px 0px 30px 1px rgba(59, 130, 246, 0.30);
+}
+
+.card2 {
+  border-radius: 22px;
+  transition: all .2s;
+  background-color: transparent;
+  height: 100%;
+  width: 100%;
+}
+
+.card2:hover {
+  transform: scale(0.98);
+  border-radius: 20px;
+}
+
 .form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding-left: 2em;
-  padding-right: 2em;
-  padding-bottom: 0.4em;
-  background-color: #171717;
-  border-radius: 25px;
-  transition: .4s ease-in-out;
+  gap: 12px;
+  padding: 2em;
+  padding-bottom: 2em;
+  background-color: #171717; /* Dark mode default */
+  border-radius: 20px;
+  transition: background-color 0.3s ease;
+  width: 100%;
 }
 
-.form:hover {
-  transform: scale(1.05);
-  border: 1px solid black;
+html:not(.dark) .form {
+  background-color: #ffffff;
 }
 
 #heading {
   text-align: center;
-  margin: 2em;
-  color: rgb(255, 255, 255);
-  font-size: 1.2em;
+  margin-bottom: 1em;
+  color: rgb(0, 255, 200);
+  font-size: 1.8em;
+  font-weight: bold;
+}
+
+html:not(.dark) #heading {
+  color: #3b82f6;
 }
 
 .field {
@@ -28,7 +88,7 @@
   justify-content: center;
   gap: 0.5em;
   border-radius: 25px;
-  padding: 0.6em;
+  padding: 0.8em 1em;
   border: none;
   outline: none;
   color: white;
@@ -36,10 +96,21 @@
   box-shadow: inset 2px 5px 10px rgb(5, 5, 5);
 }
 
+html:not(.dark) .field {
+  background-color: #f9fafb;
+  box-shadow: inset 2px 5px 10px rgba(0, 0, 0, 0.05);
+  color: #1f2937;
+}
+
 .input-icon {
   height: 1.3em;
   width: 1.3em;
-  fill: white;
+  fill: rgb(0, 255, 200);
+  flex-shrink: 0;
+}
+
+html:not(.dark) .input-icon {
+  fill: #3b82f6;
 }
 
 .input-field {
@@ -47,66 +118,166 @@
   border: none;
   outline: none;
   width: 100%;
-  color: #d3d3d3;
+  color: rgb(0, 255, 200);
+  font-size: 15px;
+}
+
+html:not(.dark) .input-field {
+  color: #1f2937;
+}
+
+.input-field::placeholder {
+  color: #888;
+}
+
+html:not(.dark) .input-field::placeholder {
+  color: #9ca3af;
 }
 
 .form .btn {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   flex-direction: row;
-  margin-top: 2.5em;
+  margin-top: 1em;
+  gap: 10px;
+}
+
+.button1, .button2, .button3 {
+  padding: 0.8em;
+  border-radius: 5px;
+  border: none;
+  outline: none;
+  transition: .4s ease-in-out;
+  background-image: linear-gradient(163deg, #00ff75 0%, #3700ff 100%);
+  color: rgb(0, 0, 0);
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+
+html:not(.dark) .button1, 
+html:not(.dark) .button2, 
+html:not(.dark) .button3 {
+  background-image: linear-gradient(163deg, #3b82f6 0%, #8b5cf6 100%);
+  color: white;
 }
 
 .button1 {
-  padding: 0.5em;
-  padding-left: 1.1em;
-  padding-right: 1.1em;
-  border-radius: 5px;
-  margin-right: 0.5em;
-  border: none;
-  outline: none;
-  transition: .4s ease-in-out;
-  background-color: #252525;
-  color: white;
-  cursor: pointer;
-}
-
-.button1:hover {
-  background-color: black;
-  color: white;
+  flex: 1;
 }
 
 .button2 {
-  padding: 0.5em;
-  padding-left: 2.3em;
-  padding-right: 2.3em;
-  border-radius: 5px;
-  border: none;
-  outline: none;
-  transition: .4s ease-in-out;
-  background-color: #252525;
-  color: white;
-  cursor: pointer;
+  flex: 1;
 }
 
-.button2:hover {
-  background-color: black;
+.button1:hover, .button2:hover {
+  background-image: linear-gradient(163deg, #00642f 0%, #13034b 100%);
+  color: rgb(0, 255, 200);
+}
+
+html:not(.dark) .button1:hover,
+html:not(.dark) .button2:hover {
+  background-image: linear-gradient(163deg, #2563eb 0%, #7c3aed 100%);
   color: white;
 }
 
 .button3 {
-  margin-bottom: 3em;
-  padding: 0.5em;
-  border-radius: 5px;
-  border: none;
-  outline: none;
-  transition: .4s ease-in-out;
-  background-color: #252525;
-  color: white;
-  cursor: pointer;
+  width: 100%;
 }
 
 .button3:hover {
-  background-color: red;
+  background-image: linear-gradient(163deg, #a00000fa 0%, #d10050 100%);
+  color: rgb(255, 255, 255);
+}
+
+html:not(.dark) .button3:hover {
+  background-image: linear-gradient(163deg, #dc2626 0%, #991b1b 100%);
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  background-color: #252525;
   color: white;
+  cursor: pointer;
+  transition: .4s ease-in-out;
+  font-weight: 500;
+  width: 100%;
+}
+
+html:not(.dark) .social-btn {
+  background-color: #f3f4f6;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+}
+
+.social-btn:hover {
+  background-color: black;
+}
+
+html:not(.dark) .social-btn:hover {
+  background-color: #e5e7eb;
+}
+
+/* Checkbox container */
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #d3d3d3;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+html:not(.dark) .checkbox-container {
+  color: #4b5563;
+}
+
+/* Footer links */
+.footer-links {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+html:not(.dark) .footer-links {
+  color: #6b7280;
+}
+
+.footer-links button,
+.footer-links a {
+  color: inherit;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.footer-links button:hover,
+.footer-links a:hover {
+  color: #e0ffff;
+}
+
+html:not(.dark) .footer-links button:hover,
+html:not(.dark) .footer-links a:hover {
+  color: #111827;
+}
+
+.back-link {
+  text-decoration: none !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }

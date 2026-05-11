@@ -58,8 +58,9 @@ function SignUp() {
         exit={{ opacity: 0, y: -10 }}
         transition={{ duration: 0.25 }}
       >
-        <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center p-6">
-          <div className="w-full max-w-sm">
+        <div className="auth-container">
+          <div className="card">
+            <div className="card2">
 
             <form onSubmit={handleSubmit} className="form">
               <p id="heading">Sign Up</p>
@@ -133,7 +134,7 @@ function SignUp() {
               </div>
 
               {/* Terms Checkbox */}
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: '#d3d3d3', fontSize: '12px', marginTop: '10px' }}>
+              <div className="checkbox-container">
                 <input
                   type="checkbox"
                   required
@@ -144,7 +145,7 @@ function SignUp() {
                   <button
                     type="button"
                     onClick={() => setShowTerms(true)}
-                    style={{ background: 'none', border: 'none', color: 'white', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
+                    style={{ background: 'none', border: 'none', color: 'inherit', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
                   >
                     Terms
                   </button>
@@ -152,30 +153,28 @@ function SignUp() {
                   <button
                     type="button"
                     onClick={() => setShowPrivacy(true)}
-                    style={{ background: 'none', border: 'none', color: 'white', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
+                    style={{ background: 'none', border: 'none', color: 'inherit', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
                   >
                     Privacy Policy
                   </button>
                 </span>
               </div>
 
-              <div className="btn" style={{ marginTop: '1.5em', width: '100%' }}>
-                <button className="button1" type="submit" disabled={isSubmitting} style={{ width: '100%', padding: '0.8em', marginBottom: '20px', marginRight: 0 }}>
+              <div className="btn" style={{ width: '100%' }}>
+                <button className="button1" type="submit" disabled={isSubmitting} style={{ width: '100%', marginBottom: '10px' }}>
                   {isSubmitting ? 'Creating account...' : 'Create account'}
                 </button>
               </div>
 
               {/* Social Logins */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '-10px', paddingBottom: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <button
                   type="button"
                   onClick={() => {
                      window.location.assign(`${getApiBase()}/api/auth/google`);
                   }}
                   disabled={isSubmitting}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '10px', borderRadius: '5px', border: 'none', backgroundColor: '#252525', color: 'white', cursor: 'pointer', transition: '.4s ease-in-out' }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'black'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#252525'}
+                  className="social-btn"
                 >
                   <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" style={{ width: '20px', height: '20px' }} />
                   Sign up with Google
@@ -187,23 +186,20 @@ function SignUp() {
                      window.location.assign(`${getApiBase()}/api/auth/github`);
                   }}
                   disabled={isSubmitting}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '10px', borderRadius: '5px', border: 'none', backgroundColor: '#252525', color: 'white', cursor: 'pointer', transition: '.4s ease-in-out' }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'black'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#252525'}
+                  className="social-btn"
                 >
-                  <img src="https://www.svgrepo.com/show/512317/github-142.svg" alt="GitHub" style={{ width: '20px', height: '20px', filter: 'invert(1)' }} />
+                  <img src="https://www.svgrepo.com/show/512317/github-142.svg" alt="GitHub" className="dark:invert-0" style={{ width: '20px', height: '20px', filter: 'var(--github-icon-filter, invert(1))' }} />
                   Sign up with GitHub
                 </button>
               </div>
             </form>
 
             {/* Footer Links */}
-            <div className="mt-8 text-center text-xs text-gray-500 space-y-3">
+            <div className="footer-links">
               <p>
                 Already have an account?{' '}
                 <Link
                   to="/signin"
-                  className="hover:text-white transition-colors underline font-medium"
                 >
                   Sign in
                 </Link>
@@ -211,13 +207,14 @@ function SignUp() {
               <div>
                 <Link
                   to="/"
-                  className="text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-1"
+                  className="back-link"
                 >
                   <span>←</span> Back to Home
                 </Link>
               </div>
             </div>
 
+            </div>
           </div>
         </div>
       </motion.div>

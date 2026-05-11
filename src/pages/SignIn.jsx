@@ -78,8 +78,9 @@ const [showPassword, setShowPassword] = useState(false);
 
   return (
     <>
-      <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center p-6">
-        <div className="w-full max-w-sm">
+      <div className="auth-container">
+        <div className="card">
+          <div className="card2">
 
           <form onSubmit={handleSubmit} className="form">
             <p id="heading">Login</p>
@@ -127,7 +128,7 @@ const [showPassword, setShowPassword] = useState(false);
             </div>
 
             {/* Remember Me */}
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', color: '#d3d3d3', fontSize: '13px', marginTop: '10px' }}>
+            <div className="checkbox-container">
               <input
                 type="checkbox"
                 checked={rememberMe}
@@ -151,14 +152,12 @@ const [showPassword, setShowPassword] = useState(false);
             </button>
 
             {/* Social Logins */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '-20px', paddingBottom: '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button
                 type="button"
                 onClick={() => handleOAuthRedirect(`${getApiBase()}/api/auth/google`)}
                 disabled={isSubmitting || isRedirecting}
-                style={{ display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', gap: '10px', padding: '10px', borderRadius: '5px', border: 'none', backgroundColor: '#252525', color: 'white', cursor: 'pointer', transition: '.4s ease-in-out' }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'black'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#252525'}
+                className="social-btn"
               >
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" style={{ width: '20px', height: '20px' }} />
                 Continue with Google
@@ -168,11 +167,9 @@ const [showPassword, setShowPassword] = useState(false);
                 type="button"
                 onClick={() => handleOAuthRedirect(`${getApiBase()}/api/auth/github`)}
                 disabled={isSubmitting || isRedirecting}
-                style={{ display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', gap: '10px', padding: '10px', borderRadius: '5px', border: 'none', backgroundColor: '#252525', color: 'white', cursor: 'pointer', transition: '.4s ease-in-out' }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'black'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#252525'}
+                className="social-btn"
               >
-                <img src="https://www.svgrepo.com/show/512317/github-142.svg" alt="GitHub" style={{ width: '20px', height: '20px', filter: 'invert(1)' }} />
+                <img src="https://www.svgrepo.com/show/512317/github-142.svg" alt="GitHub" className="dark:invert-0" style={{ width: '20px', height: '20px', filter: 'var(--github-icon-filter, invert(1))' }} />
                 Continue with GitHub
               </button>
             </div>
@@ -180,13 +177,12 @@ const [showPassword, setShowPassword] = useState(false);
           </form>
 
           {/* Footer Links */}
-          <div className="mt-8 text-center text-xs text-gray-500 space-y-3">
+          <div className="footer-links">
             <p>
               By signing in, you agree to our{' '}
               <button
                 type="button"
                 onClick={() => setShowTerms(true)}
-                className="hover:text-gray-300 transition-colors underline"
               >
                 Terms
               </button>
@@ -194,7 +190,6 @@ const [showPassword, setShowPassword] = useState(false);
               <button
                 type="button"
                 onClick={() => setShowPrivacy(true)}
-                className="hover:text-gray-300 transition-colors underline"
               >
                 Privacy Policy
               </button>
@@ -202,13 +197,14 @@ const [showPassword, setShowPassword] = useState(false);
             <div>
               <Link
                 to="/"
-                className="text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-1"
+                className="back-link"
               >
                 <span>←</span> Back to Home
               </Link>
             </div>
           </div>
 
+          </div>
         </div>
       </div>
 
