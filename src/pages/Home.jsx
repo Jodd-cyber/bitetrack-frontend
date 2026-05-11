@@ -915,31 +915,28 @@ useEffect(() => {
       {[
         { 
           num: '01', 
-          title: 'Log Orders', 
+          title: 'LOG ORDERS', 
           desc: 'Save every food order with price, restaurant, meal type, and personal notes. Quick and simple.', 
           icon: '📝', 
           gradient: 'from-blue-500 to-cyan-500',
-          bgGradient: 'from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20',
           accentColor: 'text-blue-600 dark:text-blue-400',
           features: ['Price tracking', 'Restaurant name', 'Meal type', 'Custom notes']
         },
         { 
           num: '02', 
-          title: 'View Insights', 
+          title: 'VIEW INSIGHTS', 
           desc: 'Track total spent, top restaurant, order count, and spending patterns in one beautiful dashboard.', 
           icon: '📊', 
           gradient: 'from-purple-500 to-pink-500',
-          bgGradient: 'from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20',
           accentColor: 'text-purple-600 dark:text-purple-400',
           features: ['Total spent', 'Top restaurant', 'Order count', 'Patterns']
         },
         { 
           num: '03', 
-          title: 'Stay on Budget', 
+          title: 'STAY ON BUDGET', 
           desc: 'Set a monthly budget and download monthly or all-time PDF reports to stay in control.', 
           icon: '💰', 
           gradient: 'from-green-500 to-emerald-500',
-          bgGradient: 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20',
           accentColor: 'text-green-600 dark:text-green-400',
           features: ['Budget tracker', 'PDF reports', 'Monthly view', 'All-time export']
         },
@@ -949,120 +946,54 @@ useEffect(() => {
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: i * 0.2 }}
-          className="relative group"
-        >
-          {/* Card */}
-          <div className="relative h-full bg-[var(--app-surface)] rounded-3xl p-8 border border-[var(--app-border)] hover:border-[var(--app-border-strong)] shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer overflow-hidden">
-            {/* Background Gradient on Hover */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${step.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
-            
-            {/* Content */}
-            <div className="relative z-10">
+          {/* Rotating Border Card */}
+          <div className="how-it-works-card">
+            <div className="card-content">
               {/* Step Number & Icon */}
-              <div className="flex items-center justify-between mb-8">
-                {/* Step Number */}
-                <motion.span 
-                  className={`text-6xl md:text-7xl font-black ${step.accentColor} opacity-20 group-hover:opacity-30 transition-opacity`}
-                  whileHover={{ scale: 1.1 }}
-                >
+              <div className="flex items-center justify-between mb-6">
+                <span className={`text-5xl font-black ${step.accentColor} opacity-20 group-hover:opacity-40 transition-opacity`}>
                   {step.num}
-                </motion.span>
-                
-                {/* Icon Circle */}
-                <motion.div
-                  whileHover={{ scale: 1.15, rotate: 12 }}
-                  className={`relative w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br ${step.gradient} flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300`}
-                >
-                  <div className="absolute inset-0 bg-white/20 rounded-2xl blur-xl group-hover:bg-white/30 transition-colors"></div>
-                  <span className="relative text-3xl md:text-4xl">{step.icon}</span>
-                </motion.div>
-              </div>
-
-              {/* Step Number Badge */}
-              <div className="flex items-center gap-3 mb-4">
-                <div className={`px-3 py-1 rounded-full bg-gradient-to-r ${step.gradient} text-white text-xs font-bold`}>
-                  Step {step.num}
+                </span>
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${step.gradient} flex items-center justify-center text-3xl shadow-lg`}>
+                  {step.icon}
                 </div>
-                <div className="flex-1 h-px bg-[var(--app-border)]"></div>
               </div>
 
               {/* Title */}
-              <h3 className={`text-2xl font-bold text-[var(--app-text)] mb-3 group-hover:${step.accentColor} transition-colors`}>
+              <h3 className="text-xl font-bold text-[var(--app-text)] mb-3">
                 {step.title}
               </h3>
 
               {/* Description */}
-              <p className="text-[var(--app-text-muted)] leading-relaxed text-sm md:text-base mb-6">
+              <p className="text-[var(--app-text-muted)] text-sm leading-relaxed mb-6">
                 {step.desc}
               </p>
 
               {/* Feature List */}
-              <div className="space-y-2">
+              <div className="space-y-2 mt-auto">
                 {step.features.map((feature, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, x: -10 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.3, delay: i * 0.2 + idx * 0.1 }}
-                    className="flex items-center gap-2 text-sm"
-                  >
+                  <div key={idx} className="flex items-center gap-2 text-xs">
                     <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${step.gradient}`}></div>
                     <span className="text-[var(--app-text-muted)]">{feature}</span>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
 
-              {/* Arrow Indicator */}
+              {/* Arrow Indicator (Desktop) */}
               {i < 2 && (
-                <div className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 items-center justify-center">
+                <div className="hidden md:flex absolute -right-2 top-1/2 -translate-y-1/2 z-30">
                   <motion.svg
                     animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                    className={`w-6 h-6 ${step.accentColor} opacity-30 group-hover:opacity-60`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    className="w-6 h-6 text-white/30"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </motion.svg>
                 </div>
               )}
-
-              {/* Mobile Arrow (Down) */}
-              {i < 2 && (
-                <div className="flex md:hidden justify-center mt-6">
-                  <motion.svg
-                    animate={{ y: [0, 5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                    className={`w-6 h-6 ${step.accentColor} opacity-40`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                  </motion.svg>
-                </div>
-              )}
             </div>
-
-            {/* Corner Decoration */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent dark:from-white/5 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           </div>
-
-          {/* Floating Step Counter */}
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: i * 0.2 + 0.3 }}
-            className="absolute -top-4 -left-4 z-20"
-          >
-            <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${step.gradient} flex items-center justify-center text-white font-bold shadow-xl border-4 border-[var(--app-bg)]`}>
-              {i + 1}
-            </div>
-          </motion.div>
         </motion.div>
       ))}
     </div>

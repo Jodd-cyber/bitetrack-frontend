@@ -1404,3 +1404,70 @@ html.dark {
 html.dark .gradient-btn .gradient-btn-inner {
   color: #fff;
 }
+
+/* Rotating Gradient Border Card Design */
+.how-it-works-card {
+  width: 100%;
+  height: 400px;
+  background: var(--card-base, #07182E);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  place-content: center;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 32px;
+  transition: transform 0.5s ease;
+}
+
+.how-it-works-card:hover {
+  transform: translateY(-10px);
+}
+
+.how-it-works-card .card-content {
+  z-index: 2;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  color: var(--app-text);
+}
+
+.how-it-works-card::before {
+  content: '';
+  position: absolute;
+  width: 150px;
+  background-image: linear-gradient(180deg, rgb(0, 183, 255), rgb(255, 48, 255));
+  height: 200%;
+  animation: rotBGimg 4s linear infinite;
+  transition: all 0.2s linear;
+  z-index: 0;
+}
+
+@keyframes rotBGimg {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.how-it-works-card::after {
+  content: '';
+  position: absolute;
+  background: var(--card-base, #07182E);
+  inset: 4px;
+  border-radius: 28px;
+  z-index: 1;
+}
+
+:root {
+  --card-base: #ffffff;
+}
+
+html.dark {
+  --card-base: #07182E;
+}
