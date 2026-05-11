@@ -881,8 +881,8 @@ function Ledger() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.6 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => {
                 if (showAddForm) {
                   setShowAddForm(false);
@@ -891,9 +891,9 @@ function Ledger() {
                 }
                 openNewOrderForm();
               }}
-              className="gradient-button w-full"
+              className="rainbow-btn"
             >
-              <span className="gradient-label flex items-center justify-center gap-2">
+              <span className="btn-label">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
