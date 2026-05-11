@@ -912,29 +912,30 @@ function Ledger() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -20, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-[var(--app-surface)] rounded-3xl shadow-xl border border-[var(--app-border)] p-6"
+                  className="magic-card"
                 >
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center">
-                        <span className="text-xl">{editingId ? '✏️' : '➕'}</span>
+                  <div className="magic-card-inner">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center">
+                          <span className="text-xl">{editingId ? '✏️' : '➕'}</span>
+                        </div>
+                        <h3 className="text-xl font-bold text-[var(--app-text)]">
+                          {editingId ? 'Edit Order' : 'New Order'}
+                        </h3>
                       </div>
-                      <h3 className="text-xl font-bold text-[var(--app-text)]">
-                        {editingId ? 'Edit Order' : 'New Order'}
-                      </h3>
+                      <button
+                        onClick={() => {
+                          setShowAddForm(false);
+                          setEditingId(null);
+                        }}
+                        className="w-8 h-8 rounded-full hover:bg-[var(--app-surface-soft)] flex items-center justify-center text-[var(--app-text-muted)] transition-colors"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
                     </div>
-                    <button
-                      onClick={() => {
-                        setShowAddForm(false);
-                        setEditingId(null);
-                      }}
-                      className="w-8 h-8 rounded-full hover:bg-[var(--app-surface-soft)] flex items-center justify-center text-[var(--app-text-muted)] transition-colors"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
 
                   <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Food Name */}
@@ -1077,7 +1078,8 @@ function Ledger() {
                     >
                       {editingId ? '💾 Update Order' : '✅ Add Order'}
                     </motion.button>
-                  </form>
+                    </div>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -1087,56 +1089,58 @@ function Ledger() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.7 }}
-              className="bg-[var(--app-surface)] rounded-3xl shadow-lg border border-[var(--app-border)] p-6"
+              className="magic-card"
             >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl flex items-center justify-center">
-                  <span className="text-xl">🔍</span>
+              <div className="magic-card-inner">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl flex items-center justify-center">
+                    <span className="text-xl">🔍</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-[var(--app-text)]">Filters & Search</h3>
                 </div>
-                <h3 className="text-lg font-bold text-[var(--app-text)]">Filters & Search</h3>
-              </div>
 
-              {/* Search */}
-              <div className="mb-4">
-                <input
-                  type="text"
-                  placeholder="Search food or restaurant..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-                />
-              </div>
+                {/* Search */}
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    placeholder="Search food or restaurant..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                  />
+                </div>
 
-              {/* Meal Type Filter */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
-                  Meal Type
-                </label>
-                <select
-                  value={filterMealType}
-                  onChange={(e) => setFilterMealType(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-                >
-                  <option value="all">All Meals</option>
-                  {mealTypes.map((type) => (
-                    <option key={type} value={type}>{mealIcons[type]} {type}</option>
-                  ))}
-                </select>
-              </div>
+                {/* Meal Type Filter */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
+                    Meal Type
+                  </label>
+                  <select
+                    value={filterMealType}
+                    onChange={(e) => setFilterMealType(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                  >
+                    <option value="all">All Meals</option>
+                    {mealTypes.map((type) => (
+                      <option key={type} value={type}>{mealIcons[type]} {type}</option>
+                    ))}
+                  </select>
+                </div>
 
-              {/* Sort */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
-                  Sort By
-                </label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-                >
-                  <option value="date">📅 Newest First</option>
-                  <option value="amount">💰 Amount (High to Low)</option>
-                </select>
+                {/* Sort */}
+                <div>
+                  <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
+                    Sort By
+                  </label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                  >
+                    <option value="date">📅 Newest First</option>
+                    <option value="amount">💰 Amount (High to Low)</option>
+                  </select>
+                </div>
               </div>
             </motion.div>
           </div>

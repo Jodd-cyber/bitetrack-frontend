@@ -1512,3 +1512,59 @@ html.dark {
 html.dark {
   --testimonial-bg: #1a1a1a;
 }
+
+/* Magic Card Design for Ledger */
+.magic-card {
+ --magic-gradient: linear-gradient(to left, #f7ba2b 0%, #ea5358 100%);
+ padding: 5px;
+ border-radius: 1.2rem;
+ overflow: visible;
+ background: #f7ba2b;
+ background: var(--magic-gradient);
+ position: relative;
+ z-index: 1;
+ transition: transform 0.3s ease;
+}
+
+.magic-card::after {
+ position: absolute;
+ content: "";
+ top: 30px;
+ left: 0;
+ right: 0;
+ z-index: -1;
+ height: 100%;
+ width: 100%;
+ transform: scale(0.8);
+ filter: blur(25px);
+ background: #f7ba2b;
+ background: var(--magic-gradient);
+ transition: opacity .5s;
+}
+
+.magic-card-inner {
+ background: var(--magic-inner-bg, #ffffff);
+ color: var(--app-text);
+ width: 100%;
+ height: 100%;
+ overflow: visible;
+ border-radius: 1rem;
+ padding: 1.5rem;
+}
+
+/* Hover Effects */
+.magic-card:hover::after {
+ opacity: 0;
+}
+
+.magic-card:hover .magic-card-inner {
+ transition: color 0.5s;
+}
+
+:root {
+  --magic-inner-bg: #ffffff;
+}
+
+html.dark {
+  --magic-inner-bg: #181818;
+}
