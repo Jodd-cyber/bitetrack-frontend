@@ -29,19 +29,33 @@ export function AuthProvider({ children }) {
     return storedUser;
   });
 
-  const [isLoading, setIsLoading] = useState(false); // ✅ Start as false since we already loaded
+  const [isLoading, setIsLoading] = useState(true); // ✅ Start as true since we need to check auth status
 
-  useEffect(() => {
-    console.log("🔵 AuthProvider useEffect running");
-    warmBackend();
+ useEffect(() => {
+  console.log("🔵 AuthProvider useEffect running");
+  warmBackend();
 
-    // Verify token exists if user exists
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (user && !token) {
-      console.warn("⚠️ User exists but no token - clearing user");
+  try {
+    const token =
+      localStorage.getItem("token") ||
+      sessionStorage.getItem("token");
+
+    const storedUser =
+      localStorage.getItem(STORAGE_KEY) ||
+      sessionStorage.getItem(STORAGE_KEY);
+
+    if (token && storedUser) {
+      setUser(JSON.parse(storedUser));
+    } else {
       setUser(null);
     }
-  }, [user]);
+  } catch (err) {
+    console.error("Auth restore failed:", err);
+    setUser(null);
+  } finally {
+    setIsLoading(false);
+  }
+}, []);
 
   const login = (userData, token, rememberMe = true) => {
     console.log("🟢 login() called with:", userData.email);
