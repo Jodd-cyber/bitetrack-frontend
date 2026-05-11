@@ -1243,8 +1243,9 @@ function Ledger() {
                         transition={{ delay: index * 0.05 }}
                         layout
                         whileHover={{ y: -4, scale: 1.01 }}
-                        className="bg-[var(--app-surface)] rounded-3xl p-6 shadow-lg border border-[var(--app-border)] hover:shadow-2xl transition-all duration-300 group cursor-pointer"
+                        className="magic-card group cursor-pointer mb-4"
                       >
+                        <div className="magic-card-inner p-6">
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                           {/* Left Content */}
                           <div className="flex-1">
@@ -1325,6 +1326,7 @@ function Ledger() {
                                 </svg>
                               </motion.button>
                             </div>
+                          </div>
                           </div>
                         </div>
                       </motion.div>
