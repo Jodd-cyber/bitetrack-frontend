@@ -397,94 +397,282 @@ useEffect(() => {
 <div className="min-h-screen bg-[var(--app-bg)] overflow-hidden">
   <div className="mx-auto max-w-6xl">
     {/* ═══════════════════════════════════════════════════
-        ENHANCED UNIFIED HEADER (Pill Shape)
+        ENHANCED HEADER (Ultra-Responsive)
     ═══════════════════════════════════════════════════ */}
     <motion.header
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="mx-2 md:mx-4 mt-4 px-2 md:px-6 py-2.5 md:py-3 sticky top-4 bg-[var(--app-surface)]/90 backdrop-blur-2xl z-50 border border-[var(--app-border)] shadow-2xl rounded-full"
+      className="mx-2 md:mx-4 mt-4 px-2 md:px-4 py-4 sticky top-4 bg-[var(--app-surface)]/95 backdrop-blur-xl z-40 dark:border dark:border-[var(--app-border)] shadow-xl rounded-2xl md:rounded-full sm:px-6"
     >
-      <div className="flex items-center justify-between gap-1 md:gap-4">
-        {/* Logo Section */}
-        <Link to="/" className="flex-shrink-0 group flex items-center gap-2">
+      {/* Mobile & Tablet Header (Merged & Enhanced) */}
+      <div className="md:hidden">
+        <div className="flex items-center justify-between gap-1 py-1">
+          {/* Logo Section */}
+          <Link to="/" className="flex-shrink-0 group">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl blur-md opacity-50 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white text-[10px] font-bold group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-lg">
+                B
+              </div>
+            </div>
+          </Link>
+
+          {/* Navigation & Actions Row */}
+          <div className="flex items-center gap-1 flex-1 justify-end">
+            <button 
+              onClick={() => document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' })}
+              className="flex flex-col items-center gap-0.5 px-1 py-1 rounded-lg hover:bg-white/10 transition-colors"
+            >
+              <svg className="w-4 h-4 text-[var(--app-text)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />
+              </svg>
+              <span className="text-[7px] font-bold text-[var(--app-text)]">Features</span>
+            </button>
+
+            <button 
+              onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}
+              className="flex flex-col items-center gap-0.5 px-1 py-1 rounded-lg hover:bg-white/10 transition-colors"
+            >
+              <svg className="w-4 h-4 text-[var(--app-text)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-[7px] font-bold text-[var(--app-text)]">About</span>
+            </button>
+
+            {effectiveSignedIn ? (
+              <div className="flex items-center gap-1">
+                <Link to="/ledger" className="button-3d scale-[0.65] origin-right flex-shrink-0">
+                  <div className="button-outer">
+                    <div className="button-inner">
+                      <span className="text-[10px] px-0.5">Ledger</span>
+                    </div>
+                  </div>
+                </Link>
+
+                <div className="relative flex-shrink-0">
+                  <button
+                    onClick={() => setShowSettings(!showSettings)}
+                    className="Btn px-1 py-1"
+                  >
+                    <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-white text-[9px] font-bold border border-white/30">
+                      {effectiveUser?.name?.[0]?.toUpperCase() || "U"}
+                    </div>
+                    <svg className={`w-3 h-3 transition-transform ${showSettings ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  <AnimatePresence>
+                    {showSettings && (
+                      <>
+                        <div className="fixed inset-0 z-30" onClick={() => setShowSettings(false)}></div>
+                        <motion.div
+                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                          className="absolute right-0 mt-3 w-64 bg-[var(--app-surface)] backdrop-blur-2xl rounded-2xl shadow-2xl border border-[var(--app-border)] py-2 z-50 overflow-hidden"
+                        >
+                          <div className="px-4 py-3 border-b border-[var(--app-border)] bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20">
+                            <p className="text-xs font-semibold text-[var(--app-text)] truncate">{user?.name}</p>
+                            <p className="text-[10px] text-[var(--app-text-muted)] truncate">{user?.email}</p>
+                          </div>
+                          <div className="w-full px-4 py-2 flex items-center gap-2 hover:bg-[var(--app-surface-soft)] transition-colors">
+                            <span className="text-xs flex-1 text-left text-[var(--app-text)]">Theme</span>
+                            <label className="cosmic-toggle scale-75">
+                              <input type="checkbox" checked={darkMode} onChange={toggleTheme} />
+                              <div className="slider"><div className="toggle-orb"></div></div>
+                            </label>
+                          </div>
+                          <button onClick={handleLogout} className="w-full px-4 py-3 flex items-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 border-t border-[var(--app-border)] transition-colors">
+                            <span className="text-xs font-medium">Logout</span>
+                          </button>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            ) : (
+              <Link to="/signin" className="Btn text-[10px] px-3 py-1.5 flex-shrink-0">Sign In</Link>
+            )}
+          </div>
+        </div>
+      </div>
+
+
+      {/* Desktop Header */}
+      <div className="hidden md:flex md:items-center md:justify-between">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-3 group cursor-pointer">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl blur-md opacity-50 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white text-[10px] md:text-sm font-bold shadow-lg">
+            <div className="relative w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white text-sm font-bold group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-lg">
               B
             </div>
           </div>
-          <span className="hidden sm:inline font-bold text-[var(--app-text)] text-sm md:text-base">BiteTrack</span>
+          <div>
+            <h1 className="text-2xl font-bold text-[var(--app-text)]">BiteTrack</h1>
+            <p className="text-xs text-[var(--app-text-muted)]">Your Food Ledger</p>
+          </div>
         </Link>
 
-        {/* Unified Navigation Actions */}
-        <div className="flex items-center gap-1 md:gap-4 flex-1 justify-end">
-          <button 
-            onClick={() => document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex flex-col md:flex-row items-center gap-0.5 md:gap-2 px-1 md:px-4 py-1 md:Btn group"
-          >
-            <svg className="w-4 h-4 md:hidden text-[var(--app-text)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />
-            </svg>
-            <span className="text-[7px] md:text-sm font-bold text-[var(--app-text)] md:text-inherit">Features</span>
+        {/* Navigation */}
+        <nav className="flex items-center gap-4">
+          <button className="Btn" onClick={(e) => { e.preventDefault(); document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' }); }}>
+            Features
           </button>
-
-          <button 
-            onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex flex-col md:flex-row items-center gap-0.5 md:gap-2 px-1 md:px-4 py-1 md:Btn group"
-          >
-            <svg className="w-4 h-4 md:hidden text-[var(--app-text)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="text-[7px] md:text-sm font-bold text-[var(--app-text)] md:text-inherit">About</span>
+          <button className="Btn" onClick={(e) => { e.preventDefault(); document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' }); }}>
+            About
           </button>
 
           {effectiveSignedIn ? (
-            <div className="flex items-center gap-1 md:gap-3">
-              <Link to="/ledger" className="button-3d scale-[0.65] md:scale-100 origin-right md:origin-center">
+            <div className="flex items-center gap-3">
+              <Link
+                to="/ledger"
+                className="button-3d"
+              >
                 <div className="button-outer">
                   <div className="button-inner">
-                    <span className="md:px-2">Ledger</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.2))' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span>My Ledger</span>
                   </div>
                 </div>
               </Link>
 
+              {/* User Menu */}
               <div className="relative">
                 <button
                   onClick={() => setShowSettings(!showSettings)}
-                  className="Btn px-1 py-1 md:px-4 md:py-2"
+                  className="Btn"
+                  style={{ gap: '10px' }}
                 >
-                  <div className="w-6 h-6 md:w-7 md:h-7 bg-white/20 rounded-full flex items-center justify-center text-white text-[10px] md:text-xs font-bold border border-white/30">
+                  <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-white text-xs font-bold border border-white/30">
                     {effectiveUser?.name?.[0]?.toUpperCase() || "U"}
                   </div>
-                  <svg className={`w-3 h-3 md:w-4 md:h-4 transition-transform ${showSettings ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span>
+                    {effectiveUser?.name || "User"}
+                  </span>
+                  <svg className={`w-4 h-4 transition-transform ${showSettings ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
 
+                {/* ═══════════════════════════════════════════════════
+                    ENHANCED SETTINGS DROPDOWN
+                ═══════════════════════════════════════════════════ */}
                 <AnimatePresence>
                   {showSettings && (
                     <>
-                      <div className="fixed inset-0 z-30" onClick={() => setShowSettings(false)}></div>
+                      <div 
+                        className="fixed inset-0 z-30"
+                        onClick={() => setShowSettings(false)}
+                      ></div>
+                      
                       <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-0 mt-3 w-64 bg-[var(--app-surface)] backdrop-blur-2xl rounded-2xl shadow-2xl border border-[var(--app-border)] py-2 z-50 overflow-hidden origin-top-right"
+                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute right-0 mt-3 w-72 bg-[var(--app-surface)] rounded-2xl shadow-2xl border border-[var(--app-border)] py-2 z-50 overflow-hidden"
                       >
-                        <div className="px-4 py-3 border-b border-[var(--app-border)] bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20">
-                          <p className="text-xs font-semibold text-[var(--app-text)] truncate">{user?.name}</p>
-                          <p className="text-[10px] text-[var(--app-text-muted)] truncate">{user?.email}</p>
+                        {/* User Info Header */}
+                        <div className="px-4 py-3 border-b border-[var(--app-border)] bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-lg">
+                              {user?.name?.[0]?.toUpperCase() || "U"}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-[var(--app-text)] truncate">{user?.name}</p>
+                              <p className="text-xs text-[var(--app-text-muted)] truncate">{user?.email}</p>
+                            </div>
+                          </div>
                         </div>
-                        <div className="w-full px-4 py-3 flex items-center gap-3 hover:bg-[var(--app-surface-soft)] transition-colors">
-                          <span className="text-xs flex-1 text-left text-[var(--app-text)]">Theme</span>
-                          <label className="cosmic-toggle scale-75">
-                            <input type="checkbox" checked={darkMode} onChange={toggleTheme} />
-                            <div className="slider"><div className="toggle-orb"></div></div>
+
+                        {/* Theme Toggle - Cosmic */}
+                        <div className="w-full px-4 py-3 flex items-center gap-3 hover:bg-[var(--app-surface-soft)] transition-colors group">
+                          <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${
+                            darkMode 
+                              ? 'bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30' 
+                              : 'bg-gradient-to-br from-yellow-100 to-orange-100'
+                          }`}>
+                            {darkMode ? (
+                              <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                              </svg>
+                            ) : (
+                              <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="flex-1 text-left">
+                            <p className="text-sm font-medium text-[var(--app-text)]">Theme</p>
+                            <p className="text-xs text-[var(--app-text-muted)]">{darkMode ? 'Dark mode' : 'Light mode'}</p>
+                          </div>
+                          <label className="cosmic-toggle">
+                            <input 
+                              type="checkbox" 
+                              className="toggle" 
+                              checked={darkMode}
+                              onChange={toggleTheme}
+                            />
+                            <div className="slider">
+                              <div className="cosmos"></div>
+                              <div className="energy-line"></div>
+                              <div className="energy-line"></div>
+                              <div className="energy-line"></div>
+                              <div className="toggle-orb">
+                                <div className="inner-orb"></div>
+                                <div className="ring"></div>
+                              </div>
+                              <div className="particles">
+                                <div style={{"--angle": "30deg"}} className="particle"></div>
+                                <div style={{"--angle": "60deg"}} className="particle"></div>
+                                <div style={{"--angle": "90deg"}} className="particle"></div>
+                                <div style={{"--angle": "120deg"}} className="particle"></div>
+                                <div style={{"--angle": "150deg"}} className="particle"></div>
+                                <div style={{"--angle": "180deg"}} className="particle"></div>
+                              </div>
+                            </div>
                           </label>
                         </div>
-                        <button onClick={handleLogout} className="w-full px-4 py-4 flex items-center gap-3 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 border-t border-[var(--app-border)] transition-colors">
-                          <span className="text-xs font-semibold">Logout</span>
+
+                        {/* Stats */}
+                        <button
+                          onClick={() => {
+                            setShowStats(true);
+                            setShowSettings(false);
+                          }}
+                          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-[var(--app-surface-soft)] transition-colors group"
+                        >
+                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 flex items-center justify-center">
+                            <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                          </div>
+                          <div className="flex-1 text-left">
+                            <p className="text-sm font-medium text-[var(--app-text)]">Your Stats</p>
+                            <p className="text-xs text-[var(--app-text-muted)]">View insights & analytics</p>
+                          </div>
+                        </button>
+
+                        {/* Logout */}
+                        <button
+                          onClick={handleLogout}
+                          className="w-full px-4 py-4 flex items-center gap-3 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors border-t border-[var(--app-border)] group bg-red-50/50 dark:bg-red-900/10"
+                        >
+                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-red-100 to-rose-100 dark:from-red-900/30 dark:to-rose-900/30 flex items-center justify-center">
+                            <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                          </div>
+                          <div className="flex-1 text-left">
+                            <p className="text-sm font-medium text-red-600 dark:text-red-400">Logout</p>
+                            <p className="text-xs text-red-500 dark:text-red-400/70">Sign out of your account</p>
+                          </div>
                         </button>
                       </motion.div>
                     </>
@@ -493,9 +681,18 @@ useEffect(() => {
               </div>
             </div>
           ) : (
-            <Link to="/signin" className="Btn text-[10px] md:text-sm px-4 py-1.5 md:px-6 md:py-2.5">Sign In</Link>
+            <Link to="/signin" className="user-profile" aria-label="User Login Button">
+              <div className="user-profile-inner">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <g data-name="Layer 2" id="Layer_2">
+                    <path d="m15.626 11.769a6 6 0 1 0 -7.252 0 9.008 9.008 0 0 0 -5.374 8.231 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 9.008 9.008 0 0 0 -5.374-8.231zm-7.626-4.769a4 4 0 1 1 4 4 4 4 0 0 1 -4-4zm10 14h-12a1 1 0 0 1 -1-1 7 7 0 0 1 14 0 1 1 0 0 1 -1 1z"></path>
+                  </g>
+                </svg>
+                <p>Log In</p>
+              </div>
+            </Link>
           )}
-        </div>
+        </nav>
       </div>
     </motion.header>
 
