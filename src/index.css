@@ -1684,3 +1684,96 @@ html.dark .rainbow-btn .btn-label {
     rgb(40, 40, 40) 100%
   );
 }
+
+/* PDF Download Button Design for Ledger */
+.pdf-btn {
+  height: 45px;
+  width: 120px;
+  cursor: pointer;
+  background: #8080ff;
+  border: none;
+  border-radius: 30px;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.pdf-btn .button-content {
+  transform: translateY(-45px);
+  transition: all 250ms ease-in-out;
+}
+
+.pdf-btn .svg-container,
+.pdf-btn .text-container {
+  height: 45px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pdf-btn .text-container .text {
+  font-size: 13px;
+  color: #fff;
+  font-weight: 600;
+  opacity: 1;
+  transition: opacity ease-in-out 250ms;
+}
+
+.pdf-btn .download-icon {
+  height: 25px;
+  width: 25px;
+  fill: #fff;
+  opacity: 0;
+  transition: opacity ease-in-out 250ms;
+}
+
+/* Hover state for the button */
+.pdf-btn:hover .button-content {
+  transform: translateY(0px);
+}
+
+.pdf-btn:hover .text {
+  opacity: 0;
+}
+
+.pdf-btn:hover .download-icon {
+  opacity: 1;
+}
+
+.pdf-btn:focus .download-icon {
+  animation: heartbeat-pdf 1.5s ease-in-out infinite both;
+}
+
+@keyframes heartbeat-pdf {
+  from {
+    transform: scale(1);
+    transform-origin: center center;
+    animation-timing-function: ease-out;
+  }
+  10% {
+    transform: scale(0.91);
+    animation-timing-function: ease-in;
+  }
+  17% {
+    transform: scale(0.98);
+    animation-timing-function: ease-out;
+  }
+  33% {
+    transform: scale(0.87);
+    animation-timing-function: ease-in;
+  }
+  45% {
+    transform: scale(1);
+    animation-timing-function: ease-out;
+  }
+}
+
+html.dark .pdf-btn {
+  background: #5c5cff;
+}
+
+.pdf-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

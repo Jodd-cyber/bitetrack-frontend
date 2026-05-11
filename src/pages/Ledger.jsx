@@ -1172,17 +1172,36 @@ function Ledger() {
                     type="button"
                     onClick={() => downloadReportPdf('month')}
                     disabled={loading || isGeneratingPdf}
-                    className="px-4 py-2 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] text-sm font-medium hover:bg-[var(--app-surface-soft)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="pdf-btn"
                   >
-                    {isGeneratingPdf ? 'Generating...' : '📄 Monthly PDF'}
+                    <div className="button-content">
+                      <div className="svg-container">
+                        <svg className="download-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                          <path d="M19.479 10.092c-.212-3.951-3.473-7.092-7.479-7.092-4.005 0-7.267 3.141-7.479 7.092-2.57.463-4.521 2.706-4.521 5.408 0 3.037 2.463 5.5 5.5 5.5h13c3.037 0 5.5-2.463 5.5-5.5 0-2.702-1.951-4.945-4.521-5.408zm-7.479 6.908l-4-4h3v-4h2v4h3l-4 4z"></path>
+                        </svg>
+                      </div>
+                      <div className="text-container">
+                        <div className="text">{isGeneratingPdf ? 'Wait...' : 'Monthly PDF'}</div>
+                      </div>
+                    </div>
                   </button>
+
                   <button
                     type="button"
                     onClick={() => downloadReportPdf('all')}
                     disabled={loading || isGeneratingPdf}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="pdf-btn"
                   >
-                    📥 All Orders PDF
+                    <div className="button-content">
+                      <div className="svg-container">
+                        <svg className="download-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                          <path d="M19.479 10.092c-.212-3.951-3.473-7.092-7.479-7.092-4.005 0-7.267 3.141-7.479 7.092-2.57.463-4.521 2.706-4.521 5.408 0 3.037 2.463 5.5 5.5 5.5h13c3.037 0 5.5-2.463 5.5-5.5 0-2.702-1.951-4.945-4.521-5.408zm-7.479 6.908l-4-4h3v-4h2v4h3l-4 4z"></path>
+                        </svg>
+                      </div>
+                      <div className="text-container">
+                        <div className="text">{isGeneratingPdf ? 'Wait...' : 'All Orders'}</div>
+                      </div>
+                    </div>
                   </button>
                 </div>
               </div>
