@@ -8,9 +8,9 @@ html {
 
 :root {
   --app-bg: transparent;
-  --app-surface: rgba(255, 255, 255, 0.4);
-  --app-surface-soft: rgba(255, 255, 255, 0.6);
-  --app-surface-hover: rgba(255, 255, 255, 0.5);
+  --app-surface: rgba(255, 255, 255, 0.25);
+  --app-surface-soft: rgba(255, 255, 255, 0.4);
+  --app-surface-hover: rgba(255, 255, 255, 0.35);
   --app-text: #1f2937;
   --app-text-muted: #4b5563;
   --app-text-soft: #374151;

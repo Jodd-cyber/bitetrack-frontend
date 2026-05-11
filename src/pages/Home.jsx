@@ -1945,16 +1945,16 @@ useEffect(() => {
   {/* ═══════════════════════════════════════════════════
     ENHANCED FOOTER
 ═══════════════════════════════════════════════════ */}
-<footer className="relative overflow-hidden border-t border-[var(--app-border)] bg-[var(--app-surface)]">
+<footer className="relative overflow-hidden border-t border-[var(--app-border)] bg-[var(--app-surface)]/30">
   {/* Background Decoration */}
   <div className="absolute inset-0 opacity-30">
     <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
     <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
   </div>
 
-  <div className="relative px-4 py-12 sm:px-6 max-w-7xl mx-auto">
+  <div className="relative px-4 py-8 sm:px-6 max-w-7xl mx-auto">
     {/* Main Footer Content */}
-    <div className="grid grid-cols-1 gap-8 mb-12 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-8 mb-8 md:grid-cols-2 lg:grid-cols-4">
       {/* Brand Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -2122,7 +2122,7 @@ useEffect(() => {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: 0.4 }}
-      className="pt-8 border-t border-[var(--app-border)]"
+      className="pt-6 border-t border-[var(--app-border)]"
     >
       <div className="flex flex-col items-center justify-center gap-4 text-center md:flex-row md:text-center">
         {/* Copyright */}
