@@ -511,33 +511,36 @@ function Ledger() {
             </Link>
 
             {/* Date Filter Pills */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-3">
               {['today', 'week', 'month', 'all'].map((filter) => (
-                <motion.button
+                <button
                   key={filter}
                   onClick={() => setDateFilter(filter)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
-                    dateFilter === filter
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                      : 'bg-[var(--app-surface-soft)] text-[var(--app-text-muted)] hover:bg-[var(--app-border)] border border-[var(--app-border)]'
-                  }`}
+                  className={`pressed-btn ${dateFilter === filter ? 'active' : ''}`}
                 >
-                  {filter.charAt(0).toUpperCase() + filter.slice(1)}
-                </motion.button>
+                  <div className="pressed-btn-outer">
+                    <div className="pressed-btn-inner">
+                      <span>{filter.charAt(0).toUpperCase() + filter.slice(1)}</span>
+                    </div>
+                  </div>
+                </button>
               ))}
             </div>
 
             {/* Home Button */}
             <Link
               to="/"
-              className="group px-4 py-2 rounded-xl text-sm font-medium text-[var(--app-text-muted)] hover:bg-[var(--app-surface-soft)] transition-all duration-200 flex items-center gap-2 border border-[var(--app-border)] self-start md:self-auto"
+              className="pressed-btn"
+              style={{ textDecoration: 'none' }}
             >
-              <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              Home
+              <div className="pressed-btn-outer">
+                <div className="pressed-btn-inner">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--pressed-text-start)' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  <span>Home</span>
+                </div>
+              </div>
             </Link>
           </div>
         </div>
