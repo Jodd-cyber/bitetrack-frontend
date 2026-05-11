@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const OAuthSuccess = () => {
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const decodeJwtPayload = (token) => {
     const payload = token.split(".")[1] || "";
@@ -40,21 +42,22 @@ const OAuthSuccess = () => {
 
         // Call login to update auth context
         login(
-          {
-            name: payload.name,
-            email: payload.email,
-            id: payload.userId,
-          },
-          token,
-          true // rememberMe = true
-        );
-        console.log("✅ Auth context updated");
+  {
+    name: payload.name,
+    email: payload.email,
+    id: payload.userId,
+  },
+  token,
+  true
+);
+
+console.log("✅ Auth context updated");
+
+navigate("/", { replace: true });
 
         // ⏳ Wait 100ms for state to update, then redirect
-        setTimeout(() => {
-          console.log("🟢 Redirecting to home...");
-          window.location.href = "/";
-        }, 100);
+        console.log("🟢 Redirecting to home...");
+
 
       } catch (err) {
         console.error("❌ Failed to process OAuth token:", err);

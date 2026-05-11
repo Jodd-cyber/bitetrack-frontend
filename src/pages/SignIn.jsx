@@ -17,11 +17,7 @@ function SignIn() {
   const [rememberMe, setRememberMe] = useState(false);
 const [showPassword, setShowPassword] = useState(false);
 
-useEffect(() => {
-  if (isSignedIn) {
-    navigate("/");
-  }
-}, [isSignedIn, navigate]);
+
 
   const handleOAuthRedirect = async (url) => {
     if (isSubmitting || isRedirecting) return;
