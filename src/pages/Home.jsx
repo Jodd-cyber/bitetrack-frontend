@@ -949,7 +949,7 @@ useEffect(() => {
           transition={{ duration: 0.6, delay: i * 0.2 }}
         >
           {/* Rotating Border Card */}
-          <div className="how-it-works-card">
+          <div className="rotating-border-card">
             <div className="card-content">
               {/* Step Number & Icon */}
               <div className="flex items-center justify-between mb-6">
@@ -1044,59 +1044,47 @@ useEffect(() => {
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {[
         { 
-          icon: '⚡', 
-          title: 'Quick Order Logging', 
-          desc: 'Add food orders in seconds with restaurant, meal type, amount, rating, and notes.', 
-          gradient: 'from-yellow-400 to-orange-500',
-          bg: 'from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20',
-          iconBg: 'from-yellow-500 to-orange-500',
-          highlights: ['Restaurant name', 'Meal type', 'Price & rating', 'Custom notes']
+          title: 'PERSONALIZED DASHBOARD', 
+          desc: 'Get a birds-eye view of your eating habits with beautiful, interactive charts.', 
+          icon: '📱', 
+          iconBg: 'from-blue-500 to-cyan-500', 
+          highlights: ['Live spend tracking', 'Monthly trends', 'Category breakdown'] 
         },
         { 
-          icon: '📊', 
-          title: 'Spending Insights', 
-          desc: 'View total spent, order count, average spend, top restaurant, and spending trends.', 
-          gradient: 'from-blue-400 to-cyan-500',
-          bg: 'from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20',
-          iconBg: 'from-blue-500 to-cyan-500',
-          highlights: ['Total spent', 'Order count', 'Average spend', 'Top restaurant']
+          title: 'SMART BUDGETING', 
+          desc: 'Set limits for different meal types and get notified as you approach them.', 
+          icon: '🎯', 
+          iconBg: 'from-purple-500 to-pink-500', 
+          highlights: ['Daily limits', 'Overspend alerts', 'Savings targets'] 
         },
         { 
-          icon: '💰', 
-          title: 'Monthly Budget', 
-          desc: 'Set your monthly food budget and track how much you have spent or have left.', 
-          gradient: 'from-green-400 to-emerald-500',
-          bg: 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20',
-          iconBg: 'from-green-500 to-emerald-500',
-          highlights: ['Set budget', 'Track spending', 'View remaining', 'Monthly reset']
+          title: 'PDF REPORTS', 
+          desc: 'Generate professional expense reports for your food spending with a single tap.', 
+          icon: '📄', 
+          iconBg: 'from-green-500 to-emerald-500', 
+          highlights: ['Monthly summaries', 'Tax-ready exports', 'Custom date ranges'] 
         },
         { 
-          icon: '🔍', 
-          title: 'Search & Filters', 
-          desc: 'Find orders by food or restaurant, filter by meal type, and sort your records easily.', 
-          gradient: 'from-purple-400 to-pink-500',
-          bg: 'from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20',
-          iconBg: 'from-purple-500 to-pink-500',
-          highlights: ['Search orders', 'Meal filters', 'Date filters', 'Sort options']
+          title: 'RESTAURANT ANALYTICS', 
+          desc: 'Discover your most-visited spots and how much you spend at each one.', 
+          icon: '🏪', 
+          iconBg: 'from-orange-500 to-red-500', 
+          highlights: ['Top 5 restaurants', 'Average order cost', 'Visit frequency'] 
         },
         { 
-          icon: '🔒', 
-          title: 'Private Account Data', 
-          desc: 'Your orders are saved to your account and protected with secure sign-in.', 
-          gradient: 'from-red-400 to-rose-500',
-          bg: 'from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20',
-          iconBg: 'from-red-500 to-rose-500',
-          highlights: ['Secure login', 'Encrypted data', 'Private storage', 'Your data only']
+          title: 'MEAL CATEGORIES', 
+          desc: 'Organize your spending by breakfast, lunch, dinner, or custom tags.', 
+          icon: '🍱', 
+          iconBg: 'from-indigo-500 to-blue-500', 
+          highlights: ['Custom tagging', 'Meal type filtering', 'Time-of-day analysis'] 
         },
         { 
-          icon: '🌙', 
-          title: 'Dark Mode', 
-          desc: 'Switch between light and dark themes for a comfortable experience.', 
-          gradient: 'from-indigo-400 to-violet-500',
-          bg: 'from-indigo-50 to-violet-50 dark:from-indigo-900/20 dark:to-violet-900/20',
-          iconBg: 'from-indigo-500 to-violet-500',
-          highlights: ['Auto-detect', 'Manual toggle', 'Eye-friendly', 'Smooth transition']
-        },
+          title: 'MULTI-DEVICE SYNC', 
+          desc: 'Access your data from anywhere. Your ledger is always up to date.', 
+          icon: '☁️', 
+          iconBg: 'from-pink-500 to-rose-500', 
+          highlights: ['Cloud backups', 'Real-time sync', 'Export anytime'] 
+        }
       ].map((feature, i) => (
         <motion.div
           key={i}
@@ -1106,68 +1094,35 @@ useEffect(() => {
           transition={{ duration: 0.5, delay: i * 0.1 }}
           className="group relative"
         >
-          <div className="relative h-full bg-[var(--app-surface)] rounded-3xl p-8 border border-[var(--app-border)] hover:border-[var(--app-border-strong)] shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer overflow-hidden">
-            {/* Gradient Background on Hover */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${feature.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-            
-            {/* Content */}
-            <div className="relative z-10">
+          {/* Rotating Border Card */}
+          <div className="rotating-border-card" style={{ '--card-height': '450px' }}>
+            <div className="card-content">
               {/* Icon */}
-              <motion.div
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                className={`w-16 h-16 md:w-18 md:h-18 rounded-2xl bg-gradient-to-br ${feature.iconBg} flex items-center justify-center mb-6 shadow-xl group-hover:shadow-2xl transition-all duration-500`}
-              >
-                <div className="absolute inset-0 bg-white/20 rounded-2xl blur-xl group-hover:bg-white/30 transition-colors"></div>
-                <span className="relative text-3xl md:text-4xl">{feature.icon}</span>
-              </motion.div>
+              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.iconBg} flex items-center justify-center mb-6 shadow-lg text-3xl`}>
+                {feature.icon}
+              </div>
 
               {/* Title */}
-              <h3 className="text-xl md:text-2xl font-bold text-[var(--app-text)] mb-3 group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
+              <h3 className="text-xl font-bold text-[var(--app-text)] mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 transition-all duration-300">
                 {feature.title}
               </h3>
 
               {/* Description */}
-              <p className="text-[var(--app-text-muted)] leading-relaxed text-sm md:text-base mb-6">
+              <p className="text-[var(--app-text-muted)] text-sm leading-relaxed mb-6">
                 {feature.desc}
               </p>
 
               {/* Highlights */}
-              <div className="space-y-2">
+              <div className="space-y-2 mt-auto">
                 {feature.highlights.map((highlight, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, x: -10 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.3, delay: i * 0.1 + idx * 0.1 }}
-                    className="flex items-center gap-2 text-xs md:text-sm"
-                  >
+                  <div key={idx} className="flex items-center gap-2 text-xs">
                     <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${feature.iconBg}`}></div>
                     <span className="text-[var(--app-text-muted)]">{highlight}</span>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </div>
-
-            {/* Decorative Corner */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent dark:from-white/5 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            
-            {/* Bottom Border Glow */}
-            <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.iconBg} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-b-3xl`}></div>
           </div>
-
-          {/* Floating Number Badge */}
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: i * 0.1 + 0.2 }}
-            className="absolute -top-3 -right-3 z-20"
-          >
-            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${feature.iconBg} flex items-center justify-center text-white text-sm font-bold shadow-xl border-4 border-[var(--app-bg)]`}>
-              {i + 1}
-            </div>
-          </motion.div>
         </motion.div>
       ))}
     </div>

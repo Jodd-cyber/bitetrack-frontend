@@ -1406,9 +1406,9 @@ html.dark .gradient-btn .gradient-btn-inner {
 }
 
 /* Rotating Gradient Border Card Design */
-.how-it-works-card {
+.rotating-border-card {
   width: 100%;
-  height: 400px;
+  height: var(--card-height, 400px);
   background: var(--card-base, #07182E);
   position: relative;
   display: flex;
@@ -1420,11 +1420,11 @@ html.dark .gradient-btn .gradient-btn-inner {
   transition: transform 0.5s ease;
 }
 
-.how-it-works-card:hover {
+.rotating-border-card:hover {
   transform: translateY(-10px);
 }
 
-.how-it-works-card .card-content {
+.rotating-border-card .card-content {
   z-index: 2;
   position: relative;
   width: 100%;
@@ -1435,7 +1435,7 @@ html.dark .gradient-btn .gradient-btn-inner {
   color: var(--app-text);
 }
 
-.how-it-works-card::before {
+.rotating-border-card::before {
   content: '';
   position: absolute;
   width: 150px;
@@ -1455,7 +1455,7 @@ html.dark .gradient-btn .gradient-btn-inner {
   }
 }
 
-.how-it-works-card::after {
+.rotating-border-card::after {
   content: '';
   position: absolute;
   background: var(--card-base, #07182E);
