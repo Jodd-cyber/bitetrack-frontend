@@ -1078,7 +1078,7 @@ function Ledger() {
                     >
                       {editingId ? '💾 Update Order' : '✅ Add Order'}
                     </motion.button>
-                    </div>
+                    </form>
                   </div>
                 </motion.div>
               )}
