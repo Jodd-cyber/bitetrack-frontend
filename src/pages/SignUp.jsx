@@ -11,9 +11,15 @@ function SignUp() {
   const { signup } = useAuth();
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [error, setError] = useState('');
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
+
+  const handleOAuthRedirect = async (url) => {
+    if (isSubmitting || isRedirecting) return;
+    await wakeUpAndRedirect(url, setIsRedirecting);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -285,78 +291,65 @@ function SignUp() {
               >
                 Got it
               </button>
+              <button onClick={() => setShowTerms(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors text-lg font-medium">✕</button>
+            </div>
+            <div className="px-6 py-5 max-h-[60vh] overflow-y-auto space-y-4 text-sm text-gray-600">
+              <div><h3 className="font-semibold text-gray-900 mb-1">1. Acceptance of Terms</h3><p>By creating an account and using BiteTrack, you agree to be bound by these Terms & Conditions.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">2. Use of Service</h3><p>You agree to use BiteTrack responsibly and only for lawful purposes.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">3. Account Responsibility</h3><p>You are responsible for maintaining the confidentiality of your account credentials.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">4. Data Storage</h3><p>Your data is stored securely on our servers.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">5. Modifications</h3><p>We reserve the right to modify these terms at any time.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">6. Termination</h3><p>We reserve the right to suspend or terminate your account if you violate these terms.</p></div>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
+              <button onClick={() => setShowTerms(false)} className="px-5 py-2 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800 transition-colors">Got it</button>
             </div>
           </motion.div>
         </div>
       )}
 
-      {/* ── Privacy Modal ── */}
       {showPrivacy && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]"
-          onClick={() => setShowPrivacy(false)}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ duration: 0.2 }}
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white w-[90%] max-w-lg rounded-2xl shadow-2xl relative overflow-hidden"
-          >
-            {/* Modal Header */}
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]" onClick={() => setShowPrivacy(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }} transition={{ duration: 0.2 }} onClick={(e) => e.stopPropagation()} className="bg-white w-[90%] max-w-lg rounded-2xl shadow-2xl relative overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-gray-900 to-gray-700 rounded-lg flex items-center justify-center text-white text-sm font-bold">
-                  B
-                </div>
+                <div className="w-8 h-8 bg-gradient-to-br from-gray-900 to-gray-700 rounded-lg flex items-center justify-center text-white text-sm font-bold">B</div>
                 <h2 className="text-lg font-bold text-gray-900">Privacy Policy</h2>
               </div>
-              <button
-                onClick={() => setShowPrivacy(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors text-lg font-medium"
-              >
-                ✕
-              </button>
+              <button onClick={() => setShowPrivacy(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors text-lg font-medium">✕</button>
             </div>
-
-            {/* Modal Body */}
             <div className="px-6 py-5 max-h-[60vh] overflow-y-auto space-y-4 text-sm text-gray-600">
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-1">1. Information We Collect</h3>
-                <p>We collect minimal data necessary to provide our service, including your name, email address, and food order tracking information you choose to enter.</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-1">2. How We Use Your Data</h3>
-                <p>Your data is used solely to provide and improve the BiteTrack service. We do not sell, rent, or share your personal information with third parties for marketing purposes.</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-1">3. Data Security</h3>
-                <p>We implement industry-standard security measures including encryption to protect your data from unauthorized access, disclosure, or alteration.</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-1">4. Cookies</h3>
-                <p>We use cookies and similar technologies to maintain your session and improve your experience. You can control cookie settings through your browser.</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-1">5. Your Rights</h3>
-                <p>You have the right to access, correct, or delete your personal data at any time. You can request deletion of your account and all associated data by contacting us.</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-1">6. Contact Us</h3>
-                <p>If you have any questions about this Privacy Policy, please contact us at privacy@bitetrack.com.</p>
-              </div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">1. Information We Collect</h3><p>We collect minimal data necessary to provide our service.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">2. How We Use Your Data</h3><p>Your data is used solely to provide and improve the BiteTrack service.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">3. Data Security</h3><p>We implement industry-standard security measures including encryption.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">4. Cookies</h3><p>We use cookies to maintain your session.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">5. Your Rights</h3><p>You have the right to access, correct, or delete your personal data.</p></div>
+              <div><h3 className="font-semibold text-gray-900 mb-1">6. Contact Us</h3><p>Contact us at privacy@bitetrack.com.</p></div>
             </div>
-
-            {/* Modal Footer */}
             <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
-              <button
-                onClick={() => setShowPrivacy(false)}
-                className="px-5 py-2 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800 transition-colors"
-              >
-                Got it
-              </button>
+              <button onClick={() => setShowPrivacy(false)} className="px-5 py-2 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800 transition-colors">Got it</button>
             </div>
+          </motion.div>
+        </div>
+      )}
+
+      {(isSubmitting || isRedirecting) && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/80 backdrop-blur-md px-6">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="w-full max-w-sm rounded-3xl border border-gray-200 bg-white shadow-2xl p-8 text-center"
+          >
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-gray-900 to-gray-700 text-white shadow-lg">
+              <svg className="h-8 w-8 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="9" strokeOpacity="0.2" strokeWidth="2"></circle>
+                <path d="M21 12a9 9 0 0 0-9-9" strokeWidth="2" strokeLinecap="round"></path>
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900">Getting you signed in</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              Please wait while we connect your account.
+            </p>
           </motion.div>
         </div>
       )}

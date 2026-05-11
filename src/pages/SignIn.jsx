@@ -6,9 +6,11 @@ import { parseApiResponse } from "../utils/apiResponse";
 import getApiBase from "../utils/apiBase";
 import "../auth.css";
 
+import { wakeUpAndRedirect } from "../utils/authUtils";
+
 function SignIn() {
   const navigate = useNavigate();
- const { login, isSignedIn } = useAuth();
+  const { login, isSignedIn } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [error, setError] = useState('');
@@ -30,9 +32,7 @@ const [showPassword, setShowPassword] = useState(false);
 
   const handleOAuthRedirect = async (url) => {
     if (isSubmitting || isRedirecting) return;
-
-    setIsRedirecting(true);
-    window.location.assign(url);
+    await wakeUpAndRedirect(url, setIsRedirecting);
   };
 
 

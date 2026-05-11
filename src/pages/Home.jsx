@@ -122,6 +122,14 @@ const handleDeleteBudget = async () => {
   }
 };
 
+  // Pre-warm the backend on mount (wakes up Render service early)
+  useEffect(() => {
+    const API_BASE = getApiBase();
+    fetch(`${API_BASE}/api/health`).catch(() => {
+      fetch(`${API_BASE}/`); // Fallback if /api/health doesn't exist
+    });
+  }, []);
+
   const playNotificationSound = () => {
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
