@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { parseApiResponse } from "../utils/apiResponse";
 import getApiBase from "../utils/apiBase";
+import "../auth.css";
 
 function SignUp() {
   const navigate = useNavigate();
@@ -57,225 +58,165 @@ function SignUp() {
         exit={{ opacity: 0, y: -10 }}
         transition={{ duration: 0.25 }}
       >
-        <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 flex items-center justify-center p-6">
-          <div className="w-full max-w-md">
+        <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center p-6">
+          <div className="w-full max-w-sm">
 
-            {/* Home Button */}
-            <div className="mb-6 animate-fade-in">
-              <Link
-                to="/"
-                className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors group"
-              >
-                <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to Home
-              </Link>
-            </div>
+            <form onSubmit={handleSubmit} className="form">
+              <p id="heading">Sign Up</p>
 
-            {/* Logo and Header */}
-            <div className="text-center mb-8 animate-fade-in">
-              <div className="inline-flex items-center gap-2 mb-6 cursor-pointer group">
-                <div className="w-12 h-12 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center text-white text-xl font-bold group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-lg">
-                  B
-                </div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                  BiteTrack
-                </h1>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Create your account</h2>
-              <p className="text-gray-600">Start tracking your food orders today</p>
-            </div>
-
-            {/* Sign Up Form */}
-            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 animate-slide-up">
               {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                <div style={{ color: '#ff6b6b', textAlign: 'center', marginBottom: '10px', fontSize: '14px' }}>
                   {error}
                 </div>
               )}
-              <form onSubmit={handleSubmit} className="space-y-5">
 
-                {/* Full Name Field */}
-                <div className="group">
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    Full name
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <svg className="h-5 w-5 text-gray-400 group-focus-within:text-gray-900 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                    <input
-                      type="text"
-                      id="name"
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      required
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all duration-200 hover:border-gray-400"
-                      placeholder="John Doe"
-                    />
-                  </div>
-                </div>
-
-                {/* Email Field */}
-                <div className="group">
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email address
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <svg className="h-5 w-5 text-gray-400 group-focus-within:text-gray-900 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                      </svg>
-                    </div>
-                    <input
-                      type="email"
-                      id="email"
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      required
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all duration-200 hover:border-gray-400"
-                      placeholder="you@example.com"
-                    />
-                  </div>
-                </div>
-
-                {/* Password Field */}
-                <div className="group">
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <svg className="h-5 w-5 text-gray-400 group-focus-within:text-gray-900 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                    </div>
-                    <input
-                      type="password"
-                      id="password"
-                      value={form.password}
-                      onChange={(e) => setForm({ ...form, password: e.target.value })}
-                      required
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all duration-200 hover:border-gray-400"
-                      placeholder="••••••••"
-                    />
-                  </div>
-                  <p className="mt-1.5 text-xs text-gray-500">Must be at least 8 characters</p>
-                </div>
-
-                {/* Confirm Password Field */}
-                <div className="group">
-                  <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-2">
-                    Confirm password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <svg className="h-5 w-5 text-gray-400 group-focus-within:text-gray-900 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <input
-                      type="password"
-                      id="confirm-password"
-                      value={form.confirm}
-                      onChange={(e) => setForm({ ...form, confirm: e.target.value })}
-                      required
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all duration-200 hover:border-gray-400"
-                      placeholder="••••••••"
-                    />
-                  </div>
-                </div>
-
-                {/* Terms Checkbox */}
-                <div className="flex items-start gap-2">
-                  <input
-                    type="checkbox"
-                    required
-                    className="w-4 h-4 mt-1 rounded border-gray-300 text-gray-900 focus:ring-2 focus:ring-gray-900"
-                  />
-                  <span className="text-sm text-gray-600">
-                    I agree to the{' '}
-                    <button
-                      type="button"
-                      onClick={() => setShowTerms(true)}
-                      className="underline hover:text-gray-900 transition-colors"
-                    >
-                      Terms
-                    </button>
-                    {' '}and{' '}
-                    <button
-                      type="button"
-                      onClick={() => setShowPrivacy(true)}
-                      className="underline hover:text-gray-900 transition-colors"
-                    >
-                      Privacy Policy
-                    </button>
-                  </span>
-                </div>
-
-                {/* Sign Up Button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="group relative w-full bg-gray-900 text-white py-3 rounded-xl font-medium shadow-lg shadow-gray-900/20 hover:bg-gray-800 hover:shadow-xl hover:scale-[1.02] transition-all duration-200 overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-                >
-                  <span className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
-                  <span className="relative flex items-center justify-center gap-2">
-                    {isSubmitting ? 'Creating account...' : 'Create account'}
-                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </span>
-                </button>
-              </form>
-
-              {/* Divider */}
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-gray-500">Or sign up with</span>
-                </div>
+              {/* Name Field */}
+              <div className="field">
+                <svg className="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                </svg>
+                <input 
+                  autoComplete="off" 
+                  placeholder="Full name" 
+                  className="input-field" 
+                  type="text"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  required
+                />
               </div>
 
-              {/* Social Sign Up Buttons */}
+              {/* Email Field */}
+              <div className="field">
+                <svg className="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M13.106 7.222c0-2.967-2.249-5.032-5.482-5.032-3.35 0-5.646 2.318-5.646 5.702 0 3.493 2.235 5.708 5.762 5.708.862 0 1.689-.123 2.304-.335v-.862c-.43.199-1.354.328-2.29.328-2.926 0-4.813-1.88-4.813-4.798 0-2.844 1.921-4.881 4.594-4.881 2.735 0 4.608 1.688 4.608 4.156 0 1.682-.554 2.769-1.416 2.769-.492 0-.772-.28-.772-.76V5.206H8.923v.834h-.11c-.266-.595-.881-.964-1.6-.964-1.4 0-2.378 1.162-2.378 2.823 0 1.737.957 2.906 2.379 2.906.8 0 1.415-.39 1.709-1.087h.11c.081.67.703 1.148 1.503 1.148 1.572 0 2.57-1.415 2.57-3.643zm-7.177.704c0-1.197.54-1.907 1.456-1.907.93 0 1.524.738 1.524 1.907S8.308 9.84 7.371 9.84c-.895 0-1.442-.725-1.442-1.914z"></path>
+                </svg>
+                <input 
+                  autoComplete="off" 
+                  placeholder="Email address" 
+                  className="input-field" 
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  required
+                />
+              </div>
 
-              {/* Sign In Link */}
-              <p className="mt-6 text-center text-sm text-gray-600">
+              {/* Password Field */}
+              <div className="field">
+                <svg className="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path>
+                </svg>
+                <input 
+                  placeholder="Password" 
+                  className="input-field" 
+                  type="password"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  required
+                />
+              </div>
+
+              {/* Confirm Password Field */}
+              <div className="field">
+                <svg className="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path>
+                </svg>
+                <input 
+                  placeholder="Confirm password" 
+                  className="input-field" 
+                  type="password"
+                  value={form.confirm}
+                  onChange={(e) => setForm({ ...form, confirm: e.target.value })}
+                  required
+                />
+              </div>
+
+              {/* Terms Checkbox */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: '#d3d3d3', fontSize: '12px', marginTop: '10px' }}>
+                <input
+                  type="checkbox"
+                  required
+                  style={{ cursor: 'pointer', marginTop: '2px' }}
+                />
+                <span>
+                  I agree to the{' '}
+                  <button
+                    type="button"
+                    onClick={() => setShowTerms(true)}
+                    style={{ background: 'none', border: 'none', color: 'white', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
+                  >
+                    Terms
+                  </button>
+                  {' '}and{' '}
+                  <button
+                    type="button"
+                    onClick={() => setShowPrivacy(true)}
+                    style={{ background: 'none', border: 'none', color: 'white', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
+                  >
+                    Privacy Policy
+                  </button>
+                </span>
+              </div>
+
+              <div className="btn" style={{ marginTop: '1.5em', width: '100%' }}>
+                <button className="button1" type="submit" disabled={isSubmitting} style={{ width: '100%', padding: '0.8em', marginBottom: '20px', marginRight: 0 }}>
+                  {isSubmitting ? 'Creating account...' : 'Create account'}
+                </button>
+              </div>
+
+              {/* Social Logins */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '-10px', paddingBottom: '20px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                     window.location.assign(`${getApiBase()}/api/auth/google`);
+                  }}
+                  disabled={isSubmitting}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '10px', borderRadius: '5px', border: 'none', backgroundColor: '#252525', color: 'white', cursor: 'pointer', transition: '.4s ease-in-out' }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'black'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#252525'}
+                >
+                  <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" style={{ width: '20px', height: '20px' }} />
+                  Sign up with Google
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                     window.location.assign(`${getApiBase()}/api/auth/github`);
+                  }}
+                  disabled={isSubmitting}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '10px', borderRadius: '5px', border: 'none', backgroundColor: '#252525', color: 'white', cursor: 'pointer', transition: '.4s ease-in-out' }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'black'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#252525'}
+                >
+                  <img src="https://www.svgrepo.com/show/512317/github-142.svg" alt="GitHub" style={{ width: '20px', height: '20px', filter: 'invert(1)' }} />
+                  Sign up with GitHub
+                </button>
+              </div>
+            </form>
+
+            {/* Footer Links */}
+            <div className="mt-8 text-center text-xs text-gray-500 space-y-3">
+              <p>
                 Already have an account?{' '}
                 <Link
                   to="/signin"
-                  className="font-medium text-gray-900 hover:text-gray-600 transition-colors relative group"
+                  className="hover:text-white transition-colors underline font-medium"
                 >
                   Sign in
-                  <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-gray-900 group-hover:w-full transition-all duration-300"></span>
                 </Link>
               </p>
+              <div>
+                <Link
+                  to="/"
+                  className="text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-1"
+                >
+                  <span>←</span> Back to Home
+                </Link>
+              </div>
             </div>
-
-            {/* Footer */}
-            <p className="mt-8 text-center text-xs text-gray-500 animate-fade-in-delay">
-              By creating an account, you agree to our{' '}
-              <button
-                type="button"
-                onClick={() => setShowTerms(true)}
-                className="hover:text-gray-900 transition-colors underline"
-              >
-                Terms
-              </button>
-              {' '}and{' '}
-              <button
-                type="button"
-                onClick={() => setShowPrivacy(true)}
-                className="hover:text-gray-900 transition-colors underline"
-              >
-                Privacy Policy
-              </button>
-            </p>
 
           </div>
         </div>
