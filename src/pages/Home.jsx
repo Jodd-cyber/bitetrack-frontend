@@ -1137,20 +1137,29 @@ useEffect(() => {
               <h3 className="text-4xl font-bold text-gray-900 mb-4">Loved by thousands</h3>
                 <p className="text-gray-600 text-lg">The tools that make tracking effortless</p>
             </div>
-            <div className="grid md:grid-cols-3 gap-6">
-              {[
-                  { icon: '📊', title: 'Smart Analytics', desc: 'Understand your eating habits instantly' },
-                  { icon: '🔔', title: 'Budget Alerts', desc: 'Avoid overspending on food' },
-                  { icon: '📄', title: 'Export Reports', desc: 'Download monthly summaries' },
-                ].map((feature, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="group bg-white dark:bg-[var(--app-surface)] rounded-2xl p-8 border border-gray-200 dark:border-[var(--app-border)] hover:border-gray-300 dark:hover:border-[var(--app-accent)] shadow-sm hover:shadow-xl dark:shadow-lg dark:hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer hover:-translate-y-2">
-                    <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">{feature.icon}</div>
-                    <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{feature.title}</h4>
-                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{feature.desc}</p>
-                  </motion.div>
-                ))}
-            </div>
-              </section>
+        <div className="grid md:grid-cols-3 gap-8">
+          {[
+            { icon: '📊', title: 'Smart Analytics', desc: 'Understand your eating habits instantly with beautiful charts.' },
+            { icon: '🔔', title: 'Budget Alerts', desc: 'Avoid overspending on food with real-time notifications.' },
+            { icon: '📄', title: 'Export Reports', desc: 'Download monthly summaries in PDF format for your records.' },
+          ].map((feature, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="testimonial-card"
+            >
+              <div className="testimonial-card-inner">
+                <div className="text-5xl mb-4">{feature.icon}</div>
+                <h4 className="text-xl font-bold text-[var(--app-text)] mb-3">{feature.title}</h4>
+                <p className="text-[var(--app-text-muted)] leading-relaxed">{feature.desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
          {/* ═══════════════════════════════════════════════════
     ENHANCED CTA SECTION
 ═══════════════════════════════════════════════════ */}
