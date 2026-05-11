@@ -485,22 +485,8 @@ useEffect(() => {
             )}
           </div>
         </div>
-      </div>           </div>
-                          <button onClick={handleLogout} className="w-full px-4 py-3 flex items-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 border-t border-[var(--app-border)] transition-colors">
-                            <span className="text-xs font-medium">Logout</span>
-                          </button>
-                        </motion.div>
-                      </>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-            ) : (
-              <Link to="/signin" className="Btn text-[10px] px-4 py-1.5">Sign In</Link>
-            )}
-          </div>
-        </div>
       </div>
+
 
       {/* Desktop Header */}
       <div className="hidden md:flex md:items-center md:justify-between">
