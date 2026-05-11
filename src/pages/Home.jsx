@@ -601,15 +601,13 @@ useEffect(() => {
         </Link>
 
         {/* Navigation */}
-        <nav className="flex items-center gap-8">
-          <a href="#features" className="text-sm font-medium text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors relative group">
+        <nav className="flex items-center gap-4">
+          <button className="Btn" onClick={(e) => { e.preventDefault(); document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' }); }}>
             Features
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></span>
-          </a>
-          <a href="#about" className="text-sm font-medium text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors relative group">
+          </button>
+          <button className="Btn" onClick={(e) => { e.preventDefault(); document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' }); }}>
             About
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></span>
-          </a>
+          </button>
 
           {effectiveSignedIn ? (
             <div className="flex items-center gap-3">
@@ -627,15 +625,16 @@ useEffect(() => {
               <div className="relative">
                 <button
                   onClick={() => setShowSettings(!showSettings)}
-                  className="flex items-center gap-3 px-4 py-2 rounded-xl bg-[var(--app-surface-soft)] hover:bg-[var(--app-border)] transition-all duration-200 border border-[var(--app-border)]"
+                  className="Btn"
+                  style={{ gap: '10px' }}
                 >
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                  <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-white text-xs font-bold border border-white/30">
                     {effectiveUser?.name?.[0]?.toUpperCase() || "U"}
                   </div>
-                  <span className="text-sm font-medium text-[var(--app-text)]">
+                  <span>
                     {effectiveUser?.name || "User"}
                   </span>
-                  <svg className={`w-4 h-4 text-[var(--app-text-muted)] transition-transform ${showSettings ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-4 h-4 transition-transform ${showSettings ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
@@ -761,11 +760,15 @@ useEffect(() => {
               </div>
             </div>
           ) : (
-            <Link
-              to="/signin"
-              className="text-sm font-medium px-5 py-2.5 rounded-xl border-2 border-[var(--app-border)] text-[var(--app-text)] hover:bg-[var(--app-surface-soft)] transition-all duration-200"
-            >
-              Sign in
+            <Link to="/signin" className="user-profile" aria-label="User Login Button">
+              <div className="user-profile-inner">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <g data-name="Layer 2" id="Layer_2">
+                    <path d="m15.626 11.769a6 6 0 1 0 -7.252 0 9.008 9.008 0 0 0 -5.374 8.231 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 9.008 9.008 0 0 0 -5.374-8.231zm-7.626-4.769a4 4 0 1 1 4 4 4 4 0 0 1 -4-4zm10 14h-12a1 1 0 0 1 -1-1 7 7 0 0 1 14 0 1 1 0 0 1 -1 1z"></path>
+                  </g>
+                </svg>
+                <p>Log In</p>
+              </div>
             </Link>
           )}
         </nav>
