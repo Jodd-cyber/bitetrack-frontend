@@ -6,7 +6,17 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background-color: #000000;
+  transition: background-color 0.3s ease;
+}
+
+/* Default (Light Mode) */
+.auth-container {
+  background-color: #f7f3ec;
+}
+
+/* Dark Mode */
+html.dark .auth-container {
+  background-color: #0f0f0f;
 }
 
 .card {
@@ -18,8 +28,17 @@
   max-width: 400px;
 }
 
+/* Light mode gradient override */
+html:not(.dark) .card {
+  background-image: linear-gradient(163deg, #3b82f6 0%, #8b5cf6 100%);
+}
+
 .card:hover {
   box-shadow: 0px 0px 30px 1px rgba(0, 255, 117, 0.30);
+}
+
+html:not(.dark) .card:hover {
+  box-shadow: 0px 0px 30px 1px rgba(59, 130, 246, 0.30);
 }
 
 .card2 {
@@ -41,9 +60,14 @@
   gap: 12px;
   padding: 2em;
   padding-bottom: 2em;
-  background-color: #171717;
+  background-color: #171717; /* Dark mode default */
   border-radius: 20px;
+  transition: background-color 0.3s ease;
   width: 100%;
+}
+
+html:not(.dark) .form {
+  background-color: #ffffff;
 }
 
 #heading {
@@ -52,6 +76,10 @@
   color: rgb(0, 255, 200);
   font-size: 1.8em;
   font-weight: bold;
+}
+
+html:not(.dark) #heading {
+  color: #3b82f6;
 }
 
 .field {
@@ -68,11 +96,21 @@
   box-shadow: inset 2px 5px 10px rgb(5, 5, 5);
 }
 
+html:not(.dark) .field {
+  background-color: #f9fafb;
+  box-shadow: inset 2px 5px 10px rgba(0, 0, 0, 0.05);
+  color: #1f2937;
+}
+
 .input-icon {
   height: 1.3em;
   width: 1.3em;
   fill: rgb(0, 255, 200);
   flex-shrink: 0;
+}
+
+html:not(.dark) .input-icon {
+  fill: #3b82f6;
 }
 
 .input-field {
@@ -84,18 +122,36 @@
   font-size: 15px;
 }
 
-/* Fix for browser autofill background changing to white */
-.input-field:-webkit-autofill,
-.input-field:-webkit-autofill:hover, 
-.input-field:-webkit-autofill:focus, 
-.input-field:-webkit-autofill:active {
+/* Fix for browser autofill background changing to white in dark mode */
+html.dark .input-field:-webkit-autofill,
+html.dark .input-field:-webkit-autofill:hover, 
+html.dark .input-field:-webkit-autofill:focus, 
+html.dark .input-field:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 30px #171717 inset !important;
   -webkit-text-fill-color: rgb(0, 255, 200) !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
+/* Fix for browser autofill background in light mode */
+html:not(.dark) .input-field:-webkit-autofill,
+html:not(.dark) .input-field:-webkit-autofill:hover, 
+html:not(.dark) .input-field:-webkit-autofill:focus, 
+html:not(.dark) .input-field:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+html:not(.dark) .input-field {
+  color: #1f2937;
+}
+
 .input-field::placeholder {
   color: #888;
+}
+
+html:not(.dark) .input-field::placeholder {
+  color: #9ca3af;
 }
 
 .form .btn {
@@ -119,6 +175,13 @@
   text-align: center;
 }
 
+html:not(.dark) .button1, 
+html:not(.dark) .button2, 
+html:not(.dark) .button3 {
+  background-image: linear-gradient(163deg, #3b82f6 0%, #8b5cf6 100%);
+  color: white;
+}
+
 .button1 {
   flex: 1;
 }
@@ -132,6 +195,12 @@
   color: rgb(0, 255, 200);
 }
 
+html:not(.dark) .button1:hover,
+html:not(.dark) .button2:hover {
+  background-image: linear-gradient(163deg, #2563eb 0%, #7c3aed 100%);
+  color: white;
+}
+
 .button3 {
   width: 100%;
 }
@@ -139,6 +208,10 @@
 .button3:hover {
   background-image: linear-gradient(163deg, #a00000fa 0%, #d10050 100%);
   color: rgb(255, 255, 255);
+}
+
+html:not(.dark) .button3:hover {
+  background-image: linear-gradient(163deg, #dc2626 0%, #991b1b 100%);
 }
 
 .social-btn {
@@ -157,8 +230,18 @@
   width: 100%;
 }
 
+html:not(.dark) .social-btn {
+  background-color: #f3f4f6;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+}
+
 .social-btn:hover {
   background-color: black;
+}
+
+html:not(.dark) .social-btn:hover {
+  background-color: #e5e7eb;
 }
 
 /* Checkbox container */
@@ -172,6 +255,10 @@
   margin-top: 5px;
 }
 
+html:not(.dark) .checkbox-container {
+  color: #4b5563;
+}
+
 /* Footer links */
 .footer-links {
   margin-top: 2rem;
@@ -181,6 +268,12 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+html:not(.dark) .footer-links {
+  /* Much darker color for light mode so it's fully visible */
+  color: #111827;
+  font-weight: 500;
 }
 
 .footer-links button,
@@ -196,6 +289,11 @@
 .footer-links button:hover,
 .footer-links a:hover {
   color: #e0ffff;
+}
+
+html:not(.dark) .footer-links button:hover,
+html:not(.dark) .footer-links a:hover {
+  color: #2563eb;
 }
 
 .back-link {
