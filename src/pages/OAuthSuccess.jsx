@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const OAuthSuccess = () => {
-  const { login } = useAuth();
+  const { login, isSignedIn, isLoading } = useAuth();
   const navigate = useNavigate();
+  const hasProcessedToken = useRef(false);
 
   const decodeJwtPayload = (token) => {
     const payload = token.split(".")[1] || "";
@@ -13,7 +14,10 @@ const OAuthSuccess = () => {
     return JSON.parse(atob(padded));
   };
 
+  // Step 1: Process the token from URL and call login()
   useEffect(() => {
+    if (hasProcessedToken.current) return;
+
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
     const error = params.get("error");
@@ -30,35 +34,25 @@ const OAuthSuccess = () => {
     // Handle success
     if (token) {
       try {
+        hasProcessedToken.current = true;
         console.log("✅ Processing token...");
 
         // Decode JWT to get user info
         const payload = decodeJwtPayload(token);
         console.log("✅ Decoded payload:", payload);
 
-        // Store token FIRST
-        localStorage.setItem("token", token);
-        console.log("✅ Token stored in localStorage");
-
-        // Call login to update auth context
+        // Call login to update auth context (this also stores to localStorage)
         login(
-  {
-    name: payload.name,
-    email: payload.email,
-    id: payload.userId,
-  },
-  token,
-  true
-);
+          {
+            name: payload.name,
+            email: payload.email,
+            id: payload.userId,
+          },
+          token,
+          true
+        );
 
-console.log("✅ Auth context updated");
-
-navigate("/", { replace: true });
-
-        // ⏳ Wait 100ms for state to update, then redirect
-        console.log("🟢 Redirecting to home...");
-
-
+        console.log("✅ Auth context updated, waiting for state to propagate...");
       } catch (err) {
         console.error("❌ Failed to process OAuth token:", err);
         window.location.href = `/signin?error=invalid_token`;
@@ -68,6 +62,14 @@ navigate("/", { replace: true });
       window.location.href = "/signin";
     }
   }, [login]);
+
+  // Step 2: Navigate to home ONLY after auth state confirms sign-in
+  useEffect(() => {
+    if (hasProcessedToken.current && !isLoading && isSignedIn) {
+      console.log("🟢 Auth state confirmed, redirecting to home...");
+      navigate("/", { replace: true });
+    }
+  }, [isSignedIn, isLoading, navigate]);
 
   // Show loading while processing
   return (
