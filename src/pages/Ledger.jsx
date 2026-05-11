@@ -266,8 +266,25 @@ function Ledger() {
   const [editAmount, setEditAmount] = useState("");
   const [searchQuery, setSearchQuery] = useState('');
   const [filterMealType, setFilterMealType] = useState('all');
-  const [dateFilter, setDateFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState(() => {
+    try {
+      const filterKey = `bitetrack_date_filter_${user?.id || 'temp'}`;
+      return localStorage.getItem(filterKey) || 'all';
+    } catch {
+      return 'all';
+    }
+  });
   const [sortBy, setSortBy] = useState('date');
+
+  // Persist date filter choice
+  useEffect(() => {
+    try {
+      const filterKey = `bitetrack_date_filter_${user?.id || 'temp'}`;
+      localStorage.setItem(filterKey, dateFilter);
+    } catch (err) {
+      console.error("Failed to save date filter:", err);
+    }
+  }, [dateFilter, user?.id]);
 
   const monthlyBudget = budget?.amount || 0;
   const currentMonth = new Date().getMonth();
