@@ -814,31 +814,29 @@ useEffect(() => {
     </p>
 
     {/* CTA Buttons */}
-    <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up-delay-2">
+    <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-6 animate-slide-up-delay-2">
       <button 
         onClick={handleGetStarted}
         disabled={effectiveSignedIn}
-        className={`group relative btn-primary inline-flex items-center gap-2 rounded-2xl px-8 py-4 text-base font-semibold transition-all duration-300 overflow-hidden ${
-          effectiveSignedIn
-            ? 'bg-gray-400 text-white cursor-not-allowed opacity-60'
-            : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-2xl hover:scale-105 shadow-lg'
-        }`}
+        className="gradient-btn"
       >
-        <span className="relative z-10">{effectiveSignedIn ? 'Already Signed In' : 'Start Tracking Free'}</span>
-        {!effectiveSignedIn && (
-          <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        )}
+        <div className="gradient-btn-inner">
+          <span>{effectiveSignedIn ? 'Already Signed In' : 'Start Tracking Free'}</span>
+          {!effectiveSignedIn && (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          )}
+        </div>
       </button>
 
-      <button className="group inline-flex items-center gap-3 rounded-2xl px-8 py-4 text-base font-medium text-[var(--app-text)] border-2 border-[var(--app-border)] hover:border-[var(--app-accent)] hover:bg-[var(--app-surface-soft)] transition-all duration-300">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-          <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+      <button className="gradient-btn">
+        <div className="gradient-btn-inner">
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
             <path d="M8 5v14l11-7z" />
           </svg>
+          <span>Watch Demo</span>
         </div>
-        <span>Watch Demo</span>
       </button>
     </div>
 
@@ -1335,27 +1333,29 @@ useEffect(() => {
           {effectiveSignedIn ? (
             <button
               disabled={true}
-              className="group relative inline-flex items-center gap-2 rounded-2xl bg-white/20 backdrop-blur-sm px-8 py-4 text-base font-semibold text-white shadow-xl cursor-not-allowed opacity-60 border border-white/30"
+              className="gradient-btn"
               title="You are already signed in"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Already Signed In
+              <div className="gradient-btn-inner">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Already Signed In</span>
+              </div>
             </button>
           ) : (
             <Link
               to="/signup"
               onClick={handleGetStarted}
-              className="group relative inline-flex items-center gap-3 rounded-2xl bg-white px-8 py-4 text-base font-bold text-gray-900 shadow-2xl hover:shadow-white/50 hover:scale-105 transition-all duration-300 overflow-hidden"
+              className="gradient-btn"
+              style={{ textDecoration: 'none' }}
             >
-              {/* Button Shine Effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-              
-              <span className="relative">Create Free Account</span>
-              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform relative" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
+              <div className="gradient-btn-inner">
+                <span>Create Free Account</span>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </div>
             </Link>
           )}
 
