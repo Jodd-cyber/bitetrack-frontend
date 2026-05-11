@@ -753,7 +753,7 @@ useEffect(() => {
                         {/* Logout */}
                         <button
                           onClick={handleLogout}
-                          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border-t border-[var(--app-border)] group"
+                          className="w-full px-4 py-4 flex items-center gap-3 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors border-t border-[var(--app-border)] group bg-red-50/50 dark:bg-red-900/10"
                         >
                           <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-red-100 to-rose-100 dark:from-red-900/30 dark:to-rose-900/30 flex items-center justify-center">
                             <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

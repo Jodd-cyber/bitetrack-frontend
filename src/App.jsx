@@ -14,6 +14,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import Ledger from "./pages/Ledger";
+import VantaBackground from "./components/VantaBackground";
 
 // ✅ SIMPLE Protected Route - One source of truth
 function ProtectedRoute({ element }) {
@@ -50,7 +51,7 @@ function ProtectedRoute({ element }) {
   return element;
 }
 
-import VantaBackground from "./components/VantaBackground";
+
 
 function App() {
   const location = useLocation();
