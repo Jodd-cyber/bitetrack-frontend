@@ -44,6 +44,7 @@ function App() {
   const [showContact, setShowContact] = useState(false);
   const [showFeatures, setShowFeatures] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
   const navigate = useNavigate();
   const [monthlyBudget, setMonthlyBudget] = useState("");
 const [stats, setStats] = useState({
@@ -389,6 +390,53 @@ useEffect(() => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
+      </div>
+    </motion.div>
+  </div>
+)}
+
+{/* ═══════════════════════════════════════════════════
+    VIDEO DEMO MODAL
+═══════════════════════════════════════════════════ */}
+{showDemo && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 animate-fade-in">
+    <div 
+      className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+      onClick={() => setShowDemo(false)}
+    ></div>
+    
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9, y: 20 }}
+      className="relative bg-[var(--app-surface)] rounded-3xl shadow-2xl border border-[var(--app-border)] overflow-hidden max-w-5xl w-full aspect-video"
+    >
+      {/* Close Button */}
+      <button
+        onClick={() => setShowDemo(false)}
+        className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-md flex items-center justify-center text-white transition-all hover:rotate-90"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      {/* Video Content */}
+      <div className="w-full h-full bg-black flex items-center justify-center">
+        <video 
+          controls 
+          autoPlay 
+          className="w-full h-full"
+          src="/demo.mp4"
+        >
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      
+      {/* Footer / Caption */}
+      <div className="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
+        <h3 className="text-white text-xl font-bold">BiteTrack Demo</h3>
+        <p className="text-white/70 text-sm">See how easy it is to track your meals and manage your budget.</p>
       </div>
     </motion.div>
   </div>
@@ -802,7 +850,10 @@ useEffect(() => {
         </div>
       </button>
 
-      <button className="gradient-btn">
+      <button 
+        onClick={() => setShowDemo(true)}
+        className="gradient-btn"
+      >
         <div className="gradient-btn-inner">
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
             <path d="M8 5v14l11-7z" />
