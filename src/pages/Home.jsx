@@ -427,7 +427,7 @@ useEffect(() => {
           controls 
           autoPlay 
           className="w-full h-full"
-          src="/demo.mp4"
+          src="/demo.mov"
         >
           Your browser does not support the video tag.
         </video>
