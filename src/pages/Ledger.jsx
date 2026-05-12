@@ -7,6 +7,9 @@ import autoTable from 'jspdf-autotable';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import getApiBase from '../utils/apiBase';
+import SleekSelect from '../components/SleekSelect';
+import SleekDatePicker from '../components/SleekDatePicker';
+import SleekTimePicker from '../components/SleekTimePicker';
 
 function Ledger() {
   const { user } = useAuth();
@@ -986,56 +989,30 @@ function Ledger() {
                     </div>
 
                     {/* Date & Time */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
-                          Date *
-                        </label>
-                        <input
-                          type="date"
-                          required
-                          value={formData.date}
-                          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
-                          Time *
-                        </label>
-                        <input
-                          type="time"
-                          required
-                          value={formData.time}
-                          onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-                        />
-                      </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <SleekDatePicker
+                        label="Date *"
+                        value={formData.date}
+                        onChange={(val) => setFormData({ ...formData, date: val })}
+                      />
+                      <SleekTimePicker
+                        label="Time *"
+                        value={formData.time}
+                        onChange={(val) => setFormData({ ...formData, time: val })}
+                      />
                     </div>
 
                     {/* Meal Type */}
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
-                        Meal Type *
-                      </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {mealTypes.map((type) => (
-                          <button
-                            key={type}
-                            type="button"
-                            onClick={() => setFormData({ ...formData, mealType: type })}
-                            className={`px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-                              formData.mealType === type
-                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
-                                : 'bg-[var(--app-surface-soft)] text-[var(--app-text-muted)] hover:bg-[var(--app-border)] border border-[var(--app-border)]'
-                            }`}
-                          >
-                            <span>{mealIcons[type]}</span>
-                            {type}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                    <SleekSelect
+                      label="Meal Type *"
+                      value={formData.mealType}
+                      onChange={(val) => setFormData({ ...formData, mealType: val })}
+                      options={mealTypes.map(type => ({
+                        value: type,
+                        label: type,
+                        icon: mealIcons[type]
+                      }))}
+                    />
 
                     {/* Amount */}
                     <div>
@@ -1129,34 +1106,32 @@ function Ledger() {
 
                 {/* Meal Type Filter */}
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
-                    Meal Type
-                  </label>
-                  <select
+                  <SleekSelect
+                    label="Meal Type"
                     value={filterMealType}
-                    onChange={(e) => setFilterMealType(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-                  >
-                    <option value="all">All Meals</option>
-                    {mealTypes.map((type) => (
-                      <option key={type} value={type}>{mealIcons[type]} {type}</option>
-                    ))}
-                  </select>
+                    onChange={setFilterMealType}
+                    options={[
+                      { value: 'all', label: 'All Meals', icon: '🍽️' },
+                      ...mealTypes.map(type => ({
+                        value: type,
+                        label: type,
+                        icon: mealIcons[type]
+                      }))
+                    ]}
+                  />
                 </div>
 
                 {/* Sort */}
                 <div>
-                  <label className="block text-sm font-medium text-[var(--app-text-muted)] mb-2">
-                    Sort By
-                  </label>
-                  <select
+                  <SleekSelect
+                    label="Sort By"
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-                  >
-                    <option value="date">📅 Newest First</option>
-                    <option value="amount">💰 Amount (High to Low)</option>
-                  </select>
+                    onChange={setSortBy}
+                    options={[
+                      { value: 'date', label: 'Newest First', icon: '📅' },
+                      { value: 'amount', label: 'Amount (High to Low)', icon: '💰' }
+                    ]}
+                  />
                 </div>
               </div>
             </motion.div>
