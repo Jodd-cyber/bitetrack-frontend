@@ -7,6 +7,7 @@ import getApiBase from "../utils/apiBase";
 import "../auth.css";
 
 import { wakeUpAndRedirect } from "../utils/authUtils";
+import Loader from "../components/Loader";
 
 function SignIn() {
   const navigate = useNavigate();
@@ -209,24 +210,7 @@ const [showPassword, setShowPassword] = useState(false);
       </div>
 
       {(isSubmitting || isRedirecting) && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/80 backdrop-blur-md px-6">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="w-full max-w-sm rounded-3xl border border-gray-200 bg-white shadow-2xl p-8 text-center"
-          >
-            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-gray-900 to-gray-700 text-white shadow-lg">
-              <svg className="h-8 w-8 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <circle cx="12" cy="12" r="9" strokeOpacity="0.2" strokeWidth="2"></circle>
-                <path d="M21 12a9 9 0 0 0-9-9" strokeWidth="2" strokeLinecap="round"></path>
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900">Getting you signed in</h3>
-            <p className="mt-2 text-sm text-gray-600">
-              Please wait while we connect your account.
-            </p>
-          </motion.div>
-        </div>
+        <Loader text={isRedirecting ? "Connecting your account..." : "Getting you signed in..."} />
       )}
 
       {/* ── Terms Modal ── */}

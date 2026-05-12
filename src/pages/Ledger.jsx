@@ -10,6 +10,7 @@ import getApiBase from '../utils/apiBase';
 import SleekSelect from '../components/SleekSelect';
 import SleekDatePicker from '../components/SleekDatePicker';
 import SleekTimePicker from '../components/SleekTimePicker';
+import Loader from '../components/Loader';
 
 function Ledger() {
   const { user } = useAuth();
@@ -496,14 +497,7 @@ function Ledger() {
 
   return (
     <div className={`min-h-screen bg-[var(--app-bg)] ${loading ? 'overflow-hidden' : ''}`}>
-      {loading && (
-        <div className="fixed inset-0 bg-[var(--app-bg)] flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-[var(--app-text-muted)]">Loading your data...</p>
-          </div>
-        </div>
-      )}
+      {loading && <Loader text="Loading your data..." />}
 
       {/* ═══════════════════════════════════════════════════
           ENHANCED HEADER
