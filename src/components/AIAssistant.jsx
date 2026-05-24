@@ -48,7 +48,8 @@ export default function AIAssistant() {
 
       setMessages(prev => [...prev, { role: 'assistant', text: data.reply }]);
     } catch (err) {
-      setMessages(prev => [...prev, { role: 'assistant', text: "Sorry, I'm having trouble connecting right now. Please try again later." }]);
+      console.error("AI Assistant Error:", err);
+      setMessages(prev => [...prev, { role: 'assistant', text: `Error: ${err.message || 'Unknown error'}. Please check the console.` }]);
     } finally {
       setIsLoading(false);
     }
