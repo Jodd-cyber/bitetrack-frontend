@@ -271,8 +271,19 @@ useEffect(() => {
           goal: profileData.goal || ''
         });
       }
+      // Also fetch budget
+      const budgetRes = await fetch(`${API_BASE}/api/budget`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const budgetData = await budgetRes.json();
+      if (budgetRes.ok && budgetData.success && budgetData.data) {
+        setMonthlyBudget(budgetData.data);
+      } else {
+        setMonthlyBudget("");
+      }
+
     } catch (err) {
-      console.error("Profile fetch error:", err);
+      console.error("Profile/Budget fetch error:", err);
     }
   };
 
@@ -1520,6 +1531,15 @@ useEffect(() => {
             <div>
               <label className="block text-xs font-medium text-[var(--app-text)] mb-1">Weight (kg)</label>
               <input type="number" min="20" max="300" value={profileStats.weight} onChange={e => setProfileStats({...profileStats, weight: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] outline-none" />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-xs font-medium text-[var(--app-text)] mb-1">Health Goal</label>
+              <select value={profileStats.goal} onChange={e => setProfileStats({...profileStats, goal: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] outline-none">
+                <option value="">Select a Goal</option>
+                <option value="lose_weight">Lose Weight</option>
+                <option value="maintain_weight">Maintain Weight</option>
+                <option value="build_muscle">Build Muscle</option>
+              </select>
             </div>
           </div>
           <button 
