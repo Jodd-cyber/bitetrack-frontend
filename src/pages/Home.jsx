@@ -90,7 +90,6 @@ const handleSaveBudget = async () => {
     }
 
     setShowBudgetSuccess(true);
-    setMonthlyBudget("");
 
     setTimeout(() => {
       setShowBudgetSuccess(false);
@@ -178,6 +177,8 @@ const handleDeleteBudget = async () => {
   const handleLogout = () => {
     logout();
     setShowSettings(false);
+    setMonthlyBudget("");
+    setProfileStats({ age: '', height: '', weight: '', gender: '', goal: '' });
   };
 
   // 👇 PASTE HERE (below handleLogout)
@@ -276,8 +277,8 @@ useEffect(() => {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const budgetData = await budgetRes.json();
-      if (budgetRes.ok && budgetData.success && budgetData.data) {
-        setMonthlyBudget(budgetData.data);
+      if (budgetRes.ok && budgetData.success && budgetData.data && budgetData.data.amount) {
+        setMonthlyBudget(budgetData.data.amount);
       } else {
         setMonthlyBudget("");
       }
@@ -1536,9 +1537,9 @@ useEffect(() => {
               <label className="block text-xs font-medium text-[var(--app-text)] mb-1">Health Goal</label>
               <select value={profileStats.goal} onChange={e => setProfileStats({...profileStats, goal: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] outline-none">
                 <option value="">Select a Goal</option>
-                <option value="lose_weight">Lose Weight</option>
-                <option value="maintain_weight">Maintain Weight</option>
-                <option value="build_muscle">Build Muscle</option>
+                <option value="lose">Lose Weight</option>
+                <option value="maintain">Maintain Weight</option>
+                <option value="gain">Build Muscle</option>
               </select>
             </div>
           </div>
