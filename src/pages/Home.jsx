@@ -186,21 +186,21 @@ useEffect(() => {
   if (!showStats) return;
 
   const fetchStats = async () => {
+    const token =
+      localStorage.getItem("token") ||
+      sessionStorage.getItem("token");
+
+    if (!token) {
+      setStats({
+        totalOrders: 0,
+        totalSpent: 0,
+        avgSpend: 0,
+        topRestaurant: "-"
+      });
+      return;
+    }
+
     try {
-      const token =
-        localStorage.getItem("token") ||
-        sessionStorage.getItem("token");
-
-      if (!token) {
-        setStats({
-          totalOrders: 0,
-          totalSpent: 0,
-          avgSpend: 0,
-          topRestaurant: "-"
-        });
-        return;
-      }
-
       const res = await fetch(
         `${API_BASE}/api/foodlogs`,
         {
