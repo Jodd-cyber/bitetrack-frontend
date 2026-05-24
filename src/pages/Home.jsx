@@ -55,6 +55,8 @@ const [stats, setStats] = useState({
   avgSpend: 0,
   topRestaurant: "-"
 });
+const [profileStats, setProfileStats] = useState({ age: '', height: '', weight: '', gender: '', goal: '' });
+const [isSavingProfile, setIsSavingProfile] = useState(false);
 
 const handleSaveBudget = async () => {
   if (!monthlyBudget || monthlyBudget <= 0) {
@@ -254,10 +256,56 @@ useEffect(() => {
     } catch (err) {
       console.error("Stats error:", err);
     }
+
+    try {
+      const profileRes = await fetch(`${API_BASE}/api/user/profile`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const profileData = await profileRes.json();
+      if (profileRes.ok && profileData) {
+        setProfileStats({
+          age: profileData.age || '',
+          height: profileData.height || '',
+          weight: profileData.weight || '',
+          gender: profileData.gender || '',
+          goal: profileData.goal || ''
+        });
+      }
+    } catch (err) {
+      console.error("Profile fetch error:", err);
+    }
   };
 
   fetchStats();
 }, [showStats]);
+
+const handleSaveProfile = async () => {
+  setIsSavingProfile(true);
+  try {
+    const API_BASE = getApiBase();
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    await fetch(`${API_BASE}/api/user/profile`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        age: Number(profileStats.age) || undefined,
+        height: Number(profileStats.height) || undefined,
+        weight: Number(profileStats.weight) || undefined,
+        gender: profileStats.gender,
+        goal: profileStats.goal
+      })
+    });
+    alert("Health profile saved successfully!");
+  } catch (err) {
+    console.error("Failed to save profile", err);
+    alert("Error saving profile");
+  } finally {
+    setIsSavingProfile(false);
+  }
+};
 
 useEffect(() => {
   const handleScroll = () => {
@@ -1435,6 +1483,52 @@ useEffect(() => {
               🗑️
             </button>
           </div>
+        </div>
+        </div>
+
+        {/* Health Profile Section */}
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-bold text-[var(--app-text)]">Health Profile</h3>
+              <p className="text-sm text-[var(--app-text-muted)]">Optional details for AI calculations</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-[var(--app-text)] mb-1">Age (Years)</label>
+              <input type="number" min="1" max="120" value={profileStats.age} onChange={e => setProfileStats({...profileStats, age: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-[var(--app-text)] mb-1">Gender</label>
+              <select value={profileStats.gender} onChange={e => setProfileStats({...profileStats, gender: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] outline-none">
+                <option value="">Select</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-[var(--app-text)] mb-1">Height (cm)</label>
+              <input type="number" min="50" max="300" value={profileStats.height} onChange={e => setProfileStats({...profileStats, height: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-[var(--app-text)] mb-1">Weight (kg)</label>
+              <input type="number" min="20" max="300" value={profileStats.weight} onChange={e => setProfileStats({...profileStats, weight: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] outline-none" />
+            </div>
+          </div>
+          <button 
+            onClick={handleSaveProfile}
+            disabled={isSavingProfile}
+            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg transition-all"
+          >
+            {isSavingProfile ? 'Saving...' : '💾 Save Profile'}
+          </button>
         </div>
       </div>
     </div>
