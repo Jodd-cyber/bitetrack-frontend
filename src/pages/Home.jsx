@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext.jsx";
 import { useEffect } from "react";
 import getApiBase from "../utils/apiBase";
+import ProfileModal from "../components/ProfileModal";
 
 
 
@@ -36,6 +37,7 @@ function App() {
   };
   const [showWarning, setShowWarning] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const [showBudgetSuccess, setShowBudgetSuccess] = useState(false);
   const [showTerms, setShowTerms] = useState(false);

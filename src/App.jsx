@@ -15,6 +15,7 @@ import ResetPassword from "./pages/ResetPassword";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import Ledger from "./pages/Ledger";
 import VantaBackground from "./components/VantaBackground";
+import AIAssistant from "./components/AIAssistant";
 
 // ✅ SIMPLE Protected Route - One source of truth
 function ProtectedRoute({ element }) {
@@ -59,6 +60,7 @@ function App() {
   return (
     <>
       <VantaBackground />
+      <AIAssistant />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
         {/* Home is PUBLIC - it already handles both auth states internally */}
