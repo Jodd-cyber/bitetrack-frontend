@@ -218,7 +218,7 @@ useEffect(() => {
       const totalOrders = data.length;
 
       const totalSpent = data.reduce(
-        (sum, item) => sum + (item.items?.reduce((s, i) => s + i.calories, 0) || 0),
+        (sum, item) => sum + Number(item.amount ?? (item.items?.reduce((s, i) => s + i.calories, 0) || 0)),
         0
       );
 
@@ -229,7 +229,7 @@ useEffect(() => {
       const restaurantSpend = {};
       data.forEach((item) => {
         if (item.restaurant) {
-          const spend = item.items?.reduce((s, i) => s + i.calories, 0) || 0;
+          const spend = Number(item.amount ?? (item.items?.reduce((s, i) => s + i.calories, 0) || 0));
           restaurantSpend[item.restaurant] =
             (restaurantSpend[item.restaurant] || 0) + spend;
         }
@@ -427,7 +427,7 @@ useEffect(() => {
           controls 
           autoPlay 
           className="w-full h-full"
-          src="/demo.mov"
+          src="/demo.mp4"
         >
           Your browser does not support the video tag.
         </video>
@@ -1994,24 +1994,6 @@ useEffect(() => {
           Your personal food ledger for building better eating habits and tracking spending effortlessly.
         </p>
 
-        {/* Social Links */}
-        <div className="flex items-center gap-3">
-          {[
-            { name: 'Twitter', icon: '𝕏', color: 'from-blue-400 to-blue-600' },
-            { name: 'Discord', icon: '💬', color: 'from-indigo-400 to-purple-600' },
-            { name: 'GitHub', icon: '⚙️', color: 'from-gray-400 to-gray-600' }
-          ].map((social, i) => (
-            <motion.button
-              key={i}
-              whileHover={{ scale: 1.1, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className={`group w-10 h-10 rounded-xl bg-gradient-to-br ${social.color} flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300`}
-              title={social.name}
-            >
-              <span className="text-white text-lg">{social.icon}</span>
-            </motion.button>
-          ))}
-        </div>
       </motion.div>
 
       {/* Product Links */}

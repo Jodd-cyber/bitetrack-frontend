@@ -3,7 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const SleekDatePicker = ({ value, onChange, label }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [viewDate, setViewDate] = useState(value ? new Date(value) : new Date());
+  const [viewDate, setViewDate] = useState(() => {
+    if (value) {
+      const parts = value.split('-');
+      if (parts.length === 3) return new Date(parts[0], parts[1] - 1, parts[2]);
+      return new Date(value);
+    }
+    return new Date();
+  });
   const containerRef = useRef(null);
 
   const daysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
@@ -11,8 +18,10 @@ const SleekDatePicker = ({ value, onChange, label }) => {
 
   const handleDateClick = (day) => {
     const selectedDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
-    // Format as YYYY-MM-DD for consistency with input[type="date"]
-    const formattedDate = selectedDate.toISOString().split('T')[0];
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const dayStr = String(selectedDate.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${dayStr}`;
     onChange(formattedDate);
     setIsOpen(false);
   };
@@ -35,20 +44,36 @@ const SleekDatePicker = ({ value, onChange, label }) => {
   }
 
   for (let i = 1; i <= totalDays; i++) {
-    const isSelected = value && new Date(value).toDateString() === new Date(viewDate.getFullYear(), viewDate.getMonth(), i).toDateString();
-    const isToday = new Date().toDateString() === new Date(viewDate.getFullYear(), viewDate.getMonth(), i).toDateString();
+    const isSelected = value && (() => {
+      const parts = value.split('-');
+      return parts.length === 3 && 
+             parseInt(parts[0]) === viewDate.getFullYear() && 
+             parseInt(parts[1]) === (viewDate.getMonth() + 1) && 
+             parseInt(parts[2]) === i;
+    })();
+    const today = new Date();
+    const isToday = today.getFullYear() === viewDate.getFullYear() && 
+                    today.getMonth() === viewDate.getMonth() && 
+                    today.getDate() === i;
+
+    const dateAtI = new Date(viewDate.getFullYear(), viewDate.getMonth(), i);
+    const isFuture = dateAtI > today;
 
     days.push(
       <motion.button
         key={i}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => handleDateClick(i)}
+        type="button"
+        whileHover={isFuture ? {} : { scale: 1.1 }}
+        whileTap={isFuture ? {} : { scale: 0.9 }}
+        onClick={() => !isFuture && handleDateClick(i)}
+        disabled={isFuture}
         className={`h-10 w-10 rounded-xl flex items-center justify-center text-sm transition-all ${
           isSelected
             ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg'
             : isToday
             ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-500/30'
+            : isFuture
+            ? 'text-[var(--app-text-muted)] opacity-30 cursor-not-allowed'
             : 'text-[var(--app-text)] hover:bg-[var(--app-surface-soft)]'
         }`}
       >
@@ -56,6 +81,17 @@ const SleekDatePicker = ({ value, onChange, label }) => {
       </motion.button>
     );
   }
+
+  useEffect(() => {
+    if (value) {
+      const parts = value.split('-');
+      if (parts.length === 3) {
+        setViewDate(new Date(parts[0], parts[1] - 1, parts[2]));
+      } else {
+        setViewDate(new Date(value));
+      }
+    }
+  }, [value]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -81,7 +117,21 @@ const SleekDatePicker = ({ value, onChange, label }) => {
       >
         <div className="flex items-center gap-2">
           <span>📅</span>
-          <span>{value ? new Date(value).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Select Date'}</span>
+          <span>
+            {value ? (
+              (() => {
+                const parts = value.split('-');
+                if (parts.length === 3) {
+                  return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString('en-IN', { 
+                    day: 'numeric', month: 'short', year: 'numeric' 
+                  });
+                }
+                return new Date(value).toLocaleDateString('en-IN', { 
+                  day: 'numeric', month: 'short', year: 'numeric' 
+                });
+              })()
+            ) : 'Select Date'}
+          </span>
         </div>
       </button>
 

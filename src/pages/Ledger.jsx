@@ -35,7 +35,7 @@ function Ledger() {
     }
   };
 
-  const formatCurrency = (value) => `₹${Math.floor(Number(value || 0))}`;
+  const formatCurrency = (value) => `₹${Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
 
   const formatReportDate = (dateValue) => {
     const date = new Date(dateValue);
@@ -223,7 +223,7 @@ function Ledger() {
           date: log.date ? new Date(log.date).toISOString().split('T')[0] : "",
           time: log.time || "",
           mealType: log.mealType || "Lunch",
-          amount: Math.floor(Number(log.items?.[0]?.calories || 0)),
+          amount: Number(log.amount ?? (log.items?.[0]?.calories || 0)),
           rating: Number(log.rating) || 0,
           notes: log.notes || ""
         }));
@@ -312,10 +312,14 @@ function Ledger() {
     }
   }, [budget, user?.id]);
 
+
   const [formData, setFormData] = useState({
     foodName: '',
     restaurant: '',
-    date: new Date().toISOString().split('T')[0],
+    date: (() => {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    })(),
     time: new Date().toTimeString().slice(0, 5),
     mealType: 'Lunch',
     amount: '',
@@ -329,44 +333,84 @@ function Ledger() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Future date check
+      const selectedDate = new Date(formData.date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      selectedDate.setHours(0, 0, 0, 0);
+      
+      if (selectedDate > today) {
+        alert("You cannot add or edit orders for future dates.");
+        return;
+      }
+
       const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-      const url = editingId ? `${API_BASE}/api/foodlogs/${editingId}` : `${API_BASE}/api/foodlogs`;
-      const method = editingId ? "PUT" : "POST";
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          items: [{ name: formData.foodName, calories: Math.floor(Number(formData.amount || 0)), quantity: 1 }],
-          notes: formData.notes,
+      
+      let finalRecord;
+      
+      if (token && user) {
+        // Signed-in mode: Save to API
+        const url = editingId ? `${API_BASE}/api/foodlogs/${editingId}` : `${API_BASE}/api/foodlogs`;
+        const method = editingId ? "PUT" : "POST";
+        const response = await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            items: [{ name: formData.foodName, quantity: 1 }],
+            amount: Number(formData.amount || 0),
+            notes: formData.notes,
+            restaurant: formData.restaurant,
+            mealType: formData.mealType,
+            date: formData.date,
+            time: formData.time,
+            rating: Number(formData.rating)
+          })
+        });
+        const data = await readApiBody(response);
+        if (!response.ok) throw new Error(data.message || "Save failed");
+        
+        finalRecord = {
+          id: data._id || data.id,
+          foodName: data.items?.[0]?.name || "Food",
+          restaurant: data.restaurant || "Custom Entry",
+          date: data.date ? (data.date.includes('T') ? data.date.split('T')[0] : data.date) : "",
+          time: data.time || "",
+          mealType: data.mealType || "Lunch",
+          amount: Number(data.amount ?? 0),
+          rating: Number(data.rating) || 0,
+          notes: data.notes || ""
+        };
+      } else {
+        // Guest mode: Save locally
+        finalRecord = {
+          id: editingId || Date.now().toString(),
+          foodName: formData.foodName,
           restaurant: formData.restaurant,
-          mealType: formData.mealType,
           date: formData.date,
           time: formData.time,
-          rating: Number(formData.rating)
-        })
-      });
-      const data = await readApiBody(response);
-      if (!response.ok) throw new Error(data.message || "Save failed");
-      const newRecord = {
-        id: data._id,
-        foodName: data.items?.[0]?.name || "Food",
-        restaurant: data.restaurant || "Custom Entry",
-        date: data.date ? new Date(data.date).toISOString().split('T')[0] : "",
-        time: data.time || "",
-        mealType: data.mealType || "Lunch",
-        amount: Math.floor(Number(data.items?.[0]?.calories || 0)),
-        rating: Number(data.rating) || 0,
-        notes: data.notes || ""
-      };
-      const nextRecords = editingId ? records.map(r => (r.id === editingId ? newRecord : r)) : [newRecord, ...records];
+          mealType: formData.mealType,
+          amount: Number(formData.amount || 0),
+          rating: Number(formData.rating) || 0,
+          notes: formData.notes
+        };
+      }
+
+      const nextRecords = editingId 
+        ? records.map(r => (String(r.id) === String(editingId) ? finalRecord : r)) 
+        : [finalRecord, ...records];
+      
       setRecords(nextRecords);
-      if (editingId) setEditingId(null);
+      setEditingId(null);
       setShowAddForm(false);
+      
+      // Optional: Success feedback
+      // alert(editingId ? "Order updated successfully!" : "Order added successfully!");
     } catch (err) {
-      console.error("Error:", err);
+      console.error("Error saving record:", err);
+      alert(err.message || "Failed to save record. Please try again.");
     }
   };
 
@@ -388,13 +432,16 @@ function Ledger() {
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-      await fetch(`${API_BASE}/api/foodlogs/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      if (token && user) {
+        await fetch(`${API_BASE}/api/foodlogs/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
       setRecords(records.filter(r => r.id !== id));
     } catch (err) {
       console.error("Delete failed:", err);
+      alert("Failed to delete record. Please try again.");
     }
   };
 
@@ -441,7 +488,13 @@ function Ledger() {
     setFormData({
       foodName: '',
       restaurant: '',
-      date: new Date().toISOString().split('T')[0],
+      date: (() => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      })(),
       time: new Date().toTimeString().slice(0, 5),
       mealType: 'Lunch',
       amount: '',
@@ -452,8 +505,8 @@ function Ledger() {
 
   const totalSpent = filteredRecords.reduce((sum, r) => sum + r.amount, 0);
   const orderCount = filteredRecords.length;
-  const topRestaurant = records.length > 0
-    ? Object.entries(records.reduce((acc, r) => {
+  const topRestaurant = filteredRecords.length > 0
+    ? Object.entries(filteredRecords.reduce((acc, r) => {
         acc[r.restaurant] = (acc[r.restaurant] || 0) + r.amount;
         return acc;
       }, {})).sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A"
@@ -484,7 +537,7 @@ function Ledger() {
   }).length;
   const peakPeriodLabel = weekendCount > weekdayCount ? 'Weekends' : weekdayCount > weekendCount ? 'Weekdays' : 'Balanced';
 
-  const chartData = records.reduce((acc, record) => {
+  const chartData = filteredRecords.reduce((acc, record) => {
     const date = record.date;
     const existing = acc.find(item => item.date === date);
     if (existing) {
