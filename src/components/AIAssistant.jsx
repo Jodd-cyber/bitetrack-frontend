@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import getApiBase from '../utils/apiBase';
 
 export default function AIAssistant() {
-  const { isSignedIn, token } = useAuth();
+  const { isSignedIn } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { role: 'assistant', text: "Hi! I'm BiteTrack AI. I can analyze your food logs, tell you your daily calorie needs, or give you a weekly summary. How can I help?" }
@@ -31,11 +31,13 @@ export default function AIAssistant() {
     setIsLoading(true);
 
     try {
+      const currentToken = localStorage.getItem("token") || sessionStorage.getItem("token");
+      
       const response = await fetch(`${getApiBase()}/api/ai/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${currentToken}`
         },
         body: JSON.stringify({ message: userMsg })
       });
