@@ -1407,7 +1407,7 @@ useEffect(() => {
   >
     <div
       onClick={(e) => e.stopPropagation()}
-      className="bg-[var(--app-surface)] w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-slide-up border border-[var(--app-border)]"
+      className="bg-[var(--app-surface)] w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-slide-up border border-[var(--app-border)]"
     >
       {/* Header */}
       <div className="relative px-6 py-5 border-b border-[var(--app-border)] bg-gradient-to-r from-blue-600/10 to-purple-600/10">
@@ -1435,7 +1435,7 @@ useEffect(() => {
       </div>
 
       {/* Body */}
-      <div className="p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-4">
           {[
