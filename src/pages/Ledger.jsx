@@ -260,12 +260,48 @@ function Ledger() {
       } catch (err) {
         console.error("Budget fetch failed:", err);
       }
-    };
     fetchBudget();
   }, [user]);
 
+  useEffect(() => {
+    // Check if we just returned from Google OAuth for Gmail sync
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    if (code) {
+      const handleGoogleCallback = async () => {
+        try {
+          const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+          const res = await fetch(`${API_BASE}/api/integrations/google/callback`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ 
+              code,
+              redirectUri: window.location.origin + window.location.pathname
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            alert("Gmail successfully linked! You can now sync orders.");
+          } else {
+            alert(data.message || "Failed to link Gmail.");
+          }
+          // Clean up URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (err) {
+          console.error("Error during Gmail link:", err);
+          alert("Error linking Gmail.");
+        }
+      };
+      handleGoogleCallback();
+    }
+  }, []);
+
   const [showAddForm, setShowAddForm] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
+  const [isSyncingGmail, setIsSyncingGmail] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editAmount, setEditAmount] = useState("");
@@ -482,6 +518,54 @@ function Ledger() {
     setSearchQuery('');
     setFilterMealType('all');
     setDateFilter('all');
+  };
+
+  const handleConnectGmail = async () => {
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/api/integrations/google/url`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url; // Redirect to Google OAuth
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to connect Gmail');
+    }
+  };
+
+  const handleSyncGmail = async () => {
+    setIsSyncingGmail(true);
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/api/integrations/sync-emails`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      
+      if (!res.ok) {
+        if (data.message === "Gmail not connected") {
+          if (window.confirm("Gmail is not connected. Would you like to connect it now?")) {
+            handleConnectGmail();
+          }
+          return;
+        }
+        throw new Error(data.message || 'Failed to sync');
+      }
+
+      alert(data.message);
+      if (data.newOrders > 0) {
+        fetchRecords();
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error syncing Gmail: ' + err.message);
+    } finally {
+      setIsSyncingGmail(false);
+    }
   };
 
   const openNewOrderForm = () => {
@@ -1083,6 +1167,34 @@ function Ledger() {
                 />
               </motion.label>
             </div>
+
+            <motion.button
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleSyncGmail}
+              disabled={isSyncingGmail}
+              className={`w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-medium transition-all shadow-md ${isSyncingGmail ? 'bg-orange-100 text-orange-400 cursor-not-allowed' : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white'}`}
+            >
+              {isSyncingGmail ? (
+                <>
+                  <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Syncing Inbox...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Sync Zomato/Swiggy from Gmail
+                </>
+              )}
+            </motion.button>
 
             {/* Add/Edit Form */}
             <AnimatePresence>
