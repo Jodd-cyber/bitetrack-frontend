@@ -260,6 +260,7 @@ function Ledger() {
       } catch (err) {
         console.error("Budget fetch failed:", err);
       }
+    };
     fetchBudget();
   }, [user]);
 
