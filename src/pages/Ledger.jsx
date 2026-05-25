@@ -541,6 +541,7 @@ function Ledger() {
             ...prev,
             restaurant: scanData.restaurant || '',
             date: scanData.date || prev.date,
+            time: scanData.time || prev.time,
             amount: scanData.amount || '',
             foodName: scanData.items && scanData.items.length > 0 
               ? scanData.items.map(i => i.name).join(', ') 
