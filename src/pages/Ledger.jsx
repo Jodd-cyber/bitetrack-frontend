@@ -1565,13 +1565,15 @@ function Ledger() {
                             </div>
 
                             {/* Rating */}
-                            <div className="flex gap-1 mb-2">
-                              {[1,2,3,4,5].map(star => (
-                                <span key={star} className="text-lg">
-                                  {star <= Number(record.rating || 0) ? "⭐" : "☆"}
-                                </span>
-                              ))}
-                            </div>
+                            {Number(record.rating || 0) > 0 && (
+                              <div className="flex gap-1 mb-2">
+                                {[1,2,3,4,5].map(star => (
+                                  <span key={star} className="text-lg">
+                                    {star <= Number(record.rating || 0) ? "⭐" : "☆"}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
 
                             {/* Notes */}
                             {record.notes && (
