@@ -265,6 +265,7 @@ function Ledger() {
   }, [user]);
 
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editAmount, setEditAmount] = useState("");
@@ -502,6 +503,66 @@ function Ledger() {
       rating: 0,
       notes: ''
     });
+  };
+
+  const handleScanReceipt = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsScanning(true);
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = async () => {
+        try {
+          const base64data = reader.result;
+          const base64String = base64data.split(',')[1];
+          
+          const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+          const res = await fetch(`${API_BASE}/api/ai/scan-receipt`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              imageBase64: base64String,
+              mimeType: file.type
+            })
+          });
+
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Failed to scan receipt');
+
+          const scanData = data.data;
+          
+          openNewOrderForm();
+          setFormData(prev => ({
+            ...prev,
+            restaurant: scanData.restaurant || '',
+            date: scanData.date || prev.date,
+            amount: scanData.amount || '',
+            foodName: scanData.items && scanData.items.length > 0 
+              ? scanData.items.map(i => i.name).join(', ') 
+              : '',
+            notes: scanData.items && scanData.items.length > 0 
+              ? 'Estimated Calories:\n' + scanData.items.map(i => `- ${i.name}: ${i.calories || 'Unknown'} kcal`).join('\n')
+              : ''
+          }));
+        } catch (err) {
+          console.error(err);
+          alert('Error scanning receipt: ' + err.message);
+        } finally {
+          setIsScanning(false);
+          e.target.value = '';
+        }
+      };
+    } catch (err) {
+      console.error(err);
+      alert('Error reading file');
+      setIsScanning(false);
+      e.target.value = '';
+    }
   };
 
   const totalSpent = filteredRecords.reduce((sum, r) => sum + r.amount, 0);
@@ -959,32 +1020,68 @@ function Ledger() {
           ═══════════════════════════════════════════════════ */}
           <div className="lg:col-span-1 space-y-6">
             {/* Add New Order Button */}
-            <motion.button
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                if (showAddForm) {
-                  setShowAddForm(false);
-                  setEditingId(null);
-                  return;
-                }
-                openNewOrderForm();
-              }}
-              className="rainbow-btn"
-            >
-              <span className="btn-label">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                 Add New Order
-              </span>
-              <span className="gradient-container">
-                <span className="gradient"></span>
-              </span>
-            </motion.button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <motion.button
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  if (showAddForm) {
+                    setShowAddForm(false);
+                    setEditingId(null);
+                    return;
+                  }
+                  openNewOrderForm();
+                }}
+                className="rainbow-btn flex-1"
+              >
+                <span className="btn-label">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                   Add New Order
+                </span>
+                <span className="gradient-container">
+                  <span className="gradient"></span>
+                </span>
+              </motion.button>
+
+              <motion.label
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.7 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`relative group cursor-pointer flex-1 px-6 py-4 rounded-2xl flex items-center justify-center gap-2 border-2 ${isScanning ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20' : 'border-[var(--app-border)] bg-[var(--app-surface)] hover:bg-[var(--app-surface-soft)]'} transition-all`}
+              >
+                {isScanning ? (
+                  <>
+                    <svg className="w-5 h-5 animate-spin text-blue-500" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span className="font-semibold text-blue-600 dark:text-blue-400">Scanning...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 text-[var(--app-text)] group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span className="font-semibold text-[var(--app-text)] group-hover:text-blue-500 transition-colors">Scan Receipt</span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleScanReceipt}
+                  className="hidden"
+                  disabled={isScanning}
+                />
+              </motion.label>
+            </div>
 
             {/* Add/Edit Form */}
             <AnimatePresence>
