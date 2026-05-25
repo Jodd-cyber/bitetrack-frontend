@@ -268,6 +268,7 @@ function Ledger() {
   const [editingId, setEditingId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editAmount, setEditAmount] = useState("");
+  const [saveForAllMonths, setSaveForAllMonths] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterMealType, setFilterMealType] = useState('all');
   const [dateFilter, setDateFilter] = useState(() => {
@@ -789,11 +790,22 @@ function Ledger() {
                 <div className="p-4 rounded-2xl bg-gradient-to-br from-[var(--app-surface-soft)] to-[var(--app-surface)] border border-[var(--app-border)]">
                   <p className="text-sm text-[var(--app-text-muted)] mb-2">Budget</p>
                   {isEditing ? (
-                    <input
-                      value={editAmount}
-                      onChange={(e) => setEditAmount(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
+                    <div className="flex flex-col gap-2">
+                      <input
+                        value={editAmount}
+                        onChange={(e) => setEditAmount(e.target.value)}
+                        className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                      <label className="flex items-center gap-2 text-xs text-[var(--app-text-muted)] cursor-pointer hover:text-[var(--app-text)] transition-colors">
+                        <input 
+                          type="checkbox" 
+                          checked={saveForAllMonths}
+                          onChange={(e) => setSaveForAllMonths(e.target.checked)}
+                          className="w-3 h-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500 bg-[var(--app-surface)]"
+                        />
+                        <span>Save for all future months</span>
+                      </label>
+                    </div>
                   ) : (
                     <p className="text-2xl font-bold text-[var(--app-text)]">{formatCurrency(monthlyBudget)}</p>
                   )}
@@ -850,7 +862,7 @@ function Ledger() {
                                 "Content-Type": "application/json",
                                 Authorization: `Bearer ${token}`,
                               },
-                              body: JSON.stringify({ amount: nextAmount }),
+                              body: JSON.stringify({ amount: nextAmount, saveForAllMonths }),
                             });
                             const data = await response.json();
                             if (!response.ok) throw new Error(data.message || "Update failed");

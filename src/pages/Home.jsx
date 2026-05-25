@@ -49,6 +49,7 @@ function App() {
   const [showDemo, setShowDemo] = useState(false);
   const navigate = useNavigate();
   const [monthlyBudget, setMonthlyBudget] = useState("");
+  const [saveForAllMonths, setSaveForAllMonths] = useState(false);
 const [stats, setStats] = useState({
   totalOrders: 0,
   totalSpent: 0,
@@ -79,6 +80,7 @@ const handleSaveBudget = async () => {
         },
         body: JSON.stringify({
           amount: Number(monthlyBudget),
+          saveForAllMonths,
         }),
       }
     );
@@ -1480,6 +1482,16 @@ useEffect(() => {
             onChange={(e) => setMonthlyBudget(e.target.value)}
             className="w-full px-4 py-3 rounded-xl border-2 border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] focus:border-blue-500 focus:outline-none transition-colors mb-3"
           />
+
+          <label className="flex items-center gap-2 text-sm text-[var(--app-text-muted)] cursor-pointer mb-3 ml-1 hover:text-[var(--app-text)] transition-colors">
+            <input 
+              type="checkbox" 
+              checked={saveForAllMonths}
+              onChange={(e) => setSaveForAllMonths(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 bg-[var(--app-surface)]"
+            />
+            <span>Save budget for all future months</span>
+          </label>
 
           <div className="flex gap-3">
             <button 
