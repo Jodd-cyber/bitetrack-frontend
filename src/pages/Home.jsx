@@ -281,8 +281,10 @@ useEffect(() => {
       const budgetData = await budgetRes.json();
       if (budgetRes.ok && budgetData.success && budgetData.data && budgetData.data.amount) {
         setMonthlyBudget(budgetData.data.amount);
+        setSaveForAllMonths(budgetData.data.saveForAllMonths || false);
       } else {
         setMonthlyBudget("");
+        setSaveForAllMonths(false);
       }
 
     } catch (err) {

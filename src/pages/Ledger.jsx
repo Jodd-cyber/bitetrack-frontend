@@ -843,6 +843,7 @@ function Ledger() {
                       onClick={() => {
                         setIsEditing(true);
                         setEditAmount(String(monthlyBudget));
+                        setSaveForAllMonths(budget?.saveForAllMonths || false);
                       }}
                       className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium transition-colors"
                     >
