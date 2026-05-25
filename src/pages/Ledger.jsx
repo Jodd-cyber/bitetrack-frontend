@@ -815,7 +815,9 @@ function Ledger() {
                   <p className="text-2xl font-bold text-[var(--app-text)]">{formatCurrency(monthlySpent)}</p>
                 </div>
                 <div className="p-4 rounded-2xl bg-gradient-to-br from-[var(--app-surface-soft)] to-[var(--app-surface)] border border-[var(--app-border)]">
-                  <p className="text-sm text-[var(--app-text-muted)] mb-2">Remaining</p>
+                  <p className={`text-sm mb-2 ${budgetRemaining >= 0 ? 'text-[var(--app-text-muted)]' : 'text-red-500 font-semibold'}`}>
+                    {budgetRemaining >= 0 ? 'Remaining' : 'Over Spent'}
+                  </p>
                   <p className={`text-2xl font-bold ${budgetRemaining >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                     {formatCurrency(Math.abs(budgetRemaining))}
                   </p>
