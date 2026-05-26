@@ -10,7 +10,7 @@ import Loader from "../components/Loader";
 
 function SignUp() {
   const navigate = useNavigate();
-  const { signup } = useAuth();
+  const { signup, login } = useAuth();
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -49,7 +49,12 @@ function SignUp() {
       });
       const data = await parseApiResponse(response);
       if (!response.ok) throw new Error(data.message || 'Signup failed');
-      signup(data.user.name, data.user.email, form.password);
+      
+      if (data.token) {
+        login(data.user, data.token);
+      } else {
+        signup(data.user.name, data.user.email, form.password);
+      }
       navigate('/');
     } catch (err) {
       setError(err.message);
