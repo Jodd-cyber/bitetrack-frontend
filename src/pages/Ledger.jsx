@@ -190,51 +190,52 @@ function Ledger() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
   }, [records, STORAGE_KEY]);
 
-  useEffect(() => {
-    const fetchLogs = async () => {
-      try {
-        setLoading(true);
-        setError("");
-        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-        if (!token) {
-          setError("No authentication token found");
-          setRecords(user ? [] : records);
-          setLoading(false);
-          return;
-        }
-        try {
-          localStorage.removeItem('bitetrack_records');
-          localStorage.removeItem('bitetrack_records_anon');
-        } catch { void 0; }
-        setRecords([]);
-        const res = await fetch(`${API_BASE}/api/foodlogs`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = await readApiBody(res);
-        if (!res.ok) {
-          setRecords([]);
-          throw new Error(data.message || "Failed to fetch");
-        }
-        if (!Array.isArray(data)) throw new Error('Expected array from API');
-        const formatted = data.map(log => ({
-          id: log._id,
-          foodName: log.items?.[0]?.name || "Food",
-          restaurant: log.restaurant || "Custom Entry",
-          date: log.date ? new Date(log.date).toISOString().split('T')[0] : "",
-          time: log.time || "",
-          mealType: log.mealType || "Lunch",
-          amount: Number(log.amount ?? (log.items?.[0]?.calories || 0)),
-          rating: Number(log.rating) || 0,
-          notes: log.notes || ""
-        }));
-        setRecords(formatted);
-      } catch (err) {
-        setError(err.message);
-      } finally {
+  const fetchRecords = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      if (!token) {
+        setError("No authentication token found");
+        setRecords(user ? [] : records);
         setLoading(false);
+        return;
       }
-    };
-    fetchLogs();
+      try {
+        localStorage.removeItem('bitetrack_records');
+        localStorage.removeItem('bitetrack_records_anon');
+      } catch { void 0; }
+      setRecords([]);
+      const res = await fetch(`${API_BASE}/api/foodlogs`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await readApiBody(res);
+      if (!res.ok) {
+        setRecords([]);
+        throw new Error(data.message || "Failed to fetch");
+      }
+      if (!Array.isArray(data)) throw new Error('Expected array from API');
+      const formatted = data.map(log => ({
+        id: log._id,
+        foodName: log.items?.[0]?.name || "Food",
+        restaurant: log.restaurant || "Custom Entry",
+        date: log.date ? new Date(log.date).toISOString().split('T')[0] : "",
+        time: log.time || "",
+        mealType: log.mealType || "Lunch",
+        amount: Number(log.amount ?? (log.items?.[0]?.calories || 0)),
+        rating: Number(log.rating) || 0,
+        notes: log.notes || ""
+      }));
+      setRecords(formatted);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecords();
   }, [user]);
 
   const [budget, setBudget] = useState(() => {
