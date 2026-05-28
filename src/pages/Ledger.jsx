@@ -11,6 +11,7 @@ import SleekSelect from '../components/SleekSelect';
 import SleekDatePicker from '../components/SleekDatePicker';
 import SleekTimePicker from '../components/SleekTimePicker';
 import Loader from '../components/Loader';
+import FoodBurst from '../components/FoodBurst';
 
 function Ledger() {
   const { user } = useAuth();
@@ -304,6 +305,7 @@ function Ledger() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [isSyncingGmail, setIsSyncingGmail] = useState(false);
+  const [newlyAddedId, setNewlyAddedId] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editAmount, setEditAmount] = useState("");
@@ -445,6 +447,11 @@ function Ledger() {
       setRecords(nextRecords);
       setEditingId(null);
       setShowAddForm(false);
+
+      // Trigger food burst animation on newly added orders (not edits)
+      if (!editingId && finalRecord.id) {
+        setNewlyAddedId(String(finalRecord.id));
+      }
       
       // Optional: Success feedback
       // alert(editingId ? "Order updated successfully!" : "Order added successfully!");
@@ -1520,6 +1527,11 @@ function Ledger() {
                     </motion.div>
                   ) : (
                     filteredRecords.map((record, index) => (
+                      <FoodBurst
+                        key={`burst-${record.id}`}
+                        trigger={String(record.id) === newlyAddedId}
+                        onComplete={() => setNewlyAddedId(null)}
+                      >
                       <motion.div
                         key={record.id}
                         initial={{ opacity: 0, y: 20 }}
@@ -1617,6 +1629,7 @@ function Ledger() {
                           </div>
                         </div>
                       </motion.div>
+                      </FoodBurst>
                     ))
                   )}
                 </AnimatePresence>
