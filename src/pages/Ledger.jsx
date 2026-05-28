@@ -1610,8 +1610,8 @@ function Ledger() {
         </div>
         
         <div className="relative group flex items-center justify-end">
-          <div className="absolute right-full mr-4 w-60 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg text-right">
-            Sync through Gmail for Swiggy/Zomato orders. Wait 1-2 mins to sync.
+          <div className="absolute right-full mr-4 w-72 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg text-right">
+            Sync through Gmail for Swiggy/Zomato orders. If it doesn't sync the first time, please try again. Wait 1-2 mins.
           </div>
           <button
             title="Sync Zomato/Swiggy from Gmail"
