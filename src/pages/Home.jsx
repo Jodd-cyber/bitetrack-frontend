@@ -538,13 +538,13 @@ useEffect(() => {
 
           <div className="flex items-center gap-1">
             <button 
-              onClick={() => document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => setShowFeatures(true)}
               className="Btn text-[9px] px-3 py-1.5 flex-shrink-0"
             >
               Features
             </button>
             <button 
-              onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => setShowAbout(true)}
               className="Btn text-[9px] px-3 py-1.5 flex-shrink-0"
             >
               About
@@ -688,10 +688,10 @@ useEffect(() => {
 
         {/* Navigation */}
         <nav className="flex items-center gap-4">
-          <button className="Btn" onClick={(e) => { e.preventDefault(); document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' }); }}>
+          <button className="Btn" onClick={(e) => { e.preventDefault(); setShowFeatures(true); }}>
             Features
           </button>
-          <button className="Btn" onClick={(e) => { e.preventDefault(); document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' }); }}>
+          <button className="Btn" onClick={(e) => { e.preventDefault(); setShowAbout(true); }}>
             About
           </button>
 
