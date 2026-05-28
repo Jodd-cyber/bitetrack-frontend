@@ -14,9 +14,9 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import Ledger from "./pages/Ledger";
-import RealisticFoodBackground from "./components/RealisticFoodBackground";
+// import RealisticFoodBackground from "./components/RealisticFoodBackground";
 // If you want to go back to the animated one, uncomment this and comment the above:
-// import AnimatedFoodBackground from "./components/AnimatedFoodBackground";
+import AnimatedFoodBackground from "./components/AnimatedFoodBackground";
 import AIAssistant from "./components/AIAssistant";
 
 // ✅ SIMPLE Protected Route - One source of truth
@@ -61,8 +61,8 @@ function App() {
 
   return (
     <>
-      <RealisticFoodBackground />
-      {/* <AnimatedFoodBackground /> */}
+      {/* <RealisticFoodBackground /> */}
+      <AnimatedFoodBackground />
       <AIAssistant />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
