@@ -1142,70 +1142,7 @@ function Ledger() {
                 </span>
               </motion.button>
 
-              <motion.label
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.7 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`relative group cursor-pointer flex-1 px-6 py-4 rounded-2xl flex items-center justify-center gap-2 border-2 ${isScanning ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20' : 'border-[var(--app-border)] bg-[var(--app-surface)] hover:bg-[var(--app-surface-soft)]'} transition-all`}
-              >
-                {isScanning ? (
-                  <>
-                    <svg className="w-5 h-5 animate-spin text-blue-500" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span className="font-semibold text-blue-600 dark:text-blue-400">Scanning...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5 text-[var(--app-text)] group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span className="font-semibold text-[var(--app-text)] group-hover:text-blue-500 transition-colors">Scan Receipt</span>
-                  </>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleScanReceipt}
-                  className="hidden"
-                  disabled={isScanning}
-                />
-              </motion.label>
-            </div>
-
-            <motion.button
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleSyncGmail}
-              disabled={isSyncingGmail}
-              className={`w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-medium transition-all shadow-md ${isSyncingGmail ? 'bg-orange-100 text-orange-400 cursor-not-allowed' : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white'}`}
-            >
-              {isSyncingGmail ? (
-                <>
-                  <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Syncing Inbox...
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  Sync Zomato/Swiggy from Gmail
-                </>
-              )}
-            </motion.button>
-
-            {/* Add/Edit Form */}
+            </div>            {/* Add/Edit Form */}
             <AnimatePresence>
               {showAddForm && (
                 <motion.div
@@ -1637,6 +1574,55 @@ function Ledger() {
             </motion.div>
           </div>
         </div>
+      </div>
+
+      {/* Floating Action Buttons */}
+      <div className="fixed bottom-[5.5rem] right-6 z-40 flex flex-col gap-4 items-end">
+        <label
+          title="Scan Receipt"
+          className={`cursor-pointer w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-transform hover:scale-105 ${
+            isScanning ? 'bg-blue-200' : 'bg-[var(--app-surface)] border border-[var(--app-border)] text-blue-500'
+          }`}
+        >
+          {isScanning ? (
+            <svg className="w-6 h-6 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          ) : (
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleScanReceipt}
+            className="hidden"
+            disabled={isScanning}
+          />
+        </label>
+        
+        <button
+          title="Sync Zomato/Swiggy from Gmail"
+          onClick={handleSyncGmail}
+          disabled={isSyncingGmail}
+          className={`w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-transform hover:scale-105 ${
+            isSyncingGmail ? 'bg-orange-200' : 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
+          }`}
+        >
+          {isSyncingGmail ? (
+            <svg className="w-6 h-6 animate-spin text-orange-600" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          ) : (
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          )}
+        </button>
       </div>
     </div>
   );
