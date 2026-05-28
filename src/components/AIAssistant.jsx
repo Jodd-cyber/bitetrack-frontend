@@ -144,7 +144,7 @@ export default function AIAssistant() {
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-24 right-6 z-50">
         <button
           onClick={() => setIsOpen(true)}
           className={`w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-xl flex items-center justify-center hover:scale-105 transition-transform ${isOpen ? 'hidden' : ''}`}
