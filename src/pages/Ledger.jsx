@@ -1583,7 +1583,6 @@ function Ledger() {
             Scan receipt or upload
           </div>
           <label
-            title="Scan Receipt"
             className={`cursor-pointer w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-transform hover:scale-105 ${
               isScanning ? 'bg-blue-200' : 'bg-[var(--app-surface)] border border-[var(--app-border)] text-blue-500'
             }`}
@@ -1614,7 +1613,6 @@ function Ledger() {
             Sync through Gmail for Swiggy/Zomato orders. If it doesn't sync the first time, please try again. Wait 1-2 mins.
           </div>
           <button
-            title="Sync Zomato/Swiggy from Gmail"
             onClick={handleSyncGmail}
             disabled={isSyncingGmail}
             className={`w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-transform hover:scale-105 ${
