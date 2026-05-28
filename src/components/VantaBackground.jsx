@@ -1,82 +1,166 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 
-const VantaBackground = () => {
-  const vantaRef = useRef(null);
-  const [vantaEffect, setVantaEffect] = useState(null);
+/**
+ * FoodBackground — A beautiful, food-themed animated background
+ * with floating food icons and a warm appetizing gradient.
+ * Replaces the old Vanta.js clouds background.
+ */
+
+const FOOD_ITEMS = [
+  '🍕', '🍔', '🥗', '🍎', '🥑', '🍩', '🍰', '🍣',
+  '🌮', '🍜', '🥐', '🍇', '🍓', '🥝', '🧁', '🍱',
+  '🥞', '🍝', '🥗', '🍛', '🥤', '🍪', '🌯', '🥙',
+  '🧀', '🥕', '🍌', '🥦', '🍿', '🥨',
+];
+
+const FoodBackground = () => {
+  const canvasRef = useRef(null);
+  const animationRef = useRef(null);
+  const particlesRef = useRef([]);
+  const isDarkRef = useRef(false);
+
+  // Generate stable random particles once
+  const particleConfigs = useMemo(() => {
+    return Array.from({ length: 28 }, (_, i) => ({
+      emoji: FOOD_ITEMS[i % FOOD_ITEMS.length],
+      x: Math.random(),
+      y: Math.random(),
+      size: 18 + Math.random() * 22,
+      speedX: (Math.random() - 0.5) * 0.3,
+      speedY: -0.15 - Math.random() * 0.35,
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 0.8,
+      opacity: 0.25 + Math.random() * 0.35,
+      wobbleAmp: 0.3 + Math.random() * 0.7,
+      wobbleSpeed: 0.005 + Math.random() * 0.01,
+      wobbleOffset: Math.random() * Math.PI * 2,
+    }));
+  }, []);
 
   useEffect(() => {
-    // Check if the theme is dark
-    const isDark = document.documentElement.classList.contains('dark');
-    
-    // Only initialize if scripts are loaded and it's not dark mode
-    if (!vantaEffect && window.VANTA && !isDark) {
-      setVantaEffect(
-        window.VANTA.CLOUDS({
-          el: vantaRef.current,
-          mouseControls: true,
-          touchControls: true,
-          gyroControls: false,
-          minHeight: 200.0,
-          minWidth: 200.0,
-          backgroundColor: 0xffffff,
-          skyColor: 0x68b8d7,
-          cloudColor: 0xadc1de,
-          cloudShadowColor: 0x183550,
-          sunColor: 0xff9919,
-          sunGlareColor: 0xff6633,
-          sunlightColor: 0xff9933,
-        })
-      );
-    }
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
 
-    // Handle theme changes
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class') {
-          const dark = document.documentElement.classList.contains('dark');
-          if (dark && vantaEffect) {
-            vantaEffect.destroy();
-            setVantaEffect(null);
-          } else if (!dark && !vantaEffect && window.VANTA) {
-            // Re-initialize for light mode
-            setVantaEffect(
-              window.VANTA.CLOUDS({
-                el: vantaRef.current,
-                mouseControls: true,
-                touchControls: true,
-                gyroControls: false,
-                minHeight: 200.0,
-                minWidth: 200.0,
-                backgroundColor: 0xffffff,
-                skyColor: 0x68b8d7,
-                cloudColor: 0xadc1de,
-                cloudShadowColor: 0x183550,
-                sunColor: 0xff9919,
-                sunGlareColor: 0xff6633,
-                sunlightColor: 0xff9933,
-              })
-            );
-          }
+    const updateDarkMode = () => {
+      isDarkRef.current = document.documentElement.classList.contains('dark');
+    };
+    updateDarkMode();
+
+    // Observe dark mode changes
+    const observer = new MutationObserver(() => updateDarkMode());
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Initialize particles
+    const W = () => window.innerWidth;
+    const H = () => window.innerHeight;
+
+    particlesRef.current = particleConfigs.map(p => ({
+      ...p,
+      x: p.x * W(),
+      y: p.y * H(),
+    }));
+
+    let tick = 0;
+
+    const draw = () => {
+      const w = W();
+      const h = H();
+      const dark = isDarkRef.current;
+
+      // Gradient background
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      if (dark) {
+        grad.addColorStop(0, '#1a1a2e');
+        grad.addColorStop(0.5, '#16213e');
+        grad.addColorStop(1, '#0f3460');
+      } else {
+        grad.addColorStop(0, '#fff8f0');
+        grad.addColorStop(0.3, '#fff1e6');
+        grad.addColorStop(0.7, '#ffe8d6');
+        grad.addColorStop(1, '#ffddd2');
+      }
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Decorative soft circles (bokeh effect)
+      const circles = [
+        { x: w * 0.15, y: h * 0.2, r: 120, color: dark ? 'rgba(255,140,66,0.06)' : 'rgba(255,140,66,0.10)' },
+        { x: w * 0.75, y: h * 0.15, r: 180, color: dark ? 'rgba(255,99,71,0.05)' : 'rgba(255,99,71,0.08)' },
+        { x: w * 0.5, y: h * 0.7, r: 200, color: dark ? 'rgba(255,200,87,0.04)' : 'rgba(255,200,87,0.09)' },
+        { x: w * 0.85, y: h * 0.8, r: 140, color: dark ? 'rgba(76,175,80,0.05)' : 'rgba(76,175,80,0.07)' },
+        { x: w * 0.3, y: h * 0.85, r: 160, color: dark ? 'rgba(233,150,122,0.04)' : 'rgba(233,150,122,0.08)' },
+      ];
+      for (const c of circles) {
+        const g = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, c.r);
+        g.addColorStop(0, c.color);
+        g.addColorStop(1, 'transparent');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Draw and update floating food emojis
+      tick++;
+      for (const p of particlesRef.current) {
+        const wobble = Math.sin(tick * p.wobbleSpeed + p.wobbleOffset) * p.wobbleAmp;
+
+        ctx.save();
+        ctx.translate(p.x + wobble, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+        ctx.globalAlpha = dark ? p.opacity * 0.5 : p.opacity;
+        ctx.font = `${p.size}px serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(p.emoji, 0, 0);
+        ctx.restore();
+
+        // Update position
+        p.x += p.speedX;
+        p.y += p.speedY;
+        p.rotation += p.rotSpeed;
+
+        // Wrap around
+        if (p.y < -p.size) {
+          p.y = h + p.size;
+          p.x = Math.random() * w;
         }
-      });
-    });
+        if (p.x < -p.size) p.x = w + p.size;
+        if (p.x > w + p.size) p.x = -p.size;
+      }
 
-    observer.observe(document.documentElement, { attributes: true });
+      animationRef.current = requestAnimationFrame(draw);
+    };
+
+    draw();
 
     return () => {
-      if (vantaEffect) vantaEffect.destroy();
+      cancelAnimationFrame(animationRef.current);
+      window.removeEventListener('resize', resize);
       observer.disconnect();
     };
-  }, [vantaEffect]);
+  }, [particleConfigs]);
 
   return (
-    <div 
-      ref={vantaRef} 
-      id="vanta-bg"
-      className="fixed inset-0 -z-10 transition-opacity duration-1000 html-dark-hidden"
+    <canvas
+      ref={canvasRef}
+      id="food-bg"
+      className="fixed inset-0 -z-10"
       style={{ pointerEvents: 'none' }}
     />
   );
 };
 
-export default VantaBackground;
+export default FoodBackground;

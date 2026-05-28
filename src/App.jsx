@@ -14,7 +14,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import Ledger from "./pages/Ledger";
-import VantaBackground from "./components/VantaBackground";
+import FoodBackground from "./components/VantaBackground";
 import AIAssistant from "./components/AIAssistant";
 
 // ✅ SIMPLE Protected Route - One source of truth
@@ -59,7 +59,7 @@ function App() {
 
   return (
     <>
-      <VantaBackground />
+      <FoodBackground />
       <AIAssistant />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
