@@ -86,7 +86,7 @@ html:not(.dark) select:focus {
    ═══════════════════════════════════════════════════ */
 html.dark {
   /* Base Colors - Pure Black Foundation */
-  --app-bg: #000000;
+  --app-bg: transparent;
   --app-surface: #0a0a0a;
   --app-surface-soft: #121212;
   --app-surface-hover: #1a1a1a;
