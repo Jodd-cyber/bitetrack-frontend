@@ -82,9 +82,11 @@ const FoodBackground = () => {
       // Gradient background
       const grad = ctx.createLinearGradient(0, 0, w, h);
       if (dark) {
-        grad.addColorStop(0, '#1a1a2e');
-        grad.addColorStop(0.5, '#16213e');
-        grad.addColorStop(1, '#0f3460');
+        // Warm food-themed dark palette — deep chocolate, dark burgundy, espresso
+        grad.addColorStop(0, '#1a0f0a');
+        grad.addColorStop(0.3, '#2a1810');
+        grad.addColorStop(0.6, '#1e1215');
+        grad.addColorStop(1, '#12100e');
       } else {
         grad.addColorStop(0, '#fff8f0');
         grad.addColorStop(0.3, '#fff1e6');
@@ -96,11 +98,16 @@ const FoodBackground = () => {
 
       // Decorative soft circles (bokeh effect)
       const circles = [
-        { x: w * 0.15, y: h * 0.2, r: 120, color: dark ? 'rgba(255,140,66,0.06)' : 'rgba(255,140,66,0.10)' },
-        { x: w * 0.75, y: h * 0.15, r: 180, color: dark ? 'rgba(255,99,71,0.05)' : 'rgba(255,99,71,0.08)' },
-        { x: w * 0.5, y: h * 0.7, r: 200, color: dark ? 'rgba(255,200,87,0.04)' : 'rgba(255,200,87,0.09)' },
-        { x: w * 0.85, y: h * 0.8, r: 140, color: dark ? 'rgba(76,175,80,0.05)' : 'rgba(76,175,80,0.07)' },
-        { x: w * 0.3, y: h * 0.85, r: 160, color: dark ? 'rgba(233,150,122,0.04)' : 'rgba(233,150,122,0.08)' },
+        { x: w * 0.15, y: h * 0.2, r: 120, color: dark ? 'rgba(255,140,66,0.12)' : 'rgba(255,140,66,0.10)' },
+        { x: w * 0.75, y: h * 0.15, r: 180, color: dark ? 'rgba(255,99,71,0.10)' : 'rgba(255,99,71,0.08)' },
+        { x: w * 0.5, y: h * 0.7, r: 200, color: dark ? 'rgba(255,200,87,0.08)' : 'rgba(255,200,87,0.09)' },
+        { x: w * 0.85, y: h * 0.8, r: 140, color: dark ? 'rgba(76,175,80,0.09)' : 'rgba(76,175,80,0.07)' },
+        { x: w * 0.3, y: h * 0.85, r: 160, color: dark ? 'rgba(233,150,122,0.10)' : 'rgba(233,150,122,0.08)' },
+        // Extra dark-mode warmth spots
+        ...(dark ? [
+          { x: w * 0.6, y: h * 0.35, r: 220, color: 'rgba(180,80,40,0.07)' },
+          { x: w * 0.1, y: h * 0.55, r: 170, color: 'rgba(200,120,60,0.06)' },
+        ] : []),
       ];
       for (const c of circles) {
         const g = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, c.r);
@@ -120,7 +127,7 @@ const FoodBackground = () => {
         ctx.save();
         ctx.translate(p.x + wobble, p.y);
         ctx.rotate((p.rotation * Math.PI) / 180);
-        ctx.globalAlpha = dark ? p.opacity * 0.5 : p.opacity;
+        ctx.globalAlpha = dark ? p.opacity * 0.75 : p.opacity;
         ctx.font = `${p.size}px serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
