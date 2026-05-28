@@ -1114,7 +1114,7 @@ function Ledger() {
           ═══════════════════════════════════════════════════ */}
           <div className="lg:col-span-1 space-y-6">
             {/* Add New Order Button */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-3">
               <motion.button
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
