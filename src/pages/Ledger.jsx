@@ -1463,111 +1463,106 @@ function Ledger() {
                       )}
                     </motion.div>
                   ) : (
-                    filteredRecords.map((record, index) => (
-                      <FoodBurst
-                        key={`burst-${record.id}`}
-                        trigger={String(record.id) === newlyAddedId}
-                        onComplete={() => setNewlyAddedId(null)}
-                      >
-                      <motion.div
-                        key={record.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, x: -100 }}
-                        transition={{ delay: index * 0.05 }}
-                        layout
-                        whileHover={{ y: -4, scale: 1.01 }}
-                        className="magic-card group cursor-pointer mb-4"
-                      >
-                        <div className="magic-card-inner p-6">
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                          {/* Left Content */}
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-3">
-                              <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center text-3xl">
-                                {mealIcons[record.mealType]}
+                    <div className="receipt-paper">
+                      {/* Receipt Header */}
+                      <div className="text-center border-b-2 border-dashed border-[var(--app-border)] pb-6 mb-4">
+                        <h3 className="font-mono text-2xl font-bold uppercase tracking-widest text-[var(--app-text)]">BiteTrack</h3>
+                        <p className="font-mono text-sm text-[var(--app-text-muted)] mt-1">GUEST CHECK</p>
+                        <p className="font-mono text-xs text-[var(--app-text-muted)] mt-2">Server: {user ? user.name || 'User' : 'Guest'} • Table: 42</p>
+                      </div>
+
+                      {filteredRecords.map((record, index) => (
+                        <FoodBurst
+                          key={`burst-${record.id}`}
+                          trigger={String(record.id) === newlyAddedId}
+                          onComplete={() => setNewlyAddedId(null)}
+                        >
+                          <motion.div
+                            key={record.id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                            transition={{ delay: index * 0.05 }}
+                            layout
+                            className="receipt-row group flex flex-col sm:flex-row justify-between py-4 px-2"
+                          >
+                            {/* Left Content (Receipt Item) */}
+                            <div className="flex-1 font-mono pr-4">
+                              <div className="flex justify-between items-start">
+                                <span className="font-bold uppercase text-[var(--app-text)] leading-tight">{record.foodName}</span>
+                                <span className="font-bold text-[var(--app-text)] sm:hidden">{formatCurrency(record.amount)}</span>
                               </div>
-                              <div>
-                                <h3 className="text-xl font-bold text-[var(--app-text)] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                  {record.foodName}
-                                </h3>
-                                <p className="text-sm text-[var(--app-text-muted)]">{record.restaurant}</p>
+                              <div className="text-sm text-[var(--app-text-muted)] mt-1">
+                                {record.restaurant} {record.mealType !== 'Lunch' ? `(${record.mealType})` : ''}
                               </div>
+                              <div className="text-xs text-[var(--app-text-muted)] mt-1 opacity-70">
+                                {new Date(record.date).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: '2-digit' })} {record.time}
+                              </div>
+                              
+                              {Number(record.rating || 0) > 0 && (
+                                <div className="text-xs mt-1">
+                                  {'★'.repeat(record.rating)}{'☆'.repeat(5 - record.rating)}
+                                </div>
+                              )}
+                              
+                              {record.notes && (
+                                <div className="text-xs text-[var(--app-text-muted)] mt-1 italic opacity-80">
+                                  - {record.notes}
+                                </div>
+                              )}
                             </div>
 
-                            {/* Meta Info */}
-                            <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--app-text-muted)] mb-3">
-                              <div className="flex items-center gap-1">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                {new Date(record.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            {/* Right Content (Amount & Actions) */}
+                            <div className="flex flex-row items-center justify-between mt-3 sm:mt-0 sm:flex-col sm:items-end sm:w-28 shrink-0">
+                              <div className="font-mono font-bold text-lg hidden sm:block text-[var(--app-text)]">
+                                {formatCurrency(record.amount)}
                               </div>
-                              <div className="flex items-center gap-1">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                {record.time}
+                              
+                              {/* Hover Actions */}
+                              <div className="flex items-center gap-2 w-full sm:w-auto sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                <button
+                                  type="button"
+                                  onClick={() => handleEdit(record)}
+                                  className="flex-1 sm:flex-none p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors flex items-center justify-center"
+                                  title="Edit"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDelete(record.id)}
+                                  className="flex-1 sm:flex-none p-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors flex items-center justify-center"
+                                  title="Delete"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
                               </div>
-                              <span className="px-3 py-1 bg-[var(--app-surface-soft)] rounded-full text-xs font-medium border border-[var(--app-border)]">
-                                {record.mealType}
-                              </span>
                             </div>
+                          </motion.div>
+                        </FoodBurst>
+                      ))}
 
-                            {/* Rating */}
-                            {Number(record.rating || 0) > 0 && (
-                              <div className="flex gap-1 mb-2">
-                                {[1,2,3,4,5].map(star => (
-                                  <span key={star} className="text-lg">
-                                    {star <= Number(record.rating || 0) ? "⭐" : "☆"}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-
-                            {/* Notes */}
-                            {record.notes && (
-                              <p className="text-sm text-[var(--app-text-muted)] italic px-3 py-2 bg-[var(--app-surface-soft)] rounded-xl border border-[var(--app-border)]">
-                                💬 {record.notes}
-                              </p>
-                            )}
-                          </div>
-
-                          {/* Right Content */}
-                          <div className="flex flex-row items-center justify-between gap-3 sm:flex-col sm:items-end">
-                            <div className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                              {formatCurrency(record.amount)}
-                            </div>
-                            <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() => handleEdit(record)}
-                                className="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
-                                title="Edit"
-                              >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                              </motion.button>
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() => handleDelete(record.id)}
-                                className="p-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
-                                title="Delete"
-                              >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                              </motion.button>
-                            </div>
-                          </div>
-                          </div>
+                      {/* Receipt Footer */}
+                      <div className="border-t-2 border-dashed border-[var(--app-border)] mt-4 pt-6 flex justify-between items-center font-mono">
+                        <div>
+                          <p className="text-xs text-[var(--app-text-muted)] uppercase tracking-wider mb-1">Items: {filteredRecords.length}</p>
+                          <p className="text-xl font-bold text-[var(--app-text)]">TOTAL</p>
                         </div>
-                      </motion.div>
-                      </FoodBurst>
-                    ))
+                        <div className="text-2xl font-bold text-[var(--app-text)]">
+                          {formatCurrency(totalSpent)}
+                        </div>
+                      </div>
+                      
+                      {/* Barcode Decorative */}
+                      <div className="mt-8 flex flex-col items-center opacity-60">
+                        <div className="w-3/4 h-12 bg-[var(--app-text)] flex" style={{ maskImage: 'repeating-linear-gradient(to right, black 0, black 2px, transparent 2px, transparent 4px, black 4px, black 8px, transparent 8px, transparent 10px, black 10px, black 12px, transparent 12px, transparent 14px)' }}></div>
+                        <p className="font-mono text-xs mt-2 tracking-[0.2em]">{Math.random().toString().slice(2, 14)}</p>
+                      </div>
+                    </div>
                   )}
                 </AnimatePresence>
               </div>

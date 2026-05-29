@@ -1782,3 +1782,55 @@ html.dark .pdf-btn {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ═══════════════════════════════════════════════════
+   RECEIPT LEDGER STYLES
+   ═══════════════════════════════════════════════════ */
+.receipt-paper {
+  background-color: var(--app-surface-soft);
+  position: relative;
+  padding: 40px 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  font-family: 'Courier New', Courier, monospace;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+html.dark .receipt-paper {
+  box-shadow: 0 10px 30px rgba(0,255,255,0.05);
+}
+
+.receipt-paper::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: radial-gradient(circle at 10px 0, transparent 10px, var(--app-surface-soft) 11px) repeat-x;
+  background-size: 20px 10px;
+}
+
+.receipt-paper::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: radial-gradient(circle at 10px 10px, transparent 10px, var(--app-surface-soft) 11px) repeat-x;
+  background-size: 20px 10px;
+}
+
+.receipt-row {
+  border-bottom: 2px dashed var(--app-border);
+  transition: all 0.2s ease;
+}
+
+.receipt-row:last-child {
+  border-bottom: none;
+}
+
+.receipt-row:hover {
+  background-color: var(--app-accent-soft);
+}
