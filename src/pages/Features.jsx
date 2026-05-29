@@ -62,6 +62,21 @@ function Features() {
               desc: "Remove any entry permanently from your account."
             },
             {
+              icon: "🤖",
+              title: "AI Assistant",
+              desc: "Chat with AI for personalized health & diet recommendations."
+            },
+            {
+              icon: "📧",
+              title: "Email Sync",
+              desc: "Auto-sync food orders & receipts directly from your inbox."
+            },
+            {
+              icon: "🧾",
+              title: "Receipt Scanner",
+              desc: "Scan physical receipts to log orders instantly without typing."
+            },
+            {
               icon: "🔐",
               title: "User Authentication",
               desc: "Your data is private and tied to your personal account."

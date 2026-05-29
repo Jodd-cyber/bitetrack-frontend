@@ -1156,6 +1156,27 @@ useEffect(() => {
           iconBg: 'from-orange-500 to-red-500', 
           highlights: ['Top 5 restaurants', 'Average order cost', 'Visit frequency'] 
         },
+        {
+          title: 'AI ASSISTANT',
+          desc: 'Chat with our intelligent AI to get personalized health and diet recommendations.',
+          icon: '🤖',
+          iconBg: 'from-teal-500 to-emerald-500',
+          highlights: ['Diet suggestions', 'Health tips', 'Personalized advice']
+        },
+        {
+          title: 'EMAIL SYNC',
+          desc: 'Automatically sync your food orders and receipts directly from your email inbox.',
+          icon: '📧',
+          iconBg: 'from-amber-500 to-orange-500',
+          highlights: ['Auto-import', 'Gmail integration', 'Seamless tracking']
+        },
+        {
+          title: 'RECEIPT SCANNER',
+          desc: 'Scan your physical food receipts to log orders instantly without manual entry.',
+          icon: '🧾',
+          iconBg: 'from-fuchsia-500 to-pink-500',
+          highlights: ['Instant scanning', 'OCR tech', 'Quick logging']
+        },
         { 
           title: 'MEAL CATEGORIES', 
           desc: 'Organize your spending by breakfast, lunch, dinner, or custom tags.', 
@@ -2045,6 +2066,24 @@ useEffect(() => {
               title: 'Monthly Budget',
               content: 'Set your monthly food budget and track spending against it. Stay within your limits with clear progress indicators.',
               color: 'from-purple-500 to-pink-500'
+            },
+            {
+              icon: '🤖',
+              title: 'AI Assistant',
+              content: 'Chat with our intelligent AI to get personalized health and diet recommendations based on your food log.',
+              color: 'from-teal-500 to-emerald-500'
+            },
+            {
+              icon: '📧',
+              title: 'Email Sync',
+              content: 'Automatically sync your food orders and receipts directly from your email inbox for seamless tracking.',
+              color: 'from-amber-500 to-orange-500'
+            },
+            {
+              icon: '🧾',
+              title: 'Receipt Scanner',
+              content: 'Scan your physical food receipts to log orders instantly without any manual data entry.',
+              color: 'from-fuchsia-500 to-pink-500'
             },
             {
               icon: '📱',
