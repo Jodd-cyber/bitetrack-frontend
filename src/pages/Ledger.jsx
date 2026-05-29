@@ -1,4 +1,4 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from "recharts";
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,6 +12,34 @@ import SleekDatePicker from '../components/SleekDatePicker';
 import SleekTimePicker from '../components/SleekTimePicker';
 import Loader from '../components/Loader';
 import FoodBurst from '../components/FoodBurst';
+
+const CustomFoodBar = (props) => {
+  const { x, y, width, height } = props;
+  const foodEmojis = ['🍔', '🍕', '🍣', '🥞', '🌮', '🍩'];
+  // Ensure same emoji for a bar
+  const emoji = foodEmojis[Math.floor(x) % foodEmojis.length] || '🍔'; 
+  
+  const itemHeight = 24;
+  const count = Math.max(1, Math.floor(height / itemHeight));
+  
+  const stack = [];
+  for (let i = 0; i < count; i++) {
+    stack.push(
+      <text 
+        key={i} 
+        x={x + width / 2} 
+        y={y + height - (i * itemHeight) - (itemHeight/2)} 
+        textAnchor="middle" 
+        dominantBaseline="middle"
+        fontSize={Math.min(width, 24)}
+        style={{ filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.2))' }}
+      >
+        {emoji}
+      </text>
+    );
+  }
+  return <g>{stack}</g>;
+};
 
 function Ledger() {
   const { user } = useAuth();
@@ -312,6 +340,8 @@ function Ledger() {
   const [saveForAllMonths, setSaveForAllMonths] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterMealType, setFilterMealType] = useState('all');
+  const [isAddOrderBursting, setIsAddOrderBursting] = useState(false);
+  const [isBudgetBursting, setIsBudgetBursting] = useState(false);
   const [dateFilter, setDateFilter] = useState(() => {
     try {
       const filterKey = `bitetrack_date_filter_${user?.id || 'temp'}`;
@@ -446,11 +476,17 @@ function Ledger() {
       
       setRecords(nextRecords);
       setEditingId(null);
-      setShowAddForm(false);
 
       // Trigger food burst animation on newly added orders (not edits)
       if (!editingId && finalRecord.id) {
         setNewlyAddedId(String(finalRecord.id));
+        setIsAddOrderBursting(true);
+        setTimeout(() => {
+          setIsAddOrderBursting(false);
+          setShowAddForm(false);
+        }, 1200);
+      } else {
+        setShowAddForm(false);
       }
       
       // Optional: Success feedback
@@ -704,6 +740,14 @@ function Ledger() {
     return acc;
   }, []);
 
+  const pieData = Object.entries(filteredRecords.reduce((acc, record) => {
+    acc[record.mealType] = (acc[record.mealType] || 0) + record.amount;
+    return acc;
+  }, {})).map(([name, value]) => ({ name, value }));
+
+  const pieColors = ['#f87171', '#fbbf24', '#34d399', '#60a5fa'];
+  const pieToppings = ['🍅', '🧀', '🌿', '🍄'];
+
   return (
     <div className={`min-h-screen bg-[var(--app-bg)] ${loading ? 'overflow-hidden' : ''}`}>
       {loading && <Loader text="Loading your data..." />}
@@ -900,12 +944,66 @@ function Ledger() {
               />
               <Bar
                 dataKey="amount"
-                fill="url(#colorAmount)"
-                radius={[12, 12, 0, 0]}
+                shape={<CustomFoodBar />}
               />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
+
+        {/* ═══════════════════════════════════════════════════
+            PIE CHART (PIZZA STYLE)
+        ═══════════════════════════════════════════════════ */}
+        {pieData.length > 0 && (
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.35 }}
+            className="bg-[var(--app-surface)] p-6 rounded-3xl shadow-lg border border-[var(--app-border)] mb-8 flex flex-col md:flex-row items-center justify-between"
+          >
+            <div className="md:w-1/3 mb-6 md:mb-0">
+              <h2 className="text-xl font-bold text-[var(--app-text)] mb-1">Category Breakdown</h2>
+              <p className="text-sm text-[var(--app-text-muted)]">Your spending by meal type</p>
+              <div className="mt-6 space-y-3">
+                {pieData.map((entry, index) => (
+                  <div key={entry.name} className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: pieColors[index % pieColors.length] }}></span>
+                    <span className="text-sm font-medium text-[var(--app-text)]">{entry.name}</span>
+                    <span className="text-sm text-[var(--app-text-muted)] ml-auto">{formatCurrency(entry.value)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="md:w-2/3 h-64 relative">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={0}
+                    outerRadius={100}
+                    dataKey="value"
+                    stroke="#fff"
+                    strokeWidth={2}
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value) => [formatCurrency(value), "Spent"]}
+                    contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              {/* Pizza Crust Decoration */}
+              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                <div className="w-[216px] h-[216px] rounded-full border-[8px] border-orange-400 opacity-50 z-10" style={{ boxShadow: 'inset 0 0 10px rgba(0,0,0,0.2)' }}></div>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* ═══════════════════════════════════════════════════
             ENHANCED BUDGET CARD
@@ -1025,8 +1123,12 @@ function Ledger() {
                             const data = await response.json();
                             if (!response.ok) throw new Error(data.message || "Update failed");
                             setBudget(data.data);
-                            setIsEditing(false);
-                            setEditAmount("");
+                            setIsBudgetBursting(true);
+                            setTimeout(() => {
+                              setIsBudgetBursting(false);
+                              setIsEditing(false);
+                              setEditAmount("");
+                            }, 1200);
                           } catch (err) {
                             console.error("Update error:", err);
                             alert("Error updating budget");
@@ -1034,7 +1136,9 @@ function Ledger() {
                         }}
                         className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-colors"
                       >
-                        Save
+                        <FoodBurst trigger={isBudgetBursting} onComplete={() => setIsBudgetBursting(false)}>
+                          <span className="block px-2">{isBudgetBursting ? 'Saved!' : 'Save'}</span>
+                        </FoodBurst>
                       </button>
                       <button
                         onClick={async () => {
@@ -1282,14 +1386,19 @@ function Ledger() {
                     </div>
 
                     {/* Submit Button */}
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="submit"
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
-                    >
-                      {editingId ? '💾 Update Order' : '✅ Add Order'}
-                    </motion.button>
+                    <div className="relative">
+                      <FoodBurst trigger={isAddOrderBursting} onComplete={() => setIsAddOrderBursting(false)}>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          type="submit"
+                          disabled={isAddOrderBursting}
+                          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                        >
+                          {isAddOrderBursting ? '🎉 Success!' : (editingId ? '💾 Update Order' : '✅ Add Order')}
+                        </motion.button>
+                      </FoodBurst>
+                    </div>
                     </form>
                   </div>
                 </motion.div>
@@ -1572,7 +1681,7 @@ function Ledger() {
       </div>
 
       {/* Floating Action Buttons */}
-      <div className="fixed bottom-[5.5rem] right-6 z-40 flex flex-col gap-4 items-end">
+      <div className="fixed bottom-44 right-6 z-40 flex flex-col gap-4 items-end">
         <div className="relative group flex items-center justify-end">
           <div className="absolute right-full mr-4 w-max px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg whitespace-nowrap">
             Scan receipt or upload
