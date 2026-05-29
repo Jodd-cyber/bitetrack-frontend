@@ -10,7 +10,7 @@ import ProfileModal from "../components/ProfileModal";
 
 function App() {
   const { isSignedIn, user, login, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, darkMode } = useTheme();
   const API_BASE = getApiBase();
   const storedToken = localStorage.getItem("token") || sessionStorage.getItem("token");
   let storedUser = null;
