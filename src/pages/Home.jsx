@@ -7,6 +7,7 @@ import { useTheme } from "../context/ThemeContext.jsx";
 import { useEffect } from "react";
 import getApiBase from "../utils/apiBase";
 import ProfileModal from "../components/ProfileModal";
+import ThemeSelector from "../components/ThemeSelector";
 
 function App() {
   const { isSignedIn, user, login, logout } = useAuth();
@@ -606,16 +607,7 @@ useEffect(() => {
                           <div className="flex-1 text-left">
                             <p className="text-xs font-medium text-[var(--app-text)]">Theme</p>
                           </div>
-                          <select 
-                            value={theme}
-                            onChange={(e) => setTheme(e.target.value)}
-                            className="bg-[var(--app-surface-soft)] text-xs text-[var(--app-text)] border border-[var(--app-border)] rounded-md px-2 py-1 outline-none cursor-pointer shadow-sm focus:ring-1 focus:ring-blue-500/50"
-                          >
-                            <option value="matcha">Matcha 🍵</option>
-                            <option value="spicy">Spicy 🌶️</option>
-                            <option value="midnight-snack">Midnight 🌙</option>
-                            <option value="cafe">Café ☕</option>
-                          </select>
+                          <ThemeSelector />
                         </div>
 
                         {/* Stats Button */}
@@ -770,16 +762,7 @@ useEffect(() => {
                             <p className="text-sm font-medium text-[var(--app-text)]">Theme</p>
                             <p className="text-xs text-[var(--app-text-muted)]">{darkMode ? 'Dark mode' : 'Light mode'}</p>
                           </div>
-                          <select 
-                            value={theme}
-                            onChange={(e) => setTheme(e.target.value)}
-                            className="bg-[var(--app-surface-soft)] text-xs text-[var(--app-text)] border border-[var(--app-border)] rounded-md px-2 py-1 outline-none cursor-pointer shadow-sm focus:ring-1 focus:ring-blue-500/50"
-                          >
-                            <option value="matcha">Matcha 🍵</option>
-                            <option value="spicy">Spicy 🌶️</option>
-                            <option value="midnight-snack">Midnight 🌙</option>
-                            <option value="cafe">Café ☕</option>
-                          </select>
+                          <ThemeSelector />
                         </div>
 
                         {/* Stats */}
