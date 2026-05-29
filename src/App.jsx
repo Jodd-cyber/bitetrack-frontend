@@ -18,6 +18,7 @@ import Ledger from "./pages/Ledger";
 // If you want to go back to the animated one, uncomment this and comment the above:
 import AnimatedFoodBackground from "./components/AnimatedFoodBackground";
 import AIAssistant from "./components/AIAssistant";
+import CursorTrail from "./components/CursorTrail";
 
 // ✅ SIMPLE Protected Route - One source of truth
 function ProtectedRoute({ element }) {
@@ -61,6 +62,7 @@ function App() {
 
   return (
     <>
+      <CursorTrail />
       {/* <RealisticFoodBackground /> */}
       <AnimatedFoodBackground />
       <AIAssistant />

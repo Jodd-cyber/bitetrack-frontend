@@ -3,19 +3,18 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext();
 
-const readStoredDarkMode = () => {
-  const saved = localStorage.getItem('darkMode');
+const THEMES = ['matcha', 'spicy', 'midnight-snack', 'cafe'];
 
-  if (!saved) {
-    return false;
+const readStoredTheme = () => {
+  const saved = localStorage.getItem('bitetrack_theme');
+  if (saved && THEMES.includes(saved)) {
+    return saved;
   }
-
-  try {
-    return JSON.parse(saved);
-  } catch {
-    localStorage.removeItem('darkMode');
-    return false;
+  // Fallback to legacy dark mode check or default to cafe
+  if (localStorage.getItem('darkMode') === 'true') {
+    return 'midnight-snack';
   }
+  return 'cafe';
 };
 
 export const useTheme = () => {
@@ -27,21 +26,25 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [darkMode, setDarkMode] = useState(() => {
-    return readStoredDarkMode();
-  });
+  const [theme, setTheme] = useState(() => readStoredTheme());
 
   useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(darkMode));
-    document.documentElement.classList.toggle('dark', darkMode);
-  }, [darkMode]);
+    localStorage.setItem('bitetrack_theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'midnight-snack');
+  }, [theme]);
 
   const toggleTheme = () => {
-    setDarkMode(prev => !prev);
+    setTheme(prev => {
+      const idx = THEMES.indexOf(prev);
+      return THEMES[(idx + 1) % THEMES.length];
+    });
   };
 
+  const darkMode = theme === 'midnight-snack';
+
   return (
-    <ThemeContext.Provider value={{ darkMode, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, darkMode }}>
       {children}
     </ThemeContext.Provider>
   );

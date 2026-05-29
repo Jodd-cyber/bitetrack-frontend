@@ -8,12 +8,9 @@ import { useEffect } from "react";
 import getApiBase from "../utils/apiBase";
 import ProfileModal from "../components/ProfileModal";
 
-
-
-
 function App() {
   const { isSignedIn, user, login, logout } = useAuth();
-  const { darkMode, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const API_BASE = getApiBase();
   const storedToken = localStorage.getItem("token") || sessionStorage.getItem("token");
   let storedUser = null;
@@ -609,24 +606,16 @@ useEffect(() => {
                           <div className="flex-1 text-left">
                             <p className="text-xs font-medium text-[var(--app-text)]">Theme</p>
                           </div>
-                          <label className="cosmic-toggle scale-75">
-                            <input 
-                              type="checkbox" 
-                              className="toggle" 
-                              checked={darkMode} 
-                              onChange={toggleTheme} 
-                            />
-                            <div className="slider">
-                              <div className="toggle-orb">
-                                <div className="inner-orb"></div>
-                              </div>
-                              <div className="particles">
-                                {[30, 90, 150, 210, 270, 330].map(angle => (
-                                  <div key={angle} style={{"--angle": `${angle}deg`}} className="particle"></div>
-                                ))}
-                              </div>
-                            </div>
-                          </label>
+                          <select 
+                            value={theme}
+                            onChange={(e) => setTheme(e.target.value)}
+                            className="bg-[var(--app-surface-soft)] text-xs text-[var(--app-text)] border border-[var(--app-border)] rounded-md px-2 py-1 outline-none cursor-pointer shadow-sm focus:ring-1 focus:ring-blue-500/50"
+                          >
+                            <option value="matcha">Matcha 🍵</option>
+                            <option value="spicy">Spicy 🌶️</option>
+                            <option value="midnight-snack">Midnight 🌙</option>
+                            <option value="cafe">Café ☕</option>
+                          </select>
                         </div>
 
                         {/* Stats Button */}
@@ -781,32 +770,16 @@ useEffect(() => {
                             <p className="text-sm font-medium text-[var(--app-text)]">Theme</p>
                             <p className="text-xs text-[var(--app-text-muted)]">{darkMode ? 'Dark mode' : 'Light mode'}</p>
                           </div>
-                          <label className="cosmic-toggle">
-                            <input 
-                              type="checkbox" 
-                              className="toggle" 
-                              checked={darkMode}
-                              onChange={toggleTheme}
-                            />
-                            <div className="slider">
-                              <div className="cosmos"></div>
-                              <div className="energy-line"></div>
-                              <div className="energy-line"></div>
-                              <div className="energy-line"></div>
-                              <div className="toggle-orb">
-                                <div className="inner-orb"></div>
-                                <div className="ring"></div>
-                              </div>
-                              <div className="particles">
-                                <div style={{"--angle": "30deg"}} className="particle"></div>
-                                <div style={{"--angle": "60deg"}} className="particle"></div>
-                                <div style={{"--angle": "90deg"}} className="particle"></div>
-                                <div style={{"--angle": "120deg"}} className="particle"></div>
-                                <div style={{"--angle": "150deg"}} className="particle"></div>
-                                <div style={{"--angle": "180deg"}} className="particle"></div>
-                              </div>
-                            </div>
-                          </label>
+                          <select 
+                            value={theme}
+                            onChange={(e) => setTheme(e.target.value)}
+                            className="bg-[var(--app-surface-soft)] text-xs text-[var(--app-text)] border border-[var(--app-border)] rounded-md px-2 py-1 outline-none cursor-pointer shadow-sm focus:ring-1 focus:ring-blue-500/50"
+                          >
+                            <option value="matcha">Matcha 🍵</option>
+                            <option value="spicy">Spicy 🌶️</option>
+                            <option value="midnight-snack">Midnight 🌙</option>
+                            <option value="cafe">Café ☕</option>
+                          </select>
                         </div>
 
                         {/* Stats */}

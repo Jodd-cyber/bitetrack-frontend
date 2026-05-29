@@ -7,6 +7,7 @@ html {
 }
 
 :root {
+  /* Fallback / Default Light Theme (Matches legacy state) */
   --app-bg: transparent;
   --app-surface: rgba(255, 255, 255, 0.5);
   --app-surface-soft: rgba(255, 255, 255, 0.7);
@@ -19,6 +20,67 @@ html {
   --app-accent-hover: #2563eb;
   --app-border: rgba(255, 255, 255, 0.3);
   --app-shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* 🍵 MATCHA THEME */
+html[data-theme="matcha"] {
+  --app-surface: rgba(240, 253, 244, 0.85); /* green-50 */
+  --app-surface-soft: rgba(220, 252, 231, 0.9); /* green-100 */
+  --app-surface-hover: rgba(187, 247, 208, 0.9); /* green-200 */
+  --app-text: #14532d; /* green-900 */
+  --app-text-soft: #166534; /* green-800 */
+  --app-text-muted: #15803d; /* green-700 */
+  --app-accent: #22c55e; /* green-500 */
+  --app-accent-soft: rgba(34, 197, 94, 0.2);
+  --app-accent-hover: #16a34a; /* green-600 */
+  --app-border: rgba(34, 197, 94, 0.3);
+  --app-shadow: rgba(20, 83, 45, 0.1);
+}
+
+/* 🌶️ SPICY THEME */
+html[data-theme="spicy"] {
+  --app-surface: rgba(254, 242, 242, 0.85);
+  --app-surface-soft: rgba(254, 226, 226, 0.9);
+  --app-surface-hover: rgba(254, 202, 202, 0.9);
+  --app-text: #7f1d1d;
+  --app-text-soft: #991b1b;
+  --app-text-muted: #b91c1c;
+  --app-accent: #ef4444;
+  --app-accent-soft: rgba(239, 68, 68, 0.2);
+  --app-accent-hover: #dc2626;
+  --app-border: rgba(239, 68, 68, 0.3);
+  --app-shadow: rgba(127, 29, 29, 0.1);
+}
+
+/* 🌙 MIDNIGHT SNACK THEME (Dark) */
+/* Override the legacy .dark variables explicitly */
+html[data-theme="midnight-snack"] {
+  --app-surface: rgba(15, 23, 42, 0.85) !important;
+  --app-surface-soft: rgba(30, 41, 59, 0.9) !important;
+  --app-surface-hover: rgba(51, 65, 85, 0.9) !important;
+  --app-text: #f8fafc !important;
+  --app-text-soft: #f1f5f9 !important;
+  --app-text-muted: #cbd5e1 !important;
+  --app-accent: #8b5cf6 !important;
+  --app-accent-soft: rgba(139, 92, 246, 0.2) !important;
+  --app-accent-hover: #7c3aed !important;
+  --app-border: rgba(139, 92, 246, 0.3) !important;
+  --app-shadow: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ☕ CAFÉ THEME */
+html[data-theme="cafe"] {
+  --app-surface: rgba(254, 252, 232, 0.85);
+  --app-surface-soft: rgba(254, 249, 195, 0.9);
+  --app-surface-hover: rgba(254, 240, 138, 0.9);
+  --app-text: #422006;
+  --app-text-soft: #713f12;
+  --app-text-muted: #854d0e;
+  --app-accent: #d97706;
+  --app-accent-soft: rgba(217, 119, 6, 0.2);
+  --app-accent-hover: #b45309;
+  --app-border: rgba(217, 119, 6, 0.3);
+  --app-shadow: rgba(66, 32, 6, 0.1);
 }
 
 /* Glassmorphism Theme Surface Tuning */
@@ -1833,4 +1895,19 @@ html.dark .receipt-paper {
 
 .receipt-row:hover {
   background-color: var(--app-accent-soft);
+}
+
+@keyframes crumbFadeOut {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.5);
+  }
+}
+
+.animate-fade-out {
+  animation: crumbFadeOut 1s forwards;
 }
