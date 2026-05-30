@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { parseApiResponse } from "../utils/apiResponse";
 import getApiBase from "../utils/apiBase";
@@ -17,6 +17,10 @@ function SignUp() {
   const [error, setError] = useState('');
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
+
+  useEffect(() => {
+    document.title = "Sign Up | BiteTrack";
+  }, []);
 
   const handleOAuthRedirect = async (url) => {
     if (isSubmitting || isRedirecting) return;

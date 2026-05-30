@@ -181,6 +181,10 @@ const handleDeleteBudget = async () => {
     setProfileStats({ age: '', height: '', weight: '', gender: '', goal: '' });
   };
 
+  useEffect(() => {
+    document.title = "Home | BiteTrack";
+  }, []);
+
   // 👇 PASTE HERE (below handleLogout)
 useEffect(() => {
   if (!showStats) return;

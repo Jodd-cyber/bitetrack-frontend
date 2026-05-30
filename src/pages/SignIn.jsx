@@ -21,6 +21,10 @@ function SignIn() {
   const [rememberMe, setRememberMe] = useState(false);
 const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => {
+    document.title = "Sign In | BiteTrack";
+  }, []);
+
   // ✅ Auto-redirect if already signed in (e.g. after OAuth stored token)
   useEffect(() => {
     const hasToken = localStorage.getItem("token") || sessionStorage.getItem("token");

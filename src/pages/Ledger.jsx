@@ -219,6 +219,10 @@ function Ledger() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
   }, [records, STORAGE_KEY]);
 
+  useEffect(() => {
+    document.title = "Ledger | BiteTrack";
+  }, []);
+
   const fetchRecords = async () => {
     try {
       setLoading(true);
