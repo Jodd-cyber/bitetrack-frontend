@@ -519,7 +519,7 @@ useEffect(() => {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="mx-2 md:mx-4 mt-4 px-2 md:px-4 py-4 sticky top-4 bg-[var(--app-surface)]/95 backdrop-blur-xl z-40 dark:border dark:border-[var(--app-border)] shadow-xl rounded-2xl md:rounded-full sm:px-6"
+      className="mx-2 md:mx-4 mt-4 px-2 md:px-4 py-4 sticky top-4 z-40 dark:border dark:border-[var(--app-border)] rounded-2xl md:rounded-full sm:px-6 liquid-glass-navbar"
     >
       {/* Mobile & Tablet Header (Merged & Enhanced) */}
       <div className="md:hidden flex flex-col gap-3 py-1">

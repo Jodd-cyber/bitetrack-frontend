@@ -16,7 +16,7 @@ function LearnMore() {
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100">
       <div className="mx-auto max-w-6xl">
         {/* Header */}
-        <header className="px-6 py-6 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-xl z-50 border-b border-gray-100 animate-slide-down">
+        <header className="px-6 py-6 flex items-center justify-between sticky top-0 z-50 border-b border-gray-100 animate-slide-down liquid-glass-navbar">
           <div className="flex items-center gap-2 group cursor-pointer">
             <div className="w-8 h-8 bg-gradient-to-br from-gray-900 to-gray-700 rounded-lg flex items-center justify-center text-white text-sm font-bold group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
               B
