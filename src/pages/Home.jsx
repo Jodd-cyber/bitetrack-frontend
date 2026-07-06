@@ -2253,7 +2253,7 @@ useEffect(() => {
             © {new Date().getFullYear()} BiteTrack. All rights reserved.
           </span>
           <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            <span className="w-3.5 h-3.5 rounded-full animate-pulse liquid-glass-circle flex-shrink-0"></span>
             <span>All systems operational</span>
           </div>
         </div>

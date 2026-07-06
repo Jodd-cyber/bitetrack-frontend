@@ -68,7 +68,7 @@ function App() {
           <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
             <feTurbulence 
               type="fractalNoise" 
-              baseFrequency="0.03 0.03"
+              baseFrequency="0.012 0.012"
               numOctaves="2" 
               seed="92" 
               result="noise" 
@@ -81,7 +81,7 @@ function App() {
             <feDisplacementMap 
               in="SourceGraphic" 
               in2="blurred" 
-              scale="140"
+              scale="85"
               xChannelSelector="R" 
               yChannelSelector="G" 
             />
